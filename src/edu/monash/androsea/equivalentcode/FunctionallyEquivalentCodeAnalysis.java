@@ -52,11 +52,11 @@ public class FunctionallyEquivalentCodeAnalysis
                 	continue;
                 }
 
-                if (ms1.isPrivate || ms1.isInternal || ms1.isHidden || ms1.isAbstract || ms1.isNative ||
-                	ms2.isPrivate || ms2.isInternal || ms2.isHidden || ms2.isAbstract || ms2.isNative)
-                {
-                	continue;
-                }
+//                if (ms1.isPrivate || ms1.isInternal || ms1.isHidden || ms1.isAbstract || ms1.isNative ||
+//                	ms2.isPrivate || ms2.isInternal || ms2.isHidden || ms2.isAbstract || ms2.isNative)
+//                {
+//                	continue;
+//                }
                 
             	if (isSameMod(ms1, ms2)) {
             		modSb.append("Method Modifier: " + getUnifiedMod(ms1) + "\n");
