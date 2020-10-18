@@ -1,0 +1,4423 @@
+Find a silently evolved API code:android.telephony.ServiceState.fillInNotifierBundle:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Set intent notifier Bundle based on service state.
+ *
+ * @param m intent notifier Bundle
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    m.putInt("voiceRegState", mVoiceRegState);
+    m.putInt("dataRegState", mDataRegState);
+    m.putInt("voiceRoamingType", mVoiceRoamingType);
+    m.putInt("dataRoamingType", mDataRoamingType);
+    m.putString("operator-alpha-long", mVoiceOperatorAlphaLong);
+    m.putString("operator-alpha-short", mVoiceOperatorAlphaShort);
+    m.putString("operator-numeric", mVoiceOperatorNumeric);
+    m.putString("data-operator-alpha-long", mDataOperatorAlphaLong);
+    m.putString("data-operator-alpha-short", mDataOperatorAlphaShort);
+    m.putString("data-operator-numeric", mDataOperatorNumeric);
+    m.putBoolean("manual", Boolean.valueOf(mIsManualNetworkSelection));
+    m.putInt("radioTechnology", mRilVoiceRadioTechnology);
+    m.putInt("dataRadioTechnology", mRilDataRadioTechnology);
+    m.putBoolean("cssIndicator", mCssIndicator);
+    m.putInt("networkId", mNetworkId);
+    m.putInt("systemId", mSystemId);
+    m.putInt("cdmaRoamingIndicator", mCdmaRoamingIndicator);
+    m.putInt("cdmaDefaultRoamingIndicator", mCdmaDefaultRoamingIndicator);
+    m.putBoolean("emergencyOnly", Boolean.valueOf(mIsEmergencyOnly));
+    m.putBoolean("isDataRoamingFromRegistration", Boolean.valueOf(mIsDataRoamingFromRegistration));
+}
+Body of Second Method:
+{
+    m.putInt("voiceRegState", mVoiceRegState);
+    m.putInt("dataRegState", mDataRegState);
+    m.putInt("voiceRoamingType", mVoiceRoamingType);
+    m.putInt("dataRoamingType", mDataRoamingType);
+    m.putString("operator-alpha-long", mVoiceOperatorAlphaLong);
+    m.putString("operator-alpha-short", mVoiceOperatorAlphaShort);
+    m.putString("operator-numeric", mVoiceOperatorNumeric);
+    m.putString("data-operator-alpha-long", mDataOperatorAlphaLong);
+    m.putString("data-operator-alpha-short", mDataOperatorAlphaShort);
+    m.putString("data-operator-numeric", mDataOperatorNumeric);
+    m.putBoolean("manual", Boolean.valueOf(mIsManualNetworkSelection));
+    m.putInt("radioTechnology", mRilVoiceRadioTechnology);
+    m.putInt("dataRadioTechnology", mRilDataRadioTechnology);
+    m.putBoolean("cssIndicator", mCssIndicator);
+    m.putInt("networkId", mNetworkId);
+    m.putInt("systemId", mSystemId);
+    m.putInt("cdmaRoamingIndicator", mCdmaRoamingIndicator);
+    m.putInt("cdmaDefaultRoamingIndicator", mCdmaDefaultRoamingIndicator);
+    m.putBoolean("emergencyOnly", Boolean.valueOf(mIsEmergencyOnly));
+    m.putBoolean("isDataRoamingFromRegistration", Boolean.valueOf(mIsDataRoamingFromRegistration));
+    m.putBoolean("isUsingCarrierAggregation", Boolean.valueOf(mIsUsingCarrierAggregation));
+}
+------------------------
+Find a silently evolved API code:android.telecom.ConferenceParticipant.toString:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Builds a string representation of this instance.
+ *
+ * @return String representing the conference participant.
+ */
+
+Body of Frist Method:
+{
+    StringBuilder sb = new StringBuilder();
+    sb.append("[ConferenceParticipant Handle: ");
+    sb.append(mHandle);
+    sb.append(" DisplayName: ");
+    sb.append(mDisplayName);
+    sb.append(" Endpoint: ");
+    sb.append(mEndpoint);
+    sb.append(" State: ");
+    sb.append(mState);
+    sb.append("]");
+    return sb.toString();
+}
+Body of Second Method:
+{
+    StringBuilder sb = new StringBuilder();
+    sb.append("[ConferenceParticipant Handle: ");
+    sb.append(Log.pii(mHandle));
+    sb.append(" DisplayName: ");
+    sb.append(Log.pii(mDisplayName));
+    sb.append(" Endpoint: ");
+    sb.append(Log.pii(mEndpoint));
+    sb.append(" State: ");
+    sb.append(Connection.stateToString(mState));
+    sb.append("]");
+    return sb.toString();
+}
+------------------------
+Find a silently evolved API code:android.os.Looper.loop:COMMENT
+Method Modifier: public      static      
+Comment:/**
+ * Run the message queue in this thread. Be sure to call
+ * {@link #quit()} to end the loop.
+ */
+
+Body of Frist Method:
+{
+    final Looper me = myLooper();
+    if (me == null) {
+        throw new RuntimeException("No Looper; Looper.prepare() wasn't called on this thread.");
+    }
+    final MessageQueue queue = me.mQueue;
+    // Make sure the identity of this thread is that of the local process,
+    // and keep track of what that identity token actually is.
+    Binder.clearCallingIdentity();
+    final long ident = Binder.clearCallingIdentity();
+    for (; ; ) {
+        // might block
+        Message msg = queue.next();
+        if (msg == null) {
+            // No message indicates that the message queue is quitting.
+            return;
+        }
+        // This must be in a local variable, in case a UI event sets the logger
+        final Printer logging = me.mLogging;
+        if (logging != null) {
+            logging.println(">>>>> Dispatching to " + msg.target + " " + msg.callback + ": " + msg.what);
+        }
+        final long traceTag = me.mTraceTag;
+        if (traceTag != 0) {
+            Trace.traceBegin(traceTag, msg.target.getTraceName(msg));
+        }
+        try {
+            msg.target.dispatchMessage(msg);
+        } finally {
+            if (traceTag != 0) {
+                Trace.traceEnd(traceTag);
+            }
+        }
+        if (logging != null) {
+            logging.println("<<<<< Finished to " + msg.target + " " + msg.callback);
+        }
+        // Make sure that during the course of dispatching the
+        // identity of the thread wasn't corrupted.
+        final long newIdent = Binder.clearCallingIdentity();
+        if (ident != newIdent) {
+            Log.wtf(TAG, "Thread identity changed from 0x" + Long.toHexString(ident) + " to 0x" + Long.toHexString(newIdent) + " while dispatching to " + msg.target.getClass().getName() + " " + msg.callback + " what=" + msg.what);
+        }
+        msg.recycleUnchecked();
+    }
+}
+Body of Second Method:
+{
+    final Looper me = myLooper();
+    if (me == null) {
+        throw new RuntimeException("No Looper; Looper.prepare() wasn't called on this thread.");
+    }
+    final MessageQueue queue = me.mQueue;
+    // Make sure the identity of this thread is that of the local process,
+    // and keep track of what that identity token actually is.
+    Binder.clearCallingIdentity();
+    final long ident = Binder.clearCallingIdentity();
+    for (; ; ) {
+        // might block
+        Message msg = queue.next();
+        if (msg == null) {
+            // No message indicates that the message queue is quitting.
+            return;
+        }
+        // This must be in a local variable, in case a UI event sets the logger
+        final Printer logging = me.mLogging;
+        if (logging != null) {
+            logging.println(">>>>> Dispatching to " + msg.target + " " + msg.callback + ": " + msg.what);
+        }
+        final long traceTag = me.mTraceTag;
+        if (traceTag != 0 && Trace.isTagEnabled(traceTag)) {
+            Trace.traceBegin(traceTag, msg.target.getTraceName(msg));
+        }
+        try {
+            msg.target.dispatchMessage(msg);
+        } finally {
+            if (traceTag != 0) {
+                Trace.traceEnd(traceTag);
+            }
+        }
+        if (logging != null) {
+            logging.println("<<<<< Finished to " + msg.target + " " + msg.callback);
+        }
+        // Make sure that during the course of dispatching the
+        // identity of the thread wasn't corrupted.
+        final long newIdent = Binder.clearCallingIdentity();
+        if (ident != newIdent) {
+            Log.wtf(TAG, "Thread identity changed from 0x" + Long.toHexString(ident) + " to 0x" + Long.toHexString(newIdent) + " while dispatching to " + msg.target.getClass().getName() + " " + msg.callback + " what=" + msg.what);
+        }
+        msg.recycleUnchecked();
+    }
+}
+------------------------
+Find a silently evolved API code:android.opengl.GLSurfaceView.GLThreadManager.releaseEglContextLocked:COMMENT
+Method Modifier: public      
+Comment:/*
+         * Releases the EGL context. Requires that we are already in the
+         * sGLThreadManager monitor when this is called.
+         */
+
+Body of Frist Method:
+{
+    if (mEglOwner == thread) {
+        mEglOwner = null;
+    }
+    notifyAll();
+}
+Body of Second Method:
+{
+    notifyAll();
+}
+------------------------
+Find a silently evolved API code:android.telephony.ServiceState.setRilVoiceRadioTechnology:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    this.mRilVoiceRadioTechnology = rt;
+}
+Body of Second Method:
+{
+    if (rt == RIL_RADIO_TECHNOLOGY_LTE_CA) {
+        rt = RIL_RADIO_TECHNOLOGY_LTE;
+    }
+    this.mRilVoiceRadioTechnology = rt;
+}
+------------------------
+Find a silently evolved API code:android.util.MemoryIntArray.size:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Gets the array size.
+ *
+ * @throws IOException If an error occurs while accessing the shared memory.
+ */
+
+Body of Frist Method:
+{
+    enforceNotClosed();
+    return nativeSize(mFd.getFd());
+}
+Body of Second Method:
+{
+    enforceNotClosed();
+    return nativeSize(mFd);
+}
+------------------------
+Find a silently evolved API code:android.view.TextureView.onDetachedFromWindowInternal:COMMENT
+Method Modifier: protected   hidden      
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    destroySurface();
+    super.onDetachedFromWindowInternal();
+}
+Body of Second Method:
+{
+    destroyHardwareLayer();
+    releaseSurfaceTexture();
+    super.onDetachedFromWindowInternal();
+}
+------------------------
+Find a silently evolved API code:android.media.ImageReader.close:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Free up all the resources associated with this ImageReader.
+ *
+ * <p>
+ * After calling this method, this ImageReader can not be used. Calling
+ * any methods on this ImageReader and Images previously provided by
+ * {@link #acquireNextImage} or {@link #acquireLatestImage}
+ * will result in an {@link IllegalStateException}, and attempting to read from
+ * {@link ByteBuffer ByteBuffers} returned by an earlier
+ * {@link Image.Plane#getBuffer Plane#getBuffer} call will
+ * have undefined behavior.
+ * </p>
+ */
+
+Body of Frist Method:
+{
+    setOnImageAvailableListener(null, null);
+    if (mSurface != null)
+        mSurface.release();
+    /**
+     * Close all outstanding acquired images before closing the ImageReader. It is a good
+     * practice to close all the images as soon as it is not used to reduce system instantaneous
+     * memory pressure. CopyOnWrite list will use a copy of current list content. For the images
+     * being closed by other thread (e.g., GC thread), doubling the close call is harmless. For
+     * the image being acquired by other threads, mCloseLock is used to synchronize close and
+     * acquire operations.
+     */
+    synchronized (mCloseLock) {
+        mIsReaderValid = false;
+        for (Image image : mAcquiredImages) {
+            image.close();
+        }
+        mAcquiredImages.clear();
+        nativeClose();
+    }
+    if (mEstimatedNativeAllocBytes > 0) {
+        VMRuntime.getRuntime().registerNativeFree(mEstimatedNativeAllocBytes);
+        mEstimatedNativeAllocBytes = 0;
+    }
+}
+Body of Second Method:
+{
+    setOnImageAvailableListener(null, null);
+    if (mSurface != null)
+        mSurface.release();
+    /**
+     * Close all outstanding acquired images before closing the ImageReader. It is a good
+     * practice to close all the images as soon as it is not used to reduce system instantaneous
+     * memory pressure. CopyOnWrite list will use a copy of current list content. For the images
+     * being closed by other thread (e.g., GC thread), doubling the close call is harmless. For
+     * the image being acquired by other threads, mCloseLock is used to synchronize close and
+     * acquire operations.
+     */
+    synchronized (mCloseLock) {
+        mIsReaderValid = false;
+        for (Image image : mAcquiredImages) {
+            image.close();
+        }
+        mAcquiredImages.clear();
+        nativeClose();
+        if (mEstimatedNativeAllocBytes > 0) {
+            VMRuntime.getRuntime().registerNativeFree(mEstimatedNativeAllocBytes);
+            mEstimatedNativeAllocBytes = 0;
+        }
+    }
+}
+------------------------
+Find a silently evolved API code:android.view.inputmethod.EditorInfo.writeToParcel:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Used to package this object into a {@link Parcel}.
+ *
+ * @param dest The {@link Parcel} to be written.
+ * @param flags The flags used for parceling.
+ */
+
+Body of Frist Method:
+{
+    dest.writeInt(inputType);
+    dest.writeInt(imeOptions);
+    dest.writeString(privateImeOptions);
+    TextUtils.writeToParcel(actionLabel, dest, flags);
+    dest.writeInt(actionId);
+    dest.writeInt(initialSelStart);
+    dest.writeInt(initialSelEnd);
+    dest.writeInt(initialCapsMode);
+    TextUtils.writeToParcel(hintText, dest, flags);
+    TextUtils.writeToParcel(label, dest, flags);
+    dest.writeString(packageName);
+    dest.writeInt(fieldId);
+    dest.writeString(fieldName);
+    dest.writeBundle(extras);
+    if (hintLocales != null) {
+        hintLocales.writeToParcel(dest, flags);
+    } else {
+        LocaleList.getEmptyLocaleList().writeToParcel(dest, flags);
+    }
+}
+Body of Second Method:
+{
+    dest.writeInt(inputType);
+    dest.writeInt(imeOptions);
+    dest.writeString(privateImeOptions);
+    TextUtils.writeToParcel(actionLabel, dest, flags);
+    dest.writeInt(actionId);
+    dest.writeInt(initialSelStart);
+    dest.writeInt(initialSelEnd);
+    dest.writeInt(initialCapsMode);
+    TextUtils.writeToParcel(hintText, dest, flags);
+    TextUtils.writeToParcel(label, dest, flags);
+    dest.writeString(packageName);
+    dest.writeInt(fieldId);
+    dest.writeString(fieldName);
+    dest.writeBundle(extras);
+    if (hintLocales != null) {
+        hintLocales.writeToParcel(dest, flags);
+    } else {
+        LocaleList.getEmptyLocaleList().writeToParcel(dest, flags);
+    }
+    dest.writeStringArray(contentMimeTypes);
+}
+------------------------
+Find a silently evolved API code:android.app.Activity.startActivityAsUser:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * @hide Implement to provide correct calling token.
+ */
+
+Body of Frist Method:
+{
+    if (mParent != null) {
+        throw new RuntimeException("Can't be called from a child");
+    }
+    Instrumentation.ActivityResult ar = mInstrumentation.execStartActivity(this, mMainThread.getApplicationThread(), mToken, this, intent, -1, options, user);
+    if (ar != null) {
+        mMainThread.sendActivityResult(mToken, mEmbeddedID, -1, ar.getResultCode(), ar.getResultData());
+    }
+    cancelInputsAndStartExitTransition(options);
+}
+Body of Second Method:
+{
+    if (mParent != null) {
+        throw new RuntimeException("Can't be called from a child");
+    }
+    options = transferSpringboardActivityOptions(options);
+    Instrumentation.ActivityResult ar = mInstrumentation.execStartActivity(this, mMainThread.getApplicationThread(), mToken, this, intent, -1, options, user);
+    if (ar != null) {
+        mMainThread.sendActivityResult(mToken, mEmbeddedID, -1, ar.getResultCode(), ar.getResultData());
+    }
+    cancelInputsAndStartExitTransition(options);
+}
+------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothA2dp.getPriority:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Get the priority of the profile.
+ *
+ * <p> The priority can be any of:
+ * {@link #PRIORITY_AUTO_CONNECT}, {@link #PRIORITY_OFF},
+ * {@link #PRIORITY_ON}, {@link #PRIORITY_UNDEFINED}
+ *
+ * <p>Requires {@link android.Manifest.permission#BLUETOOTH} permission.
+ *
+ * @param device Bluetooth device
+ * @return priority of the device
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (VDBG)
+        log("getPriority(" + device + ")");
+    if (mService != null && isEnabled() && isValidDevice(device)) {
+        try {
+            return mService.getPriority(device);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Stack:" + Log.getStackTraceString(new Throwable()));
+            return BluetoothProfile.PRIORITY_OFF;
+        }
+    }
+    if (mService == null)
+        Log.w(TAG, "Proxy not attached to service");
+    return BluetoothProfile.PRIORITY_OFF;
+}
+Body of Second Method:
+{
+    if (VDBG)
+        log("getPriority(" + device + ")");
+    try {
+        mServiceLock.readLock().lock();
+        if (mService != null && isEnabled() && isValidDevice(device)) {
+            return mService.getPriority(device);
+        }
+        if (mService == null)
+            Log.w(TAG, "Proxy not attached to service");
+        return BluetoothProfile.PRIORITY_OFF;
+    } catch (RemoteException e) {
+        Log.e(TAG, "Stack:" + Log.getStackTraceString(new Throwable()));
+        return BluetoothProfile.PRIORITY_OFF;
+    } finally {
+        mServiceLock.readLock().unlock();
+    }
+}
+------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothSocket.write:COMMENT
+Method Modifier: default     
+Comment:/*package*/
+
+Body of Frist Method:
+{
+    // to the actual message length.
+    if (VDBG)
+        Log.d(TAG, "write: " + mSocketOS + " length: " + length);
+    if (mType == TYPE_L2CAP) {
+        if (length <= mMaxTxPacketSize) {
+            mSocketOS.write(b, offset, length);
+        } else {
+            int tmpOffset = offset;
+            int tmpLength = mMaxTxPacketSize;
+            int endIndex = offset + length;
+            boolean done = false;
+            if (DBG)
+                Log.w(TAG, "WARNING: Write buffer larger than L2CAP packet size!\n" + "Packet will be divided into SDU packets of size " + mMaxTxPacketSize);
+            do {
+                mSocketOS.write(b, tmpOffset, tmpLength);
+                tmpOffset += mMaxTxPacketSize;
+                if ((tmpOffset + mMaxTxPacketSize) > endIndex) {
+                    tmpLength = endIndex - tmpOffset;
+                    done = true;
+                }
+            } while (!done);
+        }
+    } else {
+        mSocketOS.write(b, offset, length);
+    }
+    // There is no good way to confirm since the entire process is asynchronous anyway
+    if (VDBG)
+        Log.d(TAG, "write out: " + mSocketOS + " length: " + length);
+    return length;
+}
+Body of Second Method:
+{
+    // to the actual message length.
+    if (VDBG)
+        Log.d(TAG, "write: " + mSocketOS + " length: " + length);
+    if (mType == TYPE_L2CAP) {
+        if (length <= mMaxTxPacketSize) {
+            mSocketOS.write(b, offset, length);
+        } else {
+            if (DBG)
+                Log.w(TAG, "WARNING: Write buffer larger than L2CAP packet size!\n" + "Packet will be divided into SDU packets of size " + mMaxTxPacketSize);
+            int tmpOffset = offset;
+            int bytesToWrite = length;
+            while (bytesToWrite > 0) {
+                int tmpLength = (bytesToWrite > mMaxTxPacketSize) ? mMaxTxPacketSize : bytesToWrite;
+                mSocketOS.write(b, tmpOffset, tmpLength);
+                tmpOffset += tmpLength;
+                bytesToWrite -= tmpLength;
+            }
+        }
+    } else {
+        mSocketOS.write(b, offset, length);
+    }
+    // There is no good way to confirm since the entire process is asynchronous anyway
+    if (VDBG)
+        Log.d(TAG, "write out: " + mSocketOS + " length: " + length);
+    return length;
+}
+------------------------
+Find a silently evolved API code:android.animation.ObjectAnimator.animateValue:COMMENT
+Method Modifier: default     
+Comment:/**
+ * This method is called with the elapsed fraction of the animation during every
+ * animation frame. This function turns the elapsed fraction into an interpolated fraction
+ * and then into an animated value (from the evaluator. The function is called mostly during
+ * animation updates, but it is also called when the <code>end()</code>
+ * function is called, to set the final value on the property.
+ *
+ * <p>Overrides of this method must call the superclass to perform the calculation
+ * of the animated value.</p>
+ *
+ * @param fraction The elapsed fraction of the animation.
+ */
+
+Body of Frist Method:
+{
+    final Object target = getTarget();
+    if (mTarget != null && target == null) {
+        // We lost the target reference, cancel and clean up.
+        cancel();
+        return;
+    }
+    super.animateValue(fraction);
+    int numValues = mValues.length;
+    for (int i = 0; i < numValues; ++i) {
+        mValues[i].setAnimatedValue(target);
+    }
+}
+Body of Second Method:
+{
+    final Object target = getTarget();
+    if (target == null) {
+        // We lost the target reference, cancel and clean up.
+        cancel();
+        return;
+    }
+    super.animateValue(fraction);
+    int numValues = mValues.length;
+    for (int i = 0; i < numValues; ++i) {
+        mValues[i].setAnimatedValue(target);
+    }
+}
+------------------------
+Find a silently evolved API code:android.telephony.TelephonyManager.getNetworkClass:COMMENT
+Method Modifier: public      static      hidden      
+Comment:/**
+ * Return general class of network type, such as "3G" or "4G". In cases
+ * where classification is contentious, this method is conservative.
+ *
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    switch(networkType) {
+        case NETWORK_TYPE_GPRS:
+        case NETWORK_TYPE_GSM:
+        case NETWORK_TYPE_EDGE:
+        case NETWORK_TYPE_CDMA:
+        case NETWORK_TYPE_1xRTT:
+        case NETWORK_TYPE_IDEN:
+            return NETWORK_CLASS_2_G;
+        case NETWORK_TYPE_UMTS:
+        case NETWORK_TYPE_EVDO_0:
+        case NETWORK_TYPE_EVDO_A:
+        case NETWORK_TYPE_HSDPA:
+        case NETWORK_TYPE_HSUPA:
+        case NETWORK_TYPE_HSPA:
+        case NETWORK_TYPE_EVDO_B:
+        case NETWORK_TYPE_EHRPD:
+        case NETWORK_TYPE_HSPAP:
+        case NETWORK_TYPE_TD_SCDMA:
+            return NETWORK_CLASS_3_G;
+        case NETWORK_TYPE_LTE:
+        case NETWORK_TYPE_IWLAN:
+            return NETWORK_CLASS_4_G;
+        default:
+            return NETWORK_CLASS_UNKNOWN;
+    }
+}
+Body of Second Method:
+{
+    switch(networkType) {
+        case NETWORK_TYPE_GPRS:
+        case NETWORK_TYPE_GSM:
+        case NETWORK_TYPE_EDGE:
+        case NETWORK_TYPE_CDMA:
+        case NETWORK_TYPE_1xRTT:
+        case NETWORK_TYPE_IDEN:
+            return NETWORK_CLASS_2_G;
+        case NETWORK_TYPE_UMTS:
+        case NETWORK_TYPE_EVDO_0:
+        case NETWORK_TYPE_EVDO_A:
+        case NETWORK_TYPE_HSDPA:
+        case NETWORK_TYPE_HSUPA:
+        case NETWORK_TYPE_HSPA:
+        case NETWORK_TYPE_EVDO_B:
+        case NETWORK_TYPE_EHRPD:
+        case NETWORK_TYPE_HSPAP:
+        case NETWORK_TYPE_TD_SCDMA:
+            return NETWORK_CLASS_3_G;
+        case NETWORK_TYPE_LTE:
+        case NETWORK_TYPE_IWLAN:
+        case NETWORK_TYPE_LTE_CA:
+            return NETWORK_CLASS_4_G;
+        default:
+            return NETWORK_CLASS_UNKNOWN;
+    }
+}
+------------------------
+Find a silently evolved API code:android.telephony.ServiceState.rilRadioTechnologyToString:COMMENT
+Method Modifier: public      static      hidden      
+Comment:/**
+ * Convert radio technology to String
+ *
+ * @param radioTechnology
+ * @return String representation of the RAT
+ *
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    String rtString;
+    switch(rt) {
+        case RIL_RADIO_TECHNOLOGY_UNKNOWN:
+            rtString = "Unknown";
+            break;
+        case RIL_RADIO_TECHNOLOGY_GPRS:
+            rtString = "GPRS";
+            break;
+        case RIL_RADIO_TECHNOLOGY_EDGE:
+            rtString = "EDGE";
+            break;
+        case RIL_RADIO_TECHNOLOGY_UMTS:
+            rtString = "UMTS";
+            break;
+        case RIL_RADIO_TECHNOLOGY_IS95A:
+            rtString = "CDMA-IS95A";
+            break;
+        case RIL_RADIO_TECHNOLOGY_IS95B:
+            rtString = "CDMA-IS95B";
+            break;
+        case RIL_RADIO_TECHNOLOGY_1xRTT:
+            rtString = "1xRTT";
+            break;
+        case RIL_RADIO_TECHNOLOGY_EVDO_0:
+            rtString = "EvDo-rev.0";
+            break;
+        case RIL_RADIO_TECHNOLOGY_EVDO_A:
+            rtString = "EvDo-rev.A";
+            break;
+        case RIL_RADIO_TECHNOLOGY_HSDPA:
+            rtString = "HSDPA";
+            break;
+        case RIL_RADIO_TECHNOLOGY_HSUPA:
+            rtString = "HSUPA";
+            break;
+        case RIL_RADIO_TECHNOLOGY_HSPA:
+            rtString = "HSPA";
+            break;
+        case RIL_RADIO_TECHNOLOGY_EVDO_B:
+            rtString = "EvDo-rev.B";
+            break;
+        case RIL_RADIO_TECHNOLOGY_EHRPD:
+            rtString = "eHRPD";
+            break;
+        case RIL_RADIO_TECHNOLOGY_LTE:
+            rtString = "LTE";
+            break;
+        case RIL_RADIO_TECHNOLOGY_HSPAP:
+            rtString = "HSPAP";
+            break;
+        case RIL_RADIO_TECHNOLOGY_GSM:
+            rtString = "GSM";
+            break;
+        case RIL_RADIO_TECHNOLOGY_IWLAN:
+            rtString = "IWLAN";
+            break;
+        case RIL_RADIO_TECHNOLOGY_TD_SCDMA:
+            rtString = "TD-SCDMA";
+            break;
+        default:
+            rtString = "Unexpected";
+            Rlog.w(LOG_TAG, "Unexpected radioTechnology=" + rt);
+            break;
+    }
+    return rtString;
+}
+Body of Second Method:
+{
+    String rtString;
+    switch(rt) {
+        case RIL_RADIO_TECHNOLOGY_UNKNOWN:
+            rtString = "Unknown";
+            break;
+        case RIL_RADIO_TECHNOLOGY_GPRS:
+            rtString = "GPRS";
+            break;
+        case RIL_RADIO_TECHNOLOGY_EDGE:
+            rtString = "EDGE";
+            break;
+        case RIL_RADIO_TECHNOLOGY_UMTS:
+            rtString = "UMTS";
+            break;
+        case RIL_RADIO_TECHNOLOGY_IS95A:
+            rtString = "CDMA-IS95A";
+            break;
+        case RIL_RADIO_TECHNOLOGY_IS95B:
+            rtString = "CDMA-IS95B";
+            break;
+        case RIL_RADIO_TECHNOLOGY_1xRTT:
+            rtString = "1xRTT";
+            break;
+        case RIL_RADIO_TECHNOLOGY_EVDO_0:
+            rtString = "EvDo-rev.0";
+            break;
+        case RIL_RADIO_TECHNOLOGY_EVDO_A:
+            rtString = "EvDo-rev.A";
+            break;
+        case RIL_RADIO_TECHNOLOGY_HSDPA:
+            rtString = "HSDPA";
+            break;
+        case RIL_RADIO_TECHNOLOGY_HSUPA:
+            rtString = "HSUPA";
+            break;
+        case RIL_RADIO_TECHNOLOGY_HSPA:
+            rtString = "HSPA";
+            break;
+        case RIL_RADIO_TECHNOLOGY_EVDO_B:
+            rtString = "EvDo-rev.B";
+            break;
+        case RIL_RADIO_TECHNOLOGY_EHRPD:
+            rtString = "eHRPD";
+            break;
+        case RIL_RADIO_TECHNOLOGY_LTE:
+            rtString = "LTE";
+            break;
+        case RIL_RADIO_TECHNOLOGY_HSPAP:
+            rtString = "HSPAP";
+            break;
+        case RIL_RADIO_TECHNOLOGY_GSM:
+            rtString = "GSM";
+            break;
+        case RIL_RADIO_TECHNOLOGY_IWLAN:
+            rtString = "IWLAN";
+            break;
+        case RIL_RADIO_TECHNOLOGY_TD_SCDMA:
+            rtString = "TD-SCDMA";
+            break;
+        case RIL_RADIO_TECHNOLOGY_LTE_CA:
+            rtString = "LTE_CA";
+            break;
+        default:
+            rtString = "Unexpected";
+            Rlog.w(LOG_TAG, "Unexpected radioTechnology=" + rt);
+            break;
+    }
+    return rtString;
+}
+------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothA2dp.getConnectedDevices:COMMENT
+Method Modifier: public      
+Comment:/**
+ * {@inheritDoc}
+ */
+
+Body of Frist Method:
+{
+    if (VDBG)
+        log("getConnectedDevices()");
+    if (mService != null && isEnabled()) {
+        try {
+            return mService.getConnectedDevices();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Stack:" + Log.getStackTraceString(new Throwable()));
+            return new ArrayList<BluetoothDevice>();
+        }
+    }
+    if (mService == null)
+        Log.w(TAG, "Proxy not attached to service");
+    return new ArrayList<BluetoothDevice>();
+}
+Body of Second Method:
+{
+    if (VDBG)
+        log("getConnectedDevices()");
+    try {
+        mServiceLock.readLock().lock();
+        if (mService != null && isEnabled()) {
+            return mService.getConnectedDevices();
+        }
+        if (mService == null)
+            Log.w(TAG, "Proxy not attached to service");
+        return new ArrayList<BluetoothDevice>();
+    } catch (RemoteException e) {
+        Log.e(TAG, "Stack:" + Log.getStackTraceString(new Throwable()));
+        return new ArrayList<BluetoothDevice>();
+    } finally {
+        mServiceLock.readLock().unlock();
+    }
+}
+------------------------
+Find a silently evolved API code:android.hardware.camera2.params.OutputConfiguration.equals:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Check if this {@link OutputConfiguration} is equal to another {@link OutputConfiguration}.
+ *
+ * <p>Two output configurations are only equal if and only if the underlying surfaces, surface
+ * properties (width, height, format, dataspace) when the output configurations are created,
+ * and all other configuration parameters are equal. </p>
+ *
+ * @return {@code true} if the objects were equal, {@code false} otherwise
+ */
+
+Body of Frist Method:
+{
+    if (obj == null) {
+        return false;
+    } else if (this == obj) {
+        return true;
+    } else if (obj instanceof OutputConfiguration) {
+        final OutputConfiguration other = (OutputConfiguration) obj;
+        return mRotation == other.mRotation && mSurface == other.mSurface && mConfiguredGenerationId == other.mConfiguredGenerationId && mConfiguredSize.equals(other.mConfiguredSize) && mConfiguredFormat == other.mConfiguredFormat && mConfiguredDataspace == other.mConfiguredDataspace && mSurfaceGroupId == other.mSurfaceGroupId;
+    }
+    return false;
+}
+Body of Second Method:
+{
+    if (obj == null) {
+        return false;
+    } else if (this == obj) {
+        return true;
+    } else if (obj instanceof OutputConfiguration) {
+        final OutputConfiguration other = (OutputConfiguration) obj;
+        boolean iSSurfaceEqual = mSurface == other.mSurface && mConfiguredGenerationId == other.mConfiguredGenerationId;
+        if (mIsDeferredConfig) {
+            Log.i(TAG, "deferred config has the same surface");
+            iSSurfaceEqual = true;
+        }
+        return mRotation == other.mRotation && iSSurfaceEqual && mConfiguredSize.equals(other.mConfiguredSize) && mConfiguredFormat == other.mConfiguredFormat && mConfiguredDataspace == other.mConfiguredDataspace && mSurfaceGroupId == other.mSurfaceGroupId && mSurfaceType == other.mSurfaceType && mIsDeferredConfig == other.mIsDeferredConfig;
+    }
+    return false;
+}
+------------------------
+Find a silently evolved API code:android.service.quicksettings.TileService.startActivityAndCollapse:COMMENT
+Method Modifier: public      final       
+Comment:/**
+ * Start an activity while collapsing the panel.
+ */
+
+Body of Frist Method:
+{
+    startActivity(intent);
+    try {
+        mService.onStartActivity(mTile);
+    } catch (RemoteException e) {
+    }
+}
+Body of Second Method:
+{
+    startActivity(intent);
+    try {
+        mService.onStartActivity(mTileToken);
+    } catch (RemoteException e) {
+    }
+}
+------------------------
+Find a silently evolved API code:android.view.TextureView.destroyHardwareResources:COMMENT
+Method Modifier: protected   hidden      
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    super.destroyHardwareResources();
+    destroySurface();
+    invalidateParentCaches();
+    invalidate(true);
+}
+Body of Second Method:
+{
+    destroyHardwareLayer();
+}
+------------------------
+Find a silently evolved API code:android.graphics.Bitmap.prepareToDraw:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Rebuilds any caches associated with the bitmap that are used for
+ * drawing it. In the case of purgeable bitmaps, this call will attempt to
+ * ensure that the pixels have been decoded.
+ * If this is called on more than one bitmap in sequence, the priority is
+ * given in LRU order (i.e. the last bitmap called will be given highest
+ * priority).
+ *
+ * For bitmaps with no associated caches, this call is effectively a no-op,
+ * and therefore is harmless.
+ */
+
+Body of Frist Method:
+{
+    // TODO: Consider having this start an async upload?
+    // With inPurgeable no-op'd there's currently no use for this
+    // method, but it could have interesting future uses.
+    checkRecycled("Can't prepareToDraw on a recycled bitmap!");
+}
+Body of Second Method:
+{
+    checkRecycled("Can't prepareToDraw on a recycled bitmap!");
+    // Kick off an update/upload of the bitmap outside of the normal
+    // draw path.
+    nativePrepareToDraw(mNativePtr);
+}
+------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothA2dp.setAvrcpAbsoluteVolume:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Tells remote device to set an absolute volume. Only if absolute volume is supported
+ *
+ * @param volume Absolute volume to be set on AVRCP side
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (DBG)
+        Log.d(TAG, "setAvrcpAbsoluteVolume");
+    if (mService != null && isEnabled()) {
+        try {
+            mService.setAvrcpAbsoluteVolume(volume);
+            return;
+        } catch (RemoteException e) {
+            Log.e(TAG, "Error talking to BT service in setAvrcpAbsoluteVolume()", e);
+            return;
+        }
+    }
+    if (mService == null)
+        Log.w(TAG, "Proxy not attached to service");
+}
+Body of Second Method:
+{
+    if (DBG)
+        Log.d(TAG, "setAvrcpAbsoluteVolume");
+    try {
+        mServiceLock.readLock().lock();
+        if (mService != null && isEnabled()) {
+            mService.setAvrcpAbsoluteVolume(volume);
+        }
+        if (mService == null)
+            Log.w(TAG, "Proxy not attached to service");
+    } catch (RemoteException e) {
+        Log.e(TAG, "Error talking to BT service in setAvrcpAbsoluteVolume()", e);
+    } finally {
+        mServiceLock.readLock().unlock();
+    }
+}
+------------------------
+Find a silently evolved API code:android.util.MemoryIntArray.isClosed:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * @return Whether this array is closed and shouldn't be used.
+ */
+
+Body of Frist Method:
+{
+    return mFd == null;
+}
+Body of Second Method:
+{
+    return mFd == -1;
+}
+------------------------
+Find a silently evolved API code:android.nfc.NfcAdapter.setNdefPushMessage:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (activity == null) {
+        throw new NullPointerException("activity cannot be null");
+    }
+    mNfcActivityManager.setNdefPushMessage(activity, message, flags);
+}
+Body of Second Method:
+{
+    synchronized (NfcAdapter.class) {
+        if (!sHasNfcFeature) {
+            throw new UnsupportedOperationException();
+        }
+    }
+    if (activity == null) {
+        throw new NullPointerException("activity cannot be null");
+    }
+    mNfcActivityManager.setNdefPushMessage(activity, message, flags);
+}
+------------------------
+Find a silently evolved API code:android.view.SurfaceView.updateWindow:COMMENT
+Method Modifier: protected   hidden      
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (!mHaveFrame) {
+        return;
+    }
+    ViewRootImpl viewRoot = getViewRootImpl();
+    if (viewRoot != null) {
+        mTranslator = viewRoot.mTranslator;
+    }
+    if (mTranslator != null) {
+        mSurface.setCompatibilityTranslator(mTranslator);
+    }
+    int myWidth = mRequestedWidth;
+    if (myWidth <= 0)
+        myWidth = getWidth();
+    int myHeight = mRequestedHeight;
+    if (myHeight <= 0)
+        myHeight = getHeight();
+    final boolean creating = mWindow == null;
+    final boolean formatChanged = mFormat != mRequestedFormat;
+    final boolean sizeChanged = mWindowSpaceWidth != myWidth || mWindowSpaceHeight != myHeight;
+    final boolean visibleChanged = mVisible != mRequestedVisible;
+    final boolean layoutSizeChanged = getWidth() != mLayout.width || getHeight() != mLayout.height;
+    if (force || creating || formatChanged || sizeChanged || visibleChanged || mUpdateWindowNeeded || mReportDrawNeeded || redrawNeeded) {
+        getLocationInWindow(mLocation);
+        if (DEBUG)
+            Log.i(TAG, System.identityHashCode(this) + " " + "Changes: creating=" + creating + " format=" + formatChanged + " size=" + sizeChanged + " visible=" + visibleChanged + " left=" + (mWindowSpaceLeft != mLocation[0]) + " top=" + (mWindowSpaceTop != mLocation[1]));
+        try {
+            final boolean visible = mVisible = mRequestedVisible;
+            mWindowSpaceLeft = mLocation[0];
+            mWindowSpaceTop = mLocation[1];
+            mWindowSpaceWidth = myWidth;
+            mWindowSpaceHeight = myHeight;
+            mFormat = mRequestedFormat;
+            // Scaling/Translate window's layout here because mLayout is not used elsewhere.
+            // Places the window relative
+            mLayout.x = mWindowSpaceLeft;
+            mLayout.y = mWindowSpaceTop;
+            mLayout.width = getWidth();
+            mLayout.height = getHeight();
+            if (mTranslator != null) {
+                mTranslator.translateLayoutParamsInAppWindowToScreen(mLayout);
+            }
+            mLayout.format = mRequestedFormat;
+            mLayout.flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS | WindowManager.LayoutParams.FLAG_SCALED | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+            if (!creating && !force && !mUpdateWindowNeeded && !sizeChanged) {
+                mLayout.privateFlags |= WindowManager.LayoutParams.PRIVATE_FLAG_PRESERVE_GEOMETRY;
+            } else {
+                mLayout.privateFlags &= ~WindowManager.LayoutParams.PRIVATE_FLAG_PRESERVE_GEOMETRY;
+            }
+            if (!getContext().getResources().getCompatibilityInfo().supportsScreen()) {
+                mLayout.privateFlags |= WindowManager.LayoutParams.PRIVATE_FLAG_COMPATIBLE_WINDOW;
+            }
+            mLayout.privateFlags |= WindowManager.LayoutParams.PRIVATE_FLAG_NO_MOVE_ANIMATION | WindowManager.LayoutParams.PRIVATE_FLAG_LAYOUT_CHILD_WINDOW_IN_PARENT_FRAME;
+            if (mWindow == null) {
+                Display display = getDisplay();
+                mWindow = new MyWindow(this);
+                mLayout.type = mWindowType;
+                mLayout.gravity = Gravity.START | Gravity.TOP;
+                mSession.addToDisplayWithoutInputChannel(mWindow, mWindow.mSeq, mLayout, mVisible ? VISIBLE : GONE, display.getDisplayId(), mContentInsets, mStableInsets);
+            }
+            boolean realSizeChanged;
+            boolean reportDrawNeeded;
+            int relayoutResult;
+            mSurfaceLock.lock();
+            try {
+                mUpdateWindowNeeded = false;
+                reportDrawNeeded = mReportDrawNeeded;
+                mReportDrawNeeded = false;
+                mDrawingStopped = !visible;
+                if (DEBUG)
+                    Log.i(TAG, System.identityHashCode(this) + " " + "Cur surface: " + mSurface);
+                relayoutResult = mSession.relayout(mWindow, mWindow.mSeq, mLayout, mWindowSpaceWidth, mWindowSpaceHeight, visible ? VISIBLE : GONE, WindowManagerGlobal.RELAYOUT_DEFER_SURFACE_DESTROY, mWinFrame, mOverscanInsets, mContentInsets, mVisibleInsets, mStableInsets, mOutsets, mBackdropFrame, mConfiguration, mNewSurface);
+                if ((relayoutResult & WindowManagerGlobal.RELAYOUT_RES_FIRST_TIME) != 0) {
+                    reportDrawNeeded = true;
+                }
+                if (DEBUG)
+                    Log.i(TAG, System.identityHashCode(this) + " " + "New surface: " + mNewSurface + ", vis=" + visible + ", frame=" + mWinFrame);
+                mSurfaceFrame.left = 0;
+                mSurfaceFrame.top = 0;
+                if (mTranslator == null) {
+                    mSurfaceFrame.right = mWinFrame.width();
+                    mSurfaceFrame.bottom = mWinFrame.height();
+                } else {
+                    float appInvertedScale = mTranslator.applicationInvertedScale;
+                    mSurfaceFrame.right = (int) (mWinFrame.width() * appInvertedScale + 0.5f);
+                    mSurfaceFrame.bottom = (int) (mWinFrame.height() * appInvertedScale + 0.5f);
+                }
+                final int surfaceWidth = mSurfaceFrame.right;
+                final int surfaceHeight = mSurfaceFrame.bottom;
+                realSizeChanged = mLastSurfaceWidth != surfaceWidth || mLastSurfaceHeight != surfaceHeight;
+                mLastSurfaceWidth = surfaceWidth;
+                mLastSurfaceHeight = surfaceHeight;
+            } finally {
+                mSurfaceLock.unlock();
+            }
+            try {
+                redrawNeeded |= creating | reportDrawNeeded;
+                SurfaceHolder.Callback[] callbacks = null;
+                final boolean surfaceChanged = (relayoutResult & WindowManagerGlobal.RELAYOUT_RES_SURFACE_CHANGED) != 0;
+                if (mSurfaceCreated && (surfaceChanged || (!visible && visibleChanged))) {
+                    mSurfaceCreated = false;
+                    if (mSurface.isValid()) {
+                        if (DEBUG)
+                            Log.i(TAG, System.identityHashCode(this) + " " + "visibleChanged -- surfaceDestroyed");
+                        callbacks = getSurfaceCallbacks();
+                        for (SurfaceHolder.Callback c : callbacks) {
+                            c.surfaceDestroyed(mSurfaceHolder);
+                        }
+                    }
+                }
+                mSurface.transferFrom(mNewSurface);
+                if (visible && mSurface.isValid()) {
+                    if (!mSurfaceCreated && (surfaceChanged || visibleChanged)) {
+                        mSurfaceCreated = true;
+                        mIsCreating = true;
+                        if (DEBUG)
+                            Log.i(TAG, System.identityHashCode(this) + " " + "visibleChanged -- surfaceCreated");
+                        if (callbacks == null) {
+                            callbacks = getSurfaceCallbacks();
+                        }
+                        for (SurfaceHolder.Callback c : callbacks) {
+                            c.surfaceCreated(mSurfaceHolder);
+                        }
+                    }
+                    if (creating || formatChanged || sizeChanged || visibleChanged || realSizeChanged) {
+                        if (DEBUG)
+                            Log.i(TAG, System.identityHashCode(this) + " " + "surfaceChanged -- format=" + mFormat + " w=" + myWidth + " h=" + myHeight);
+                        if (callbacks == null) {
+                            callbacks = getSurfaceCallbacks();
+                        }
+                        for (SurfaceHolder.Callback c : callbacks) {
+                            c.surfaceChanged(mSurfaceHolder, mFormat, myWidth, myHeight);
+                        }
+                    }
+                    if (redrawNeeded) {
+                        if (DEBUG)
+                            Log.i(TAG, System.identityHashCode(this) + " " + "surfaceRedrawNeeded");
+                        if (callbacks == null) {
+                            callbacks = getSurfaceCallbacks();
+                        }
+                        for (SurfaceHolder.Callback c : callbacks) {
+                            if (c instanceof SurfaceHolder.Callback2) {
+                                ((SurfaceHolder.Callback2) c).surfaceRedrawNeeded(mSurfaceHolder);
+                            }
+                        }
+                    }
+                }
+            } finally {
+                mIsCreating = false;
+                if (redrawNeeded) {
+                    if (DEBUG)
+                        Log.i(TAG, System.identityHashCode(this) + " " + "finishedDrawing");
+                    mSession.finishDrawing(mWindow);
+                }
+                mSession.performDeferredDestroy(mWindow);
+            }
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Exception from relayout", ex);
+        }
+        if (DEBUG)
+            Log.v(TAG, "Layout: x=" + mLayout.x + " y=" + mLayout.y + " w=" + mLayout.width + " h=" + mLayout.height + ", frame=" + mSurfaceFrame);
+    } else {
+        // Calculate the window position in case RT loses the window
+        // and we need to fallback to a UI-thread driven position update
+        getLocationInWindow(mLocation);
+        final boolean positionChanged = mWindowSpaceLeft != mLocation[0] || mWindowSpaceTop != mLocation[1];
+        if (positionChanged || layoutSizeChanged) {
+            // Only the position has changed
+            mWindowSpaceLeft = mLocation[0];
+            mWindowSpaceTop = mLocation[1];
+            // For our size changed check, we keep mLayout.width and mLayout.height
+            // in view local space.
+            mLocation[0] = mLayout.width = getWidth();
+            mLocation[1] = mLayout.height = getHeight();
+            transformFromViewToWindowSpace(mLocation);
+            mWinFrame.set(mWindowSpaceLeft, mWindowSpaceTop, mLocation[0], mLocation[1]);
+            if (mTranslator != null) {
+                mTranslator.translateRectInAppWindowToScreen(mWinFrame);
+            }
+            if (!isHardwareAccelerated() || !mRtHandlingPositionUpdates) {
+                try {
+                    if (DEBUG)
+                        Log.d(TAG, String.format("%d updateWindowPosition UI, " + "postion = [%d, %d, %d, %d]", System.identityHashCode(this), mWinFrame.left, mWinFrame.top, mWinFrame.right, mWinFrame.bottom));
+                    mSession.repositionChild(mWindow, mWinFrame.left, mWinFrame.top, mWinFrame.right, mWinFrame.bottom, -1, mWinFrame);
+                } catch (RemoteException ex) {
+                    Log.e(TAG, "Exception from relayout", ex);
+                }
+            }
+        }
+    }
+}
+Body of Second Method:
+{
+    if (!mHaveFrame) {
+        return;
+    }
+    ViewRootImpl viewRoot = getViewRootImpl();
+    if (viewRoot != null) {
+        mTranslator = viewRoot.mTranslator;
+    }
+    if (mTranslator != null) {
+        mSurface.setCompatibilityTranslator(mTranslator);
+    }
+    int myWidth = mRequestedWidth;
+    if (myWidth <= 0)
+        myWidth = getWidth();
+    int myHeight = mRequestedHeight;
+    if (myHeight <= 0)
+        myHeight = getHeight();
+    final boolean creating = mWindow == null;
+    final boolean formatChanged = mFormat != mRequestedFormat;
+    final boolean sizeChanged = mWindowSpaceWidth != myWidth || mWindowSpaceHeight != myHeight;
+    final boolean visibleChanged = mVisible != mRequestedVisible;
+    final boolean layoutSizeChanged = getWidth() != mLayout.width || getHeight() != mLayout.height;
+    if (force || creating || formatChanged || sizeChanged || visibleChanged || mUpdateWindowNeeded || mReportDrawNeeded || redrawNeeded) {
+        getLocationInWindow(mLocation);
+        if (DEBUG)
+            Log.i(TAG, System.identityHashCode(this) + " " + "Changes: creating=" + creating + " format=" + formatChanged + " size=" + sizeChanged + " visible=" + visibleChanged + " left=" + (mWindowSpaceLeft != mLocation[0]) + " top=" + (mWindowSpaceTop != mLocation[1]));
+        try {
+            final boolean visible = mVisible = mRequestedVisible;
+            mWindowSpaceLeft = mLocation[0];
+            mWindowSpaceTop = mLocation[1];
+            mWindowSpaceWidth = myWidth;
+            mWindowSpaceHeight = myHeight;
+            mFormat = mRequestedFormat;
+            // Scaling/Translate window's layout here because mLayout is not used elsewhere.
+            // Places the window relative
+            mLayout.x = mWindowSpaceLeft;
+            mLayout.y = mWindowSpaceTop;
+            mLayout.width = getWidth();
+            mLayout.height = getHeight();
+            if (mTranslator != null) {
+                mTranslator.translateLayoutParamsInAppWindowToScreen(mLayout);
+            }
+            mLayout.format = mRequestedFormat;
+            mLayout.flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS | WindowManager.LayoutParams.FLAG_SCALED | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+            if (!creating && !force && !sizeChanged) {
+                mLayout.privateFlags |= WindowManager.LayoutParams.PRIVATE_FLAG_PRESERVE_GEOMETRY;
+            } else {
+                mLayout.privateFlags &= ~WindowManager.LayoutParams.PRIVATE_FLAG_PRESERVE_GEOMETRY;
+            }
+            if (!getContext().getResources().getCompatibilityInfo().supportsScreen()) {
+                mLayout.privateFlags |= WindowManager.LayoutParams.PRIVATE_FLAG_COMPATIBLE_WINDOW;
+            }
+            mLayout.privateFlags |= WindowManager.LayoutParams.PRIVATE_FLAG_NO_MOVE_ANIMATION | WindowManager.LayoutParams.PRIVATE_FLAG_LAYOUT_CHILD_WINDOW_IN_PARENT_FRAME;
+            if (mWindow == null) {
+                Display display = getDisplay();
+                mWindow = new MyWindow(this);
+                mLayout.type = mWindowType;
+                mLayout.gravity = Gravity.START | Gravity.TOP;
+                mSession.addToDisplayWithoutInputChannel(mWindow, mWindow.mSeq, mLayout, mVisible ? VISIBLE : GONE, display.getDisplayId(), mContentInsets, mStableInsets);
+            }
+            boolean realSizeChanged;
+            boolean reportDrawNeeded;
+            int relayoutResult;
+            mSurfaceLock.lock();
+            try {
+                mUpdateWindowNeeded = false;
+                reportDrawNeeded = mReportDrawNeeded;
+                mReportDrawNeeded = false;
+                mDrawingStopped = !visible;
+                if (DEBUG)
+                    Log.i(TAG, System.identityHashCode(this) + " " + "Cur surface: " + mSurface);
+                relayoutResult = mSession.relayout(mWindow, mWindow.mSeq, mLayout, mWindowSpaceWidth, mWindowSpaceHeight, visible ? VISIBLE : GONE, WindowManagerGlobal.RELAYOUT_DEFER_SURFACE_DESTROY, mWinFrame, mOverscanInsets, mContentInsets, mVisibleInsets, mStableInsets, mOutsets, mBackdropFrame, mConfiguration, mNewSurface);
+                if ((relayoutResult & WindowManagerGlobal.RELAYOUT_RES_FIRST_TIME) != 0) {
+                    reportDrawNeeded = true;
+                }
+                if (DEBUG)
+                    Log.i(TAG, System.identityHashCode(this) + " " + "New surface: " + mNewSurface + ", vis=" + visible + ", frame=" + mWinFrame);
+                mSurfaceFrame.left = 0;
+                mSurfaceFrame.top = 0;
+                if (mTranslator == null) {
+                    mSurfaceFrame.right = mWinFrame.width();
+                    mSurfaceFrame.bottom = mWinFrame.height();
+                } else {
+                    float appInvertedScale = mTranslator.applicationInvertedScale;
+                    mSurfaceFrame.right = (int) (mWinFrame.width() * appInvertedScale + 0.5f);
+                    mSurfaceFrame.bottom = (int) (mWinFrame.height() * appInvertedScale + 0.5f);
+                }
+                final int surfaceWidth = mSurfaceFrame.right;
+                final int surfaceHeight = mSurfaceFrame.bottom;
+                realSizeChanged = mLastSurfaceWidth != surfaceWidth || mLastSurfaceHeight != surfaceHeight;
+                mLastSurfaceWidth = surfaceWidth;
+                mLastSurfaceHeight = surfaceHeight;
+            } finally {
+                mSurfaceLock.unlock();
+            }
+            try {
+                redrawNeeded |= creating | reportDrawNeeded;
+                SurfaceHolder.Callback[] callbacks = null;
+                final boolean surfaceChanged = (relayoutResult & WindowManagerGlobal.RELAYOUT_RES_SURFACE_CHANGED) != 0;
+                if (mSurfaceCreated && (surfaceChanged || (!visible && visibleChanged))) {
+                    mSurfaceCreated = false;
+                    if (mSurface.isValid()) {
+                        if (DEBUG)
+                            Log.i(TAG, System.identityHashCode(this) + " " + "visibleChanged -- surfaceDestroyed");
+                        callbacks = getSurfaceCallbacks();
+                        for (SurfaceHolder.Callback c : callbacks) {
+                            c.surfaceDestroyed(mSurfaceHolder);
+                        }
+                    }
+                }
+                mSurface.transferFrom(mNewSurface);
+                if (visible && mSurface.isValid()) {
+                    if (!mSurfaceCreated && (surfaceChanged || visibleChanged)) {
+                        mSurfaceCreated = true;
+                        mIsCreating = true;
+                        if (DEBUG)
+                            Log.i(TAG, System.identityHashCode(this) + " " + "visibleChanged -- surfaceCreated");
+                        if (callbacks == null) {
+                            callbacks = getSurfaceCallbacks();
+                        }
+                        for (SurfaceHolder.Callback c : callbacks) {
+                            c.surfaceCreated(mSurfaceHolder);
+                        }
+                    }
+                    if (creating || formatChanged || sizeChanged || visibleChanged || realSizeChanged) {
+                        if (DEBUG)
+                            Log.i(TAG, System.identityHashCode(this) + " " + "surfaceChanged -- format=" + mFormat + " w=" + myWidth + " h=" + myHeight);
+                        if (callbacks == null) {
+                            callbacks = getSurfaceCallbacks();
+                        }
+                        for (SurfaceHolder.Callback c : callbacks) {
+                            c.surfaceChanged(mSurfaceHolder, mFormat, myWidth, myHeight);
+                        }
+                    }
+                    if (redrawNeeded) {
+                        if (DEBUG)
+                            Log.i(TAG, System.identityHashCode(this) + " " + "surfaceRedrawNeeded");
+                        if (callbacks == null) {
+                            callbacks = getSurfaceCallbacks();
+                        }
+                        for (SurfaceHolder.Callback c : callbacks) {
+                            if (c instanceof SurfaceHolder.Callback2) {
+                                ((SurfaceHolder.Callback2) c).surfaceRedrawNeeded(mSurfaceHolder);
+                            }
+                        }
+                    }
+                }
+            } finally {
+                mIsCreating = false;
+                if (redrawNeeded) {
+                    if (DEBUG)
+                        Log.i(TAG, System.identityHashCode(this) + " " + "finishedDrawing");
+                    mSession.finishDrawing(mWindow);
+                }
+                mSession.performDeferredDestroy(mWindow);
+            }
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Exception from relayout", ex);
+        }
+        if (DEBUG)
+            Log.v(TAG, "Layout: x=" + mLayout.x + " y=" + mLayout.y + " w=" + mLayout.width + " h=" + mLayout.height + ", frame=" + mSurfaceFrame);
+    } else {
+        // Calculate the window position in case RT loses the window
+        // and we need to fallback to a UI-thread driven position update
+        getLocationInWindow(mLocation);
+        final boolean positionChanged = mWindowSpaceLeft != mLocation[0] || mWindowSpaceTop != mLocation[1];
+        if (positionChanged || layoutSizeChanged) {
+            // Only the position has changed
+            mWindowSpaceLeft = mLocation[0];
+            mWindowSpaceTop = mLocation[1];
+            // For our size changed check, we keep mLayout.width and mLayout.height
+            // in view local space.
+            mLocation[0] = mLayout.width = getWidth();
+            mLocation[1] = mLayout.height = getHeight();
+            transformFromViewToWindowSpace(mLocation);
+            mWinFrame.set(mWindowSpaceLeft, mWindowSpaceTop, mLocation[0], mLocation[1]);
+            if (mTranslator != null) {
+                mTranslator.translateRectInAppWindowToScreen(mWinFrame);
+            }
+            if (!isHardwareAccelerated() || !mRtHandlingPositionUpdates) {
+                try {
+                    if (DEBUG)
+                        Log.d(TAG, String.format("%d updateWindowPosition UI, " + "postion = [%d, %d, %d, %d]", System.identityHashCode(this), mWinFrame.left, mWinFrame.top, mWinFrame.right, mWinFrame.bottom));
+                    mSession.repositionChild(mWindow, mWinFrame.left, mWinFrame.top, mWinFrame.right, mWinFrame.bottom, -1, mWinFrame);
+                } catch (RemoteException ex) {
+                    Log.e(TAG, "Exception from relayout", ex);
+                }
+            }
+        }
+    }
+}
+------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothA2dp.isA2dpPlaying:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Check if A2DP profile is streaming music.
+ *
+ * <p>Requires {@link android.Manifest.permission#BLUETOOTH} permission.
+ *
+ * @param device BluetoothDevice device
+ */
+
+Body of Frist Method:
+{
+    if (mService != null && isEnabled() && isValidDevice(device)) {
+        try {
+            return mService.isA2dpPlaying(device);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Stack:" + Log.getStackTraceString(new Throwable()));
+            return false;
+        }
+    }
+    if (mService == null)
+        Log.w(TAG, "Proxy not attached to service");
+    return false;
+}
+Body of Second Method:
+{
+    try {
+        mServiceLock.readLock().lock();
+        if (mService != null && isEnabled() && isValidDevice(device)) {
+            return mService.isA2dpPlaying(device);
+        }
+        if (mService == null)
+            Log.w(TAG, "Proxy not attached to service");
+        return false;
+    } catch (RemoteException e) {
+        Log.e(TAG, "Stack:" + Log.getStackTraceString(new Throwable()));
+        return false;
+    } finally {
+        mServiceLock.readLock().unlock();
+    }
+}
+------------------------
+Find a silently evolved API code:android.media.PlayerBase.isRestricted_sync:COMMENT
+Method Modifier: default     hidden      
+Comment:/**
+ * To be called by the subclass whenever an operation is potentially restricted.
+ * As the media player-common behavior are incorporated into this class, the subclass's need
+ * to call this method should be removed, and this method could become private.
+ * FIXME can this method be private so subclasses don't have to worry about when to check
+ * the restrictions.
+ * @return
+ */
+
+Body of Frist Method:
+{
+    if ((mAttributes.getAllFlags() & AudioAttributes.FLAG_BYPASS_INTERRUPTION_POLICY) != 0) {
+        return false;
+    }
+    return !mHasAppOpsPlayAudio;
+}
+Body of Second Method:
+{
+    // check app ops
+    if (mHasAppOpsPlayAudio) {
+        return false;
+    }
+    // check bypass flag
+    if ((mAttributes.getAllFlags() & AudioAttributes.FLAG_BYPASS_INTERRUPTION_POLICY) != 0) {
+        return false;
+    }
+    return true;
+}
+------------------------
+Find a silently evolved API code:android.nfc.NfcAdapter.removeNfcUnlockHandler:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Removes a previously registered unlock handler. Also removes the tag technologies
+ * associated with the removed unlock handler.
+ *
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    try {
+        synchronized (mLock) {
+            if (mNfcUnlockHandlers.containsKey(unlockHandler)) {
+                sService.removeNfcUnlockHandler(mNfcUnlockHandlers.remove(unlockHandler));
+            }
+            return true;
+        }
+    } catch (RemoteException e) {
+        attemptDeadServiceRecovery(e);
+        return false;
+    }
+}
+Body of Second Method:
+{
+    synchronized (NfcAdapter.class) {
+        if (!sHasNfcFeature) {
+            throw new UnsupportedOperationException();
+        }
+    }
+    try {
+        synchronized (mLock) {
+            if (mNfcUnlockHandlers.containsKey(unlockHandler)) {
+                sService.removeNfcUnlockHandler(mNfcUnlockHandlers.remove(unlockHandler));
+            }
+            return true;
+        }
+    } catch (RemoteException e) {
+        attemptDeadServiceRecovery(e);
+        return false;
+    }
+}
+------------------------
+Find a silently evolved API code:android.animation.PropertyValuesHolder.getPropertyValues:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * PropertyValuesHolder is Animators use to hold internal animation related data.
+ * Therefore, in order to replicate the animation behavior, we need to get data out of
+ * PropertyValuesHolder.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    init();
+    values.propertyName = mPropertyName;
+    values.type = mValueType;
+    values.startValue = mKeyframes.getValue(0);
+    if (values.startValue instanceof PathParser.PathData) {
+        // PathData evaluator returns the same mutable PathData object when query fraction,
+        // so we have to make a copy here.
+        values.startValue = new PathParser.PathData((PathParser.PathData) values.startValue);
+    }
+    values.endValue = mKeyframes.getValue(1);
+    if (values.endValue instanceof PathParser.PathData) {
+        // PathData evaluator returns the same mutable PathData object when query fraction,
+        // so we have to make a copy here.
+        values.endValue = new PathParser.PathData((PathParser.PathData) values.endValue);
+    }
+    // TODO: We need a better way to get data out of keyframes.
+    if (mKeyframes instanceof PathKeyframes.FloatKeyframesBase || mKeyframes instanceof PathKeyframes.IntKeyframesBase) {
+        // property values will animate based on external data source (e.g. Path)
+        values.dataSource = new PropertyValues.DataSource() {
+
+            @Override
+            public Object getValueAtFraction(float fraction) {
+                return mKeyframes.getValue(fraction);
+            }
+        };
+    } else {
+        values.dataSource = null;
+    }
+}
+Body of Second Method:
+{
+    init();
+    values.propertyName = mPropertyName;
+    values.type = mValueType;
+    values.startValue = mKeyframes.getValue(0);
+    if (values.startValue instanceof PathParser.PathData) {
+        // PathData evaluator returns the same mutable PathData object when query fraction,
+        // so we have to make a copy here.
+        values.startValue = new PathParser.PathData((PathParser.PathData) values.startValue);
+    }
+    values.endValue = mKeyframes.getValue(1);
+    if (values.endValue instanceof PathParser.PathData) {
+        // PathData evaluator returns the same mutable PathData object when query fraction,
+        // so we have to make a copy here.
+        values.endValue = new PathParser.PathData((PathParser.PathData) values.endValue);
+    }
+    // TODO: We need a better way to get data out of keyframes.
+    if (mKeyframes instanceof PathKeyframes.FloatKeyframesBase || mKeyframes instanceof PathKeyframes.IntKeyframesBase || (mKeyframes.getKeyframes() != null && mKeyframes.getKeyframes().size() > 2)) {
+        // When a pvh has more than 2 keyframes, that means there are intermediate values in
+        // addition to start/end values defined for animators. Another case where such
+        // intermediate values are defined is when animator has a path to animate along. In
+        // these cases, a data source is needed to capture these intermediate values.
+        values.dataSource = new PropertyValues.DataSource() {
+
+            @Override
+            public Object getValueAtFraction(float fraction) {
+                return mKeyframes.getValue(fraction);
+            }
+        };
+    } else {
+        values.dataSource = null;
+    }
+}
+------------------------
+Find a silently evolved API code:android.app.usage.UsageEvents.writeEventToParcel:COMMENT
+Method Modifier: private     
+Comment:/**
+ * Writes a single event to the parcel. Modify this when updating {@link Event}.
+ */
+
+Body of Frist Method:
+{
+    final int packageIndex;
+    if (event.mPackage != null) {
+        packageIndex = findStringIndex(event.mPackage);
+    } else {
+        packageIndex = -1;
+    }
+    final int classIndex;
+    if (event.mClass != null) {
+        classIndex = findStringIndex(event.mClass);
+    } else {
+        classIndex = -1;
+    }
+    p.writeInt(packageIndex);
+    p.writeInt(classIndex);
+    p.writeInt(event.mEventType);
+    p.writeLong(event.mTimeStamp);
+    if (event.mEventType == Event.CONFIGURATION_CHANGE) {
+        event.mConfiguration.writeToParcel(p, flags);
+    }
+}
+Body of Second Method:
+{
+    final int packageIndex;
+    if (event.mPackage != null) {
+        packageIndex = findStringIndex(event.mPackage);
+    } else {
+        packageIndex = -1;
+    }
+    final int classIndex;
+    if (event.mClass != null) {
+        classIndex = findStringIndex(event.mClass);
+    } else {
+        classIndex = -1;
+    }
+    p.writeInt(packageIndex);
+    p.writeInt(classIndex);
+    p.writeInt(event.mEventType);
+    p.writeLong(event.mTimeStamp);
+    switch(event.mEventType) {
+        case Event.CONFIGURATION_CHANGE:
+            event.mConfiguration.writeToParcel(p, flags);
+            break;
+        case Event.SHORTCUT_INVOCATION:
+            p.writeString(event.mShortcutId);
+            break;
+    }
+}
+------------------------
+Find a silently evolved API code:android.util.MemoryIntArray.close:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Closes the array releasing resources.
+ *
+ * @throws IOException If an error occurs while accessing the shared memory.
+ */
+
+Body of Frist Method:
+{
+    if (!isClosed()) {
+        ParcelFileDescriptor pfd = mFd;
+        mFd = null;
+        nativeClose(pfd.getFd(), mMemoryAddr, isOwner());
+    }
+}
+Body of Second Method:
+{
+    if (!isClosed()) {
+        nativeClose(mFd, mMemoryAddr, isOwner());
+        mFd = -1;
+    }
+}
+------------------------
+Find a silently evolved API code:android.app.usage.UsageEvents.readEventFromParcel:COMMENT
+Method Modifier: private     
+Comment:/**
+ * Reads a single event from the parcel. Modify this when updating {@link Event}.
+ */
+
+Body of Frist Method:
+{
+    final int packageIndex = p.readInt();
+    if (packageIndex >= 0) {
+        eventOut.mPackage = mStringPool[packageIndex];
+    } else {
+        eventOut.mPackage = null;
+    }
+    final int classIndex = p.readInt();
+    if (classIndex >= 0) {
+        eventOut.mClass = mStringPool[classIndex];
+    } else {
+        eventOut.mClass = null;
+    }
+    eventOut.mEventType = p.readInt();
+    eventOut.mTimeStamp = p.readLong();
+    // Extract the configuration for configuration change events.
+    if (eventOut.mEventType == Event.CONFIGURATION_CHANGE) {
+        eventOut.mConfiguration = Configuration.CREATOR.createFromParcel(p);
+    } else {
+        eventOut.mConfiguration = null;
+    }
+}
+Body of Second Method:
+{
+    final int packageIndex = p.readInt();
+    if (packageIndex >= 0) {
+        eventOut.mPackage = mStringPool[packageIndex];
+    } else {
+        eventOut.mPackage = null;
+    }
+    final int classIndex = p.readInt();
+    if (classIndex >= 0) {
+        eventOut.mClass = mStringPool[classIndex];
+    } else {
+        eventOut.mClass = null;
+    }
+    eventOut.mEventType = p.readInt();
+    eventOut.mTimeStamp = p.readLong();
+    // Fill out the event-dependant fields.
+    eventOut.mConfiguration = null;
+    eventOut.mShortcutId = null;
+    switch(eventOut.mEventType) {
+        case Event.CONFIGURATION_CHANGE:
+            // Extract the configuration for configuration change events.
+            eventOut.mConfiguration = Configuration.CREATOR.createFromParcel(p);
+            break;
+        case Event.SHORTCUT_INVOCATION:
+            eventOut.mShortcutId = p.readString();
+            break;
+    }
+}
+------------------------
+Find a silently evolved API code:android.graphics.Region.getBoundaryPath:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Return the boundary of the region as a new Path. If the region is empty,
+ * the path will also be empty.
+ */
+
+Body of Frist Method:
+{
+    Path path = new Path();
+    nativeGetBoundaryPath(mNativeRegion, path.ni());
+    return path;
+}
+Body of Second Method:
+{
+    Path path = new Path();
+    nativeGetBoundaryPath(mNativeRegion, path.mutateNI());
+    return path;
+}
+------------------------
+Find a silently evolved API code:android.telephony.ServiceState.setFromNotifierBundle:COMMENT
+Method Modifier: private     hidden      
+Comment:/**
+ * Set ServiceState based on intent notifier map.
+ *
+ * @param m intent notifier map
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    mVoiceRegState = m.getInt("voiceRegState");
+    mDataRegState = m.getInt("dataRegState");
+    mVoiceRoamingType = m.getInt("voiceRoamingType");
+    mDataRoamingType = m.getInt("dataRoamingType");
+    mVoiceOperatorAlphaLong = m.getString("operator-alpha-long");
+    mVoiceOperatorAlphaShort = m.getString("operator-alpha-short");
+    mVoiceOperatorNumeric = m.getString("operator-numeric");
+    mDataOperatorAlphaLong = m.getString("data-operator-alpha-long");
+    mDataOperatorAlphaShort = m.getString("data-operator-alpha-short");
+    mDataOperatorNumeric = m.getString("data-operator-numeric");
+    mIsManualNetworkSelection = m.getBoolean("manual");
+    mRilVoiceRadioTechnology = m.getInt("radioTechnology");
+    mRilDataRadioTechnology = m.getInt("dataRadioTechnology");
+    mCssIndicator = m.getBoolean("cssIndicator");
+    mNetworkId = m.getInt("networkId");
+    mSystemId = m.getInt("systemId");
+    mCdmaRoamingIndicator = m.getInt("cdmaRoamingIndicator");
+    mCdmaDefaultRoamingIndicator = m.getInt("cdmaDefaultRoamingIndicator");
+    mIsEmergencyOnly = m.getBoolean("emergencyOnly");
+    mIsDataRoamingFromRegistration = m.getBoolean("isDataRoamingFromRegistration");
+}
+Body of Second Method:
+{
+    mVoiceRegState = m.getInt("voiceRegState");
+    mDataRegState = m.getInt("dataRegState");
+    mVoiceRoamingType = m.getInt("voiceRoamingType");
+    mDataRoamingType = m.getInt("dataRoamingType");
+    mVoiceOperatorAlphaLong = m.getString("operator-alpha-long");
+    mVoiceOperatorAlphaShort = m.getString("operator-alpha-short");
+    mVoiceOperatorNumeric = m.getString("operator-numeric");
+    mDataOperatorAlphaLong = m.getString("data-operator-alpha-long");
+    mDataOperatorAlphaShort = m.getString("data-operator-alpha-short");
+    mDataOperatorNumeric = m.getString("data-operator-numeric");
+    mIsManualNetworkSelection = m.getBoolean("manual");
+    mRilVoiceRadioTechnology = m.getInt("radioTechnology");
+    mRilDataRadioTechnology = m.getInt("dataRadioTechnology");
+    mCssIndicator = m.getBoolean("cssIndicator");
+    mNetworkId = m.getInt("networkId");
+    mSystemId = m.getInt("systemId");
+    mCdmaRoamingIndicator = m.getInt("cdmaRoamingIndicator");
+    mCdmaDefaultRoamingIndicator = m.getInt("cdmaDefaultRoamingIndicator");
+    mIsEmergencyOnly = m.getBoolean("emergencyOnly");
+    mIsDataRoamingFromRegistration = m.getBoolean("isDataRoamingFromRegistration");
+    mIsUsingCarrierAggregation = m.getBoolean("isUsingCarrierAggregation");
+}
+------------------------
+Find a silently evolved API code:android.media.soundtrigger.SoundTriggerDetector.startRecognition:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Starts recognition on the associated sound model. Result is indicated via the
+ * {@link Callback}.
+ * @return Indicates whether the call succeeded or not.
+ */
+
+Body of Frist Method:
+{
+    if (DBG) {
+        Slog.d(TAG, "startRecognition()");
+    }
+    boolean captureTriggerAudio = (recognitionFlags & RECOGNITION_FLAG_CAPTURE_TRIGGER_AUDIO) != 0;
+    boolean allowMultipleTriggers = (recognitionFlags & RECOGNITION_FLAG_ALLOW_MULTIPLE_TRIGGERS) != 0;
+    try {
+        mSoundTriggerService.startRecognition(new ParcelUuid(mSoundModelId), mRecognitionCallback, new RecognitionConfig(captureTriggerAudio, allowMultipleTriggers, null, null));
+    } catch (RemoteException e) {
+        return false;
+    }
+    return true;
+}
+Body of Second Method:
+{
+    if (DBG) {
+        Slog.d(TAG, "startRecognition()");
+    }
+    boolean captureTriggerAudio = (recognitionFlags & RECOGNITION_FLAG_CAPTURE_TRIGGER_AUDIO) != 0;
+    boolean allowMultipleTriggers = (recognitionFlags & RECOGNITION_FLAG_ALLOW_MULTIPLE_TRIGGERS) != 0;
+    int status = STATUS_OK;
+    try {
+        status = mSoundTriggerService.startRecognition(new ParcelUuid(mSoundModelId), mRecognitionCallback, new RecognitionConfig(captureTriggerAudio, allowMultipleTriggers, null, null));
+    } catch (RemoteException e) {
+        return false;
+    }
+    return status == STATUS_OK;
+}
+------------------------
+Find a silently evolved API code:android.graphics.PathMeasure.getSegment:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Given a start and stop distance, return in dst the intervening
+ * segment(s). If the segment is zero-length, return false, else return
+ * true. startD and stopD are pinned to legal values (0..getLength()).
+ * If startD >= stopD then return false (and leave dst untouched).
+ * Begin the segment with a moveTo if startWithMoveTo is true.
+ *
+ * <p>On {@link android.os.Build.VERSION_CODES#KITKAT} and earlier
+ * releases, the resulting path may not display on a hardware-accelerated
+ * Canvas. A simple workaround is to add a single operation to this path,
+ * such as <code>dst.rLineTo(0, 0)</code>.</p>
+ */
+
+Body of Frist Method:
+{
+    // Skia used to enforce this as part of it's API, but has since relaxed that restriction
+    // so to maintain consistency in our API we enforce the preconditions here.
+    float length = getLength();
+    if (startD < 0) {
+        startD = 0;
+    }
+    if (stopD > length) {
+        stopD = length;
+    }
+    if (startD >= stopD) {
+        return false;
+    }
+    dst.isSimplePath = false;
+    return native_getSegment(native_instance, startD, stopD, dst.ni(), startWithMoveTo);
+}
+Body of Second Method:
+{
+    // Skia used to enforce this as part of it's API, but has since relaxed that restriction
+    // so to maintain consistency in our API we enforce the preconditions here.
+    float length = getLength();
+    if (startD < 0) {
+        startD = 0;
+    }
+    if (stopD > length) {
+        stopD = length;
+    }
+    if (startD >= stopD) {
+        return false;
+    }
+    return native_getSegment(native_instance, startD, stopD, dst.mutateNI(), startWithMoveTo);
+}
+------------------------
+Find a silently evolved API code:android.app.Activity.startActivityAsCaller:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Start a new activity as if it was started by the activity that started our
+ * current activity.  This is for the resolver and chooser activities, which operate
+ * as intermediaries that dispatch their intent to the target the user selects -- to
+ * do this, they must perform all security checks including permission grants as if
+ * their launch had come from the original activity.
+ * @param intent The Intent to start.
+ * @param options ActivityOptions or null.
+ * @param ignoreTargetSecurity If true, the activity manager will not check whether the
+ * caller it is doing the start is, is actually allowed to start the target activity.
+ * If you set this to true, you must set an explicit component in the Intent and do any
+ * appropriate security checks yourself.
+ * @param userId The user the new activity should run as.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (mParent != null) {
+        throw new RuntimeException("Can't be called from a child");
+    }
+    Instrumentation.ActivityResult ar = mInstrumentation.execStartActivityAsCaller(this, mMainThread.getApplicationThread(), mToken, this, intent, -1, options, ignoreTargetSecurity, userId);
+    if (ar != null) {
+        mMainThread.sendActivityResult(mToken, mEmbeddedID, -1, ar.getResultCode(), ar.getResultData());
+    }
+    cancelInputsAndStartExitTransition(options);
+}
+Body of Second Method:
+{
+    if (mParent != null) {
+        throw new RuntimeException("Can't be called from a child");
+    }
+    options = transferSpringboardActivityOptions(options);
+    Instrumentation.ActivityResult ar = mInstrumentation.execStartActivityAsCaller(this, mMainThread.getApplicationThread(), mToken, this, intent, -1, options, ignoreTargetSecurity, userId);
+    if (ar != null) {
+        mMainThread.sendActivityResult(mToken, mEmbeddedID, -1, ar.getResultCode(), ar.getResultData());
+    }
+    cancelInputsAndStartExitTransition(options);
+}
+------------------------
+Find a silently evolved API code:android.view.TextureView.setSurfaceTexture:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Set the {@link SurfaceTexture} for this view to use. If a {@link
+ * SurfaceTexture} is already being used by this view, it is immediately
+ * released and not be usable any more.  The {@link
+ * SurfaceTextureListener#onSurfaceTextureDestroyed} callback is <b>not</b>
+ * called for the previous {@link SurfaceTexture}.  Similarly, the {@link
+ * SurfaceTextureListener#onSurfaceTextureAvailable} callback is <b>not</b>
+ * called for the {@link SurfaceTexture} passed to setSurfaceTexture.
+ *
+ * The {@link SurfaceTexture} object must be detached from all OpenGL ES
+ * contexts prior to calling this method.
+ *
+ * @param surfaceTexture The {@link SurfaceTexture} that the view should use.
+ * @see SurfaceTexture#detachFromGLContext()
+ */
+
+Body of Frist Method:
+{
+    if (surfaceTexture == null) {
+        throw new NullPointerException("surfaceTexture must not be null");
+    }
+    if (surfaceTexture == mSurface) {
+        throw new IllegalArgumentException("Trying to setSurfaceTexture to " + "the same SurfaceTexture that's already set.");
+    }
+    if (surfaceTexture.isReleased()) {
+        throw new IllegalArgumentException("Cannot setSurfaceTexture to a " + "released SurfaceTexture");
+    }
+    if (mSurface != null) {
+        mSurface.release();
+    }
+    mSurface = surfaceTexture;
+    /*
+         * If the view is visible and we already made a layer, update the
+         * listener in the new surface to use the existing listener in the view.
+         * Otherwise this will be called when the view becomes visible or the
+         * layer is created
+         */
+    if (((mViewFlags & VISIBILITY_MASK) == VISIBLE) && mLayer != null) {
+        mSurface.setOnFrameAvailableListener(mUpdateListener, mAttachInfo.mHandler);
+    }
+    mUpdateSurface = true;
+    invalidateParentIfNeeded();
+}
+Body of Second Method:
+{
+    if (surfaceTexture == null) {
+        throw new NullPointerException("surfaceTexture must not be null");
+    }
+    if (surfaceTexture == mSurface) {
+        throw new IllegalArgumentException("Trying to setSurfaceTexture to " + "the same SurfaceTexture that's already set.");
+    }
+    if (surfaceTexture.isReleased()) {
+        throw new IllegalArgumentException("Cannot setSurfaceTexture to a " + "released SurfaceTexture");
+    }
+    if (mSurface != null) {
+        nDestroyNativeWindow();
+        mSurface.release();
+    }
+    mSurface = surfaceTexture;
+    nCreateNativeWindow(mSurface);
+    /*
+         * If the view is visible and we already made a layer, update the
+         * listener in the new surface to use the existing listener in the view.
+         * Otherwise this will be called when the view becomes visible or the
+         * layer is created
+         */
+    if (((mViewFlags & VISIBILITY_MASK) == VISIBLE) && mLayer != null) {
+        mSurface.setOnFrameAvailableListener(mUpdateListener, mAttachInfo.mHandler);
+    }
+    mUpdateSurface = true;
+    invalidateParentIfNeeded();
+}
+------------------------
+Find a silently evolved API code:android.service.quicksettings.TileService.unlockAndRun:COMMENT
+Method Modifier: public      final       
+Comment:/**
+ * Prompts the user to unlock the device before executing the Runnable.
+ * <p>
+ * The user will be prompted for their current security method if applicable
+ * and if successful, runnable will be executed.  The Runnable will not be
+ * executed if the user fails to unlock the device or cancels the operation.
+ */
+
+Body of Frist Method:
+{
+    mUnlockRunnable = runnable;
+    try {
+        mService.startUnlockAndRun(mTile);
+    } catch (RemoteException e) {
+    }
+}
+Body of Second Method:
+{
+    mUnlockRunnable = runnable;
+    try {
+        mService.startUnlockAndRun(mTileToken);
+    } catch (RemoteException e) {
+    }
+}
+------------------------
+Find a silently evolved API code:android.telecom.PhoneAccount.Builder.build:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Creates an instance of a {@link PhoneAccount} based on the current builder settings.
+ *
+ * @return The {@link PhoneAccount}.
+ */
+
+Body of Frist Method:
+{
+    // If no supported URI schemes were defined, assume "tel" is supported.
+    if (mSupportedUriSchemes.isEmpty()) {
+        addSupportedUriScheme(SCHEME_TEL);
+    }
+    return new PhoneAccount(mAccountHandle, mAddress, mSubscriptionAddress, mCapabilities, mIcon, mHighlightColor, mLabel, mShortDescription, mSupportedUriSchemes, mExtras, mIsEnabled);
+}
+Body of Second Method:
+{
+    // If no supported URI schemes were defined, assume "tel" is supported.
+    if (mSupportedUriSchemes.isEmpty()) {
+        addSupportedUriScheme(SCHEME_TEL);
+    }
+    return new PhoneAccount(mAccountHandle, mAddress, mSubscriptionAddress, mCapabilities, mIcon, mHighlightColor, mLabel, mShortDescription, mSupportedUriSchemes, mExtras, mIsEnabled, mGroupId);
+}
+------------------------
+Find a silently evolved API code:android.net.ConnectivityMetricsLogger.register:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Register PendingIntent which will be sent when new events are ready to be retrieved.
+ */
+
+Body of Frist Method:
+{
+    try {
+        return mService.register(newEventsIntent);
+    } catch (RemoteException ex) {
+        Log.e(TAG, "IConnectivityMetricsLogger.register: " + ex);
+        return false;
+    }
+}
+Body of Second Method:
+{
+    try {
+        return mService.register(newEventsIntent);
+    } catch (RemoteException e) {
+        Log.e(TAG, "IConnectivityMetricsLogger.register", e);
+        return false;
+    }
+}
+------------------------
+Find a silently evolved API code:android.nfc.NfcAdapter.addNfcUnlockHandler:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Registers a new NFC unlock handler with the NFC service.
+ *
+ * <p />NFC unlock handlers are intended to unlock the keyguard in the presence of a trusted
+ * NFC device. The handler should return true if it successfully authenticates the user and
+ * unlocks the keyguard.
+ *
+ * <p /> The parameter {@code tagTechnologies} determines which Tag technologies will be polled for
+ * at the lockscreen. Polling for less tag technologies reduces latency, and so it is
+ * strongly recommended to only provide the Tag technologies that the handler is expected to
+ * receive. There must be at least one tag technology provided, otherwise the unlock handler
+ * is ignored.
+ *
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    // If there are no tag technologies, don't bother adding unlock handler
+    if (tagTechnologies.length == 0) {
+        return false;
+    }
+    try {
+        synchronized (mLock) {
+            if (mNfcUnlockHandlers.containsKey(unlockHandler)) {
+                // update the tag technologies
+                sService.removeNfcUnlockHandler(mNfcUnlockHandlers.get(unlockHandler));
+                mNfcUnlockHandlers.remove(unlockHandler);
+            }
+            INfcUnlockHandler.Stub iHandler = new INfcUnlockHandler.Stub() {
+
+                @Override
+                public boolean onUnlockAttempted(Tag tag) throws RemoteException {
+                    return unlockHandler.onUnlockAttempted(tag);
+                }
+            };
+            sService.addNfcUnlockHandler(iHandler, Tag.getTechCodesFromStrings(tagTechnologies));
+            mNfcUnlockHandlers.put(unlockHandler, iHandler);
+        }
+    } catch (RemoteException e) {
+        attemptDeadServiceRecovery(e);
+        return false;
+    } catch (IllegalArgumentException e) {
+        Log.e(TAG, "Unable to register LockscreenDispatch", e);
+        return false;
+    }
+    return true;
+}
+Body of Second Method:
+{
+    synchronized (NfcAdapter.class) {
+        if (!sHasNfcFeature) {
+            throw new UnsupportedOperationException();
+        }
+    }
+    // If there are no tag technologies, don't bother adding unlock handler
+    if (tagTechnologies.length == 0) {
+        return false;
+    }
+    try {
+        synchronized (mLock) {
+            if (mNfcUnlockHandlers.containsKey(unlockHandler)) {
+                // update the tag technologies
+                sService.removeNfcUnlockHandler(mNfcUnlockHandlers.get(unlockHandler));
+                mNfcUnlockHandlers.remove(unlockHandler);
+            }
+            INfcUnlockHandler.Stub iHandler = new INfcUnlockHandler.Stub() {
+
+                @Override
+                public boolean onUnlockAttempted(Tag tag) throws RemoteException {
+                    return unlockHandler.onUnlockAttempted(tag);
+                }
+            };
+            sService.addNfcUnlockHandler(iHandler, Tag.getTechCodesFromStrings(tagTechnologies));
+            mNfcUnlockHandlers.put(unlockHandler, iHandler);
+        }
+    } catch (RemoteException e) {
+        attemptDeadServiceRecovery(e);
+        return false;
+    } catch (IllegalArgumentException e) {
+        Log.e(TAG, "Unable to register LockscreenDispatch", e);
+        return false;
+    }
+    return true;
+}
+------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothA2dp.connect:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Initiate connection to a profile of the remote bluetooth device.
+ *
+ * <p> Currently, the system supports only 1 connection to the
+ * A2DP profile. The API will automatically disconnect connected
+ * devices before connecting.
+ *
+ * <p> This API returns false in scenarios like the profile on the
+ * device is already connected or Bluetooth is not turned on.
+ * When this API returns true, it is guaranteed that
+ * connection state intent for the profile will be broadcasted with
+ * the state. Users can get the connection state of the profile
+ * from this intent.
+ *
+ * <p>Requires {@link android.Manifest.permission#BLUETOOTH_ADMIN}
+ * permission.
+ *
+ * @param device Remote Bluetooth Device
+ * @return false on immediate error,
+ * true otherwise
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (DBG)
+        log("connect(" + device + ")");
+    if (mService != null && isEnabled() && isValidDevice(device)) {
+        try {
+            return mService.connect(device);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Stack:" + Log.getStackTraceString(new Throwable()));
+            return false;
+        }
+    }
+    if (mService == null)
+        Log.w(TAG, "Proxy not attached to service");
+    return false;
+}
+Body of Second Method:
+{
+    if (DBG)
+        log("connect(" + device + ")");
+    try {
+        mServiceLock.readLock().lock();
+        if (mService != null && isEnabled() && isValidDevice(device)) {
+            return mService.connect(device);
+        }
+        if (mService == null)
+            Log.w(TAG, "Proxy not attached to service");
+        return false;
+    } catch (RemoteException e) {
+        Log.e(TAG, "Stack:" + Log.getStackTraceString(new Throwable()));
+        return false;
+    } finally {
+        mServiceLock.readLock().unlock();
+    }
+}
+------------------------
+Find a silently evolved API code:android.net.LinkAddress.isIPv6ULA:COMMENT
+Method Modifier: private     
+Comment:/**
+ * Utility function to check if |address| is a Unique Local IPv6 Unicast Address
+ * (a.k.a. "ULA"; RFC 4193).
+ *
+ * Per RFC 4193 section 8, fc00::/7 identifies these addresses.
+ */
+
+Body of Frist Method:
+{
+    if (address != null && address instanceof Inet6Address) {
+        byte[] bytes = address.getAddress();
+        return ((bytes[0] & (byte) 0xfc) == (byte) 0xfc);
+    }
+    return false;
+}
+Body of Second Method:
+{
+    if (address != null && address instanceof Inet6Address) {
+        byte[] bytes = address.getAddress();
+        return ((bytes[0] & (byte) 0xfe) == (byte) 0xfc);
+    }
+    return false;
+}
+------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothA2dp.getDevicesMatchingConnectionStates:COMMENT
+Method Modifier: public      
+Comment:/**
+ * {@inheritDoc}
+ */
+
+Body of Frist Method:
+{
+    if (VDBG)
+        log("getDevicesMatchingStates()");
+    if (mService != null && isEnabled()) {
+        try {
+            return mService.getDevicesMatchingConnectionStates(states);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Stack:" + Log.getStackTraceString(new Throwable()));
+            return new ArrayList<BluetoothDevice>();
+        }
+    }
+    if (mService == null)
+        Log.w(TAG, "Proxy not attached to service");
+    return new ArrayList<BluetoothDevice>();
+}
+Body of Second Method:
+{
+    if (VDBG)
+        log("getDevicesMatchingStates()");
+    try {
+        mServiceLock.readLock().lock();
+        if (mService != null && isEnabled()) {
+            return mService.getDevicesMatchingConnectionStates(states);
+        }
+        if (mService == null)
+            Log.w(TAG, "Proxy not attached to service");
+        return new ArrayList<BluetoothDevice>();
+    } catch (RemoteException e) {
+        Log.e(TAG, "Stack:" + Log.getStackTraceString(new Throwable()));
+        return new ArrayList<BluetoothDevice>();
+    } finally {
+        mServiceLock.readLock().unlock();
+    }
+}
+------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothA2dp.getConnectionState:COMMENT
+Method Modifier: public      
+Comment:/**
+ * {@inheritDoc}
+ */
+
+Body of Frist Method:
+{
+    if (VDBG)
+        log("getState(" + device + ")");
+    if (mService != null && isEnabled() && isValidDevice(device)) {
+        try {
+            return mService.getConnectionState(device);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Stack:" + Log.getStackTraceString(new Throwable()));
+            return BluetoothProfile.STATE_DISCONNECTED;
+        }
+    }
+    if (mService == null)
+        Log.w(TAG, "Proxy not attached to service");
+    return BluetoothProfile.STATE_DISCONNECTED;
+}
+Body of Second Method:
+{
+    if (VDBG)
+        log("getState(" + device + ")");
+    try {
+        mServiceLock.readLock().lock();
+        if (mService != null && isEnabled() && isValidDevice(device)) {
+            return mService.getConnectionState(device);
+        }
+        if (mService == null)
+            Log.w(TAG, "Proxy not attached to service");
+        return BluetoothProfile.STATE_DISCONNECTED;
+    } catch (RemoteException e) {
+        Log.e(TAG, "Stack:" + Log.getStackTraceString(new Throwable()));
+        return BluetoothProfile.STATE_DISCONNECTED;
+    } finally {
+        mServiceLock.readLock().unlock();
+    }
+}
+------------------------
+Find a silently evolved API code:android.text.method.BaseKeyListener.getOffsetForBackspaceKey:COMMENT
+Method Modifier: private     static      
+Comment:// Returns the start offset to be deleted by a backspace key from the given offset.
+
+Body of Frist Method:
+{
+    if (offset <= 1) {
+        return 0;
+    }
+    // Initial state
+    final int STATE_START = 0;
+    // The offset is immediately before line feed.
+    final int STATE_LF = 1;
+    // The offset is immediately before a KEYCAP.
+    final int STATE_BEFORE_KEYCAP = 2;
+    // The offset is immediately before a variation selector and a KEYCAP.
+    final int STATE_BEFORE_VS_AND_KEYCAP = 3;
+    // The offset is immediately before an emoji modifier.
+    final int STATE_BEFORE_EMOJI_MODIFIER = 4;
+    // The offset is immediately before a variation selector and an emoji modifier.
+    final int STATE_BEFORE_VS_AND_EMOJI_MODIFIER = 5;
+    // The offset is immediately before a variation selector.
+    final int STATE_BEFORE_VS = 6;
+    // The offset is immediately before a ZWJ emoji.
+    final int STATE_BEFORE_ZWJ_EMOJI = 7;
+    // The offset is immediately before a ZWJ that were seen before a ZWJ emoji.
+    final int STATE_BEFORE_ZWJ = 8;
+    // The offset is immediately before a variation selector and a ZWJ that were seen before a
+    // ZWJ emoji.
+    final int STATE_BEFORE_VS_AND_ZWJ = 9;
+    // The number of following RIS code points is odd.
+    final int STATE_ODD_NUMBERED_RIS = 10;
+    // The number of following RIS code points is even.
+    final int STATE_EVEN_NUMBERED_RIS = 11;
+    // The state machine has been stopped.
+    final int STATE_FINISHED = 12;
+    // Char count to be deleted by backspace.
+    int deleteCharCount = 0;
+    // Char count of previous variation selector.
+    int lastSeenVSCharCount = 0;
+    int state = STATE_START;
+    int tmpOffset = offset;
+    do {
+        final int codePoint = Character.codePointBefore(text, tmpOffset);
+        tmpOffset -= Character.charCount(codePoint);
+        switch(state) {
+            case STATE_START:
+                deleteCharCount = Character.charCount(codePoint);
+                if (codePoint == LINE_FEED) {
+                    state = STATE_LF;
+                } else if (isVariationSelector(codePoint)) {
+                    state = STATE_BEFORE_VS;
+                } else if (Emoji.isRegionalIndicatorSymbol(codePoint)) {
+                    state = STATE_ODD_NUMBERED_RIS;
+                } else if (Emoji.isEmojiModifier(codePoint)) {
+                    state = STATE_BEFORE_EMOJI_MODIFIER;
+                } else if (codePoint == Emoji.COMBINING_ENCLOSING_KEYCAP) {
+                    state = STATE_BEFORE_KEYCAP;
+                } else if (Emoji.isEmoji(codePoint)) {
+                    state = STATE_BEFORE_ZWJ_EMOJI;
+                } else {
+                    state = STATE_FINISHED;
+                }
+                break;
+            case STATE_LF:
+                if (codePoint == CARRIAGE_RETURN) {
+                    ++deleteCharCount;
+                }
+                state = STATE_FINISHED;
+            case STATE_ODD_NUMBERED_RIS:
+                if (Emoji.isRegionalIndicatorSymbol(codePoint)) {
+                    deleteCharCount += 2;
+                    /* Char count of RIS */
+                    state = STATE_EVEN_NUMBERED_RIS;
+                } else {
+                    state = STATE_FINISHED;
+                }
+                break;
+            case STATE_EVEN_NUMBERED_RIS:
+                if (Emoji.isRegionalIndicatorSymbol(codePoint)) {
+                    deleteCharCount -= 2;
+                    /* Char count of RIS */
+                    state = STATE_ODD_NUMBERED_RIS;
+                } else {
+                    state = STATE_FINISHED;
+                }
+                break;
+            case STATE_BEFORE_KEYCAP:
+                if (isVariationSelector(codePoint)) {
+                    lastSeenVSCharCount = Character.charCount(codePoint);
+                    state = STATE_BEFORE_VS_AND_KEYCAP;
+                    break;
+                }
+                if (Emoji.isKeycapBase(codePoint)) {
+                    deleteCharCount += Character.charCount(codePoint);
+                }
+                state = STATE_FINISHED;
+                break;
+            case STATE_BEFORE_VS_AND_KEYCAP:
+                if (Emoji.isKeycapBase(codePoint)) {
+                    deleteCharCount += lastSeenVSCharCount + Character.charCount(codePoint);
+                }
+                state = STATE_FINISHED;
+                break;
+            case STATE_BEFORE_EMOJI_MODIFIER:
+                if (isVariationSelector(codePoint)) {
+                    lastSeenVSCharCount = Character.charCount(codePoint);
+                    state = STATE_BEFORE_VS_AND_EMOJI_MODIFIER;
+                    break;
+                } else if (Emoji.isEmojiModifierBase(codePoint)) {
+                    deleteCharCount += Character.charCount(codePoint);
+                }
+                state = STATE_FINISHED;
+                break;
+            case STATE_BEFORE_VS_AND_EMOJI_MODIFIER:
+                if (Emoji.isEmojiModifierBase(codePoint)) {
+                    deleteCharCount += lastSeenVSCharCount + Character.charCount(codePoint);
+                }
+                state = STATE_FINISHED;
+                break;
+            case STATE_BEFORE_VS:
+                if (Emoji.isEmoji(codePoint)) {
+                    deleteCharCount += Character.charCount(codePoint);
+                    state = STATE_BEFORE_ZWJ_EMOJI;
+                    break;
+                }
+                if (!isVariationSelector(codePoint) && UCharacter.getCombiningClass(codePoint) == 0) {
+                    deleteCharCount += Character.charCount(codePoint);
+                }
+                state = STATE_FINISHED;
+                break;
+            case STATE_BEFORE_ZWJ_EMOJI:
+                if (codePoint == Emoji.ZERO_WIDTH_JOINER) {
+                    state = STATE_BEFORE_ZWJ;
+                } else {
+                    state = STATE_FINISHED;
+                }
+                break;
+            case STATE_BEFORE_ZWJ:
+                if (Emoji.isEmoji(codePoint)) {
+                    // +1 for ZWJ.
+                    deleteCharCount += Character.charCount(codePoint) + 1;
+                    state = STATE_BEFORE_ZWJ_EMOJI;
+                } else if (isVariationSelector(codePoint)) {
+                    lastSeenVSCharCount = Character.charCount(codePoint);
+                    state = STATE_BEFORE_VS_AND_ZWJ;
+                } else {
+                    state = STATE_FINISHED;
+                }
+                break;
+            case STATE_BEFORE_VS_AND_ZWJ:
+                if (Emoji.isEmoji(codePoint)) {
+                    // +1 for ZWJ.
+                    deleteCharCount += lastSeenVSCharCount + 1 + Character.charCount(codePoint);
+                    lastSeenVSCharCount = 0;
+                    state = STATE_BEFORE_ZWJ_EMOJI;
+                } else {
+                    state = STATE_FINISHED;
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("state " + state + " is unknown");
+        }
+    } while (tmpOffset > 0 && state != STATE_FINISHED);
+    return adjustReplacementSpan(text, offset - deleteCharCount, true);
+}
+Body of Second Method:
+{
+    if (offset <= 1) {
+        return 0;
+    }
+    // Initial state
+    final int STATE_START = 0;
+    // The offset is immediately before line feed.
+    final int STATE_LF = 1;
+    // The offset is immediately before a KEYCAP.
+    final int STATE_BEFORE_KEYCAP = 2;
+    // The offset is immediately before a variation selector and a KEYCAP.
+    final int STATE_BEFORE_VS_AND_KEYCAP = 3;
+    // The offset is immediately before an emoji modifier.
+    final int STATE_BEFORE_EMOJI_MODIFIER = 4;
+    // The offset is immediately before a variation selector and an emoji modifier.
+    final int STATE_BEFORE_VS_AND_EMOJI_MODIFIER = 5;
+    // The offset is immediately before a variation selector.
+    final int STATE_BEFORE_VS = 6;
+    // The offset is immediately before an emoji.
+    final int STATE_BEFORE_EMOJI = 7;
+    // The offset is immediately before a ZWJ that were seen before a ZWJ emoji.
+    final int STATE_BEFORE_ZWJ = 8;
+    // The offset is immediately before a variation selector and a ZWJ that were seen before a
+    // ZWJ emoji.
+    final int STATE_BEFORE_VS_AND_ZWJ = 9;
+    // The number of following RIS code points is odd.
+    final int STATE_ODD_NUMBERED_RIS = 10;
+    // The number of following RIS code points is even.
+    final int STATE_EVEN_NUMBERED_RIS = 11;
+    // The state machine has been stopped.
+    final int STATE_FINISHED = 12;
+    // Char count to be deleted by backspace.
+    int deleteCharCount = 0;
+    // Char count of previous variation selector.
+    int lastSeenVSCharCount = 0;
+    int state = STATE_START;
+    int tmpOffset = offset;
+    do {
+        final int codePoint = Character.codePointBefore(text, tmpOffset);
+        tmpOffset -= Character.charCount(codePoint);
+        switch(state) {
+            case STATE_START:
+                deleteCharCount = Character.charCount(codePoint);
+                if (codePoint == LINE_FEED) {
+                    state = STATE_LF;
+                } else if (isVariationSelector(codePoint)) {
+                    state = STATE_BEFORE_VS;
+                } else if (Emoji.isRegionalIndicatorSymbol(codePoint)) {
+                    state = STATE_ODD_NUMBERED_RIS;
+                } else if (Emoji.isEmojiModifier(codePoint)) {
+                    state = STATE_BEFORE_EMOJI_MODIFIER;
+                } else if (codePoint == Emoji.COMBINING_ENCLOSING_KEYCAP) {
+                    state = STATE_BEFORE_KEYCAP;
+                } else if (Emoji.isEmoji(codePoint)) {
+                    state = STATE_BEFORE_EMOJI;
+                } else {
+                    state = STATE_FINISHED;
+                }
+                break;
+            case STATE_LF:
+                if (codePoint == CARRIAGE_RETURN) {
+                    ++deleteCharCount;
+                }
+                state = STATE_FINISHED;
+            case STATE_ODD_NUMBERED_RIS:
+                if (Emoji.isRegionalIndicatorSymbol(codePoint)) {
+                    deleteCharCount += 2;
+                    /* Char count of RIS */
+                    state = STATE_EVEN_NUMBERED_RIS;
+                } else {
+                    state = STATE_FINISHED;
+                }
+                break;
+            case STATE_EVEN_NUMBERED_RIS:
+                if (Emoji.isRegionalIndicatorSymbol(codePoint)) {
+                    deleteCharCount -= 2;
+                    /* Char count of RIS */
+                    state = STATE_ODD_NUMBERED_RIS;
+                } else {
+                    state = STATE_FINISHED;
+                }
+                break;
+            case STATE_BEFORE_KEYCAP:
+                if (isVariationSelector(codePoint)) {
+                    lastSeenVSCharCount = Character.charCount(codePoint);
+                    state = STATE_BEFORE_VS_AND_KEYCAP;
+                    break;
+                }
+                if (Emoji.isKeycapBase(codePoint)) {
+                    deleteCharCount += Character.charCount(codePoint);
+                }
+                state = STATE_FINISHED;
+                break;
+            case STATE_BEFORE_VS_AND_KEYCAP:
+                if (Emoji.isKeycapBase(codePoint)) {
+                    deleteCharCount += lastSeenVSCharCount + Character.charCount(codePoint);
+                }
+                state = STATE_FINISHED;
+                break;
+            case STATE_BEFORE_EMOJI_MODIFIER:
+                if (isVariationSelector(codePoint)) {
+                    lastSeenVSCharCount = Character.charCount(codePoint);
+                    state = STATE_BEFORE_VS_AND_EMOJI_MODIFIER;
+                    break;
+                } else if (Emoji.isEmojiModifierBase(codePoint)) {
+                    deleteCharCount += Character.charCount(codePoint);
+                }
+                state = STATE_FINISHED;
+                break;
+            case STATE_BEFORE_VS_AND_EMOJI_MODIFIER:
+                if (Emoji.isEmojiModifierBase(codePoint)) {
+                    deleteCharCount += lastSeenVSCharCount + Character.charCount(codePoint);
+                }
+                state = STATE_FINISHED;
+                break;
+            case STATE_BEFORE_VS:
+                if (Emoji.isEmoji(codePoint)) {
+                    deleteCharCount += Character.charCount(codePoint);
+                    state = STATE_BEFORE_EMOJI;
+                    break;
+                }
+                if (!isVariationSelector(codePoint) && UCharacter.getCombiningClass(codePoint) == 0) {
+                    deleteCharCount += Character.charCount(codePoint);
+                }
+                state = STATE_FINISHED;
+                break;
+            case STATE_BEFORE_EMOJI:
+                if (codePoint == Emoji.ZERO_WIDTH_JOINER) {
+                    state = STATE_BEFORE_ZWJ;
+                } else {
+                    state = STATE_FINISHED;
+                }
+                break;
+            case STATE_BEFORE_ZWJ:
+                if (Emoji.isEmoji(codePoint)) {
+                    // +1 for ZWJ.
+                    deleteCharCount += Character.charCount(codePoint) + 1;
+                    state = Emoji.isEmojiModifier(codePoint) ? STATE_BEFORE_EMOJI_MODIFIER : STATE_BEFORE_EMOJI;
+                } else if (isVariationSelector(codePoint)) {
+                    lastSeenVSCharCount = Character.charCount(codePoint);
+                    state = STATE_BEFORE_VS_AND_ZWJ;
+                } else {
+                    state = STATE_FINISHED;
+                }
+                break;
+            case STATE_BEFORE_VS_AND_ZWJ:
+                if (Emoji.isEmoji(codePoint)) {
+                    // +1 for ZWJ.
+                    deleteCharCount += lastSeenVSCharCount + 1 + Character.charCount(codePoint);
+                    lastSeenVSCharCount = 0;
+                    state = STATE_BEFORE_EMOJI;
+                } else {
+                    state = STATE_FINISHED;
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("state " + state + " is unknown");
+        }
+    } while (tmpOffset > 0 && state != STATE_FINISHED);
+    return adjustReplacementSpan(text, offset - deleteCharCount, true);
+}
+------------------------
+Find a silently evolved API code:android.net.ConnectivityManager.unregisterNetworkCallback:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Unregisters callbacks about and possibly releases networks originating from
+ * {@link #requestNetwork(NetworkRequest, NetworkCallback)} and
+ * {@link #registerNetworkCallback(NetworkRequest, NetworkCallback)} calls.
+ * If the given {@code NetworkCallback} had previously been used with
+ * {@code #requestNetwork}, any networks that had been connected to only to satisfy that request
+ * will be disconnected.
+ *
+ * @param networkCallback The {@link NetworkCallback} used when making the request.
+ */
+
+Body of Frist Method:
+{
+    if (networkCallback == null || networkCallback.networkRequest == null || networkCallback.networkRequest.requestId == REQUEST_ID_UNSET) {
+        throw new IllegalArgumentException("Invalid NetworkCallback");
+    }
+    try {
+        mService.releaseNetworkRequest(networkCallback.networkRequest);
+    } catch (RemoteException e) {
+        throw e.rethrowFromSystemServer();
+    }
+    synchronized (sNetworkCallback) {
+        sNetworkCallback.remove(networkCallback.networkRequest);
+    }
+}
+Body of Second Method:
+{
+    if (networkCallback == null || networkCallback.networkRequest == null || networkCallback.networkRequest.requestId == REQUEST_ID_UNSET) {
+        throw new IllegalArgumentException("Invalid NetworkCallback");
+    }
+    try {
+        // CallbackHandler will release callback when receiving CALLBACK_RELEASED.
+        mService.releaseNetworkRequest(networkCallback.networkRequest);
+    } catch (RemoteException e) {
+        throw e.rethrowFromSystemServer();
+    }
+}
+------------------------
+Find a silently evolved API code:android.media.soundtrigger.SoundTriggerDetector.stopRecognition:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Stops recognition for the associated model.
+ */
+
+Body of Frist Method:
+{
+    try {
+        mSoundTriggerService.stopRecognition(new ParcelUuid(mSoundModelId), mRecognitionCallback);
+    } catch (RemoteException e) {
+        return false;
+    }
+    return true;
+}
+Body of Second Method:
+{
+    int status = STATUS_OK;
+    try {
+        status = mSoundTriggerService.stopRecognition(new ParcelUuid(mSoundModelId), mRecognitionCallback);
+    } catch (RemoteException e) {
+        return false;
+    }
+    return status == STATUS_OK;
+}
+------------------------
+Find a silently evolved API code:android.graphics.Canvas.drawPath:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Draw the specified path using the specified paint. The path will be
+ * filled or framed based on the Style in the paint.
+ *
+ * @param path  The path to be drawn
+ * @param paint The paint used to draw the path
+ */
+
+Body of Frist Method:
+{
+    if (path.isSimplePath && path.rects != null) {
+        native_drawRegion(mNativeCanvasWrapper, path.rects.mNativeRegion, paint.getNativeInstance());
+    } else {
+        native_drawPath(mNativeCanvasWrapper, path.ni(), paint.getNativeInstance());
+    }
+}
+Body of Second Method:
+{
+    if (path.isSimplePath && path.rects != null) {
+        native_drawRegion(mNativeCanvasWrapper, path.rects.mNativeRegion, paint.getNativeInstance());
+    } else {
+        native_drawPath(mNativeCanvasWrapper, path.readOnlyNI(), paint.getNativeInstance());
+    }
+}
+------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothA2dp.adjustAvrcpAbsoluteVolume:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Tells remote device to adjust volume. Only if absolute volume is
+ * supported. Uses the following values:
+ * <ul>
+ * <li>{@link AudioManager#ADJUST_LOWER}</li>
+ * <li>{@link AudioManager#ADJUST_RAISE}</li>
+ * <li>{@link AudioManager#ADJUST_MUTE}</li>
+ * <li>{@link AudioManager#ADJUST_UNMUTE}</li>
+ * </ul>
+ *
+ * @param direction One of the supported adjust values.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (DBG)
+        Log.d(TAG, "adjustAvrcpAbsoluteVolume");
+    if (mService != null && isEnabled()) {
+        try {
+            mService.adjustAvrcpAbsoluteVolume(direction);
+            return;
+        } catch (RemoteException e) {
+            Log.e(TAG, "Error talking to BT service in adjustAvrcpAbsoluteVolume()", e);
+            return;
+        }
+    }
+    if (mService == null)
+        Log.w(TAG, "Proxy not attached to service");
+}
+Body of Second Method:
+{
+    if (DBG)
+        Log.d(TAG, "adjustAvrcpAbsoluteVolume");
+    try {
+        mServiceLock.readLock().lock();
+        if (mService != null && isEnabled()) {
+            mService.adjustAvrcpAbsoluteVolume(direction);
+        }
+        if (mService == null)
+            Log.w(TAG, "Proxy not attached to service");
+    } catch (RemoteException e) {
+        Log.e(TAG, "Error talking to BT service in adjustAvrcpAbsoluteVolume()", e);
+    } finally {
+        mServiceLock.readLock().unlock();
+    }
+}
+------------------------
+Find a silently evolved API code:android.view.SurfaceControl.PhysicalDisplayInfo.toString:COMMENT
+Method Modifier: public      
+Comment:// For debugging purposes
+
+Body of Frist Method:
+{
+    return "PhysicalDisplayInfo{" + width + " x " + height + ", " + refreshRate + " fps, " + "density " + density + ", " + xDpi + " x " + yDpi + " dpi, secure " + secure + ", appVsyncOffset " + appVsyncOffsetNanos + ", bufferDeadline " + presentationDeadlineNanos + ", colorTransform " + colorTransform + "}";
+}
+Body of Second Method:
+{
+    return "PhysicalDisplayInfo{" + width + " x " + height + ", " + refreshRate + " fps, " + "density " + density + ", " + xDpi + " x " + yDpi + " dpi, secure " + secure + ", appVsyncOffset " + appVsyncOffsetNanos + ", bufferDeadline " + presentationDeadlineNanos + "}";
+}
+------------------------
+Find a silently evolved API code:android.nfc.NfcAdapter.getNfcAdapter:COMMENT
+Method Modifier: public      static      hidden      
+Comment:/**
+ * Returns the NfcAdapter for application context,
+ * or throws if NFC is not available.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (!sIsInitialized) {
+        /* is this device meant to have NFC */
+        if (!hasNfcFeature()) {
+            Log.v(TAG, "this device does not have NFC support");
+            throw new UnsupportedOperationException();
+        }
+        sService = getServiceInterface();
+        if (sService == null) {
+            Log.e(TAG, "could not retrieve NFC service");
+            throw new UnsupportedOperationException();
+        }
+        try {
+            sTagService = sService.getNfcTagInterface();
+        } catch (RemoteException e) {
+            Log.e(TAG, "could not retrieve NFC Tag service");
+            throw new UnsupportedOperationException();
+        }
+        try {
+            sCardEmulationService = sService.getNfcCardEmulationInterface();
+        } catch (RemoteException e) {
+            Log.e(TAG, "could not retrieve card emulation service");
+            throw new UnsupportedOperationException();
+        }
+        try {
+            sNfcFCardEmulationService = sService.getNfcFCardEmulationInterface();
+        } catch (RemoteException e) {
+            Log.e(TAG, "could not retrieve NFC-F card emulation service");
+            throw new UnsupportedOperationException();
+        }
+        sIsInitialized = true;
+    }
+    if (context == null) {
+        if (sNullContextNfcAdapter == null) {
+            sNullContextNfcAdapter = new NfcAdapter(null);
+        }
+        return sNullContextNfcAdapter;
+    }
+    NfcAdapter adapter = sNfcAdapters.get(context);
+    if (adapter == null) {
+        adapter = new NfcAdapter(context);
+        sNfcAdapters.put(context, adapter);
+    }
+    return adapter;
+}
+Body of Second Method:
+{
+    if (!sIsInitialized) {
+        sHasNfcFeature = hasNfcFeature();
+        boolean hasHceFeature = hasNfcHceFeature();
+        /* is this device meant to have NFC */
+        if (!sHasNfcFeature && !hasHceFeature) {
+            Log.v(TAG, "this device does not have NFC support");
+            throw new UnsupportedOperationException();
+        }
+        sService = getServiceInterface();
+        if (sService == null) {
+            Log.e(TAG, "could not retrieve NFC service");
+            throw new UnsupportedOperationException();
+        }
+        if (sHasNfcFeature) {
+            try {
+                sTagService = sService.getNfcTagInterface();
+            } catch (RemoteException e) {
+                Log.e(TAG, "could not retrieve NFC Tag service");
+                throw new UnsupportedOperationException();
+            }
+        }
+        if (hasHceFeature) {
+            try {
+                sNfcFCardEmulationService = sService.getNfcFCardEmulationInterface();
+            } catch (RemoteException e) {
+                Log.e(TAG, "could not retrieve NFC-F card emulation service");
+                throw new UnsupportedOperationException();
+            }
+            try {
+                sCardEmulationService = sService.getNfcCardEmulationInterface();
+            } catch (RemoteException e) {
+                Log.e(TAG, "could not retrieve card emulation service");
+                throw new UnsupportedOperationException();
+            }
+        }
+        sIsInitialized = true;
+    }
+    if (context == null) {
+        if (sNullContextNfcAdapter == null) {
+            sNullContextNfcAdapter = new NfcAdapter(null);
+        }
+        return sNullContextNfcAdapter;
+    }
+    NfcAdapter adapter = sNfcAdapters.get(context);
+    if (adapter == null) {
+        adapter = new NfcAdapter(context);
+        sNfcAdapters.put(context, adapter);
+    }
+    return adapter;
+}
+------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothA2dp.close:COMMENT
+Method Modifier: default     
+Comment:/*package*/
+
+Body of Frist Method:
+{
+    mServiceListener = null;
+    IBluetoothManager mgr = mAdapter.getBluetoothManager();
+    if (mgr != null) {
+        try {
+            mgr.unregisterStateChangeCallback(mBluetoothStateChangeCallback);
+        } catch (Exception e) {
+            Log.e(TAG, "", e);
+        }
+    }
+    synchronized (mConnection) {
+        if (mService != null) {
+            try {
+                mService = null;
+                mContext.unbindService(mConnection);
+            } catch (Exception re) {
+                Log.e(TAG, "", re);
+            }
+        }
+    }
+}
+Body of Second Method:
+{
+    mServiceListener = null;
+    IBluetoothManager mgr = mAdapter.getBluetoothManager();
+    if (mgr != null) {
+        try {
+            mgr.unregisterStateChangeCallback(mBluetoothStateChangeCallback);
+        } catch (Exception e) {
+            Log.e(TAG, "", e);
+        }
+    }
+    try {
+        mServiceLock.writeLock().lock();
+        if (mService != null) {
+            mService = null;
+            mContext.unbindService(mConnection);
+        }
+    } catch (Exception re) {
+        Log.e(TAG, "", re);
+    } finally {
+        mServiceLock.writeLock().unlock();
+    }
+}
+------------------------
+Find a silently evolved API code:android.view.inputmethod.EditorInfo.dump:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Write debug output of this object.
+ */
+
+Body of Frist Method:
+{
+    pw.println(prefix + "inputType=0x" + Integer.toHexString(inputType) + " imeOptions=0x" + Integer.toHexString(imeOptions) + " privateImeOptions=" + privateImeOptions);
+    pw.println(prefix + "actionLabel=" + actionLabel + " actionId=" + actionId);
+    pw.println(prefix + "initialSelStart=" + initialSelStart + " initialSelEnd=" + initialSelEnd + " initialCapsMode=0x" + Integer.toHexString(initialCapsMode));
+    pw.println(prefix + "hintText=" + hintText + " label=" + label);
+    pw.println(prefix + "packageName=" + packageName + " fieldId=" + fieldId + " fieldName=" + fieldName);
+    pw.println(prefix + "extras=" + extras);
+    pw.println(prefix + "hintLocales=" + hintLocales);
+}
+Body of Second Method:
+{
+    pw.println(prefix + "inputType=0x" + Integer.toHexString(inputType) + " imeOptions=0x" + Integer.toHexString(imeOptions) + " privateImeOptions=" + privateImeOptions);
+    pw.println(prefix + "actionLabel=" + actionLabel + " actionId=" + actionId);
+    pw.println(prefix + "initialSelStart=" + initialSelStart + " initialSelEnd=" + initialSelEnd + " initialCapsMode=0x" + Integer.toHexString(initialCapsMode));
+    pw.println(prefix + "hintText=" + hintText + " label=" + label);
+    pw.println(prefix + "packageName=" + packageName + " fieldId=" + fieldId + " fieldName=" + fieldName);
+    pw.println(prefix + "extras=" + extras);
+    pw.println(prefix + "hintLocales=" + hintLocales);
+    pw.println(prefix + "contentMimeTypes=" + Arrays.toString(contentMimeTypes));
+}
+------------------------
+Find a silently evolved API code:android.nfc.NfcAdapter.enableNdefPush:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Enable NDEF Push feature.
+ * <p>This API is for the Settings application.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    try {
+        return sService.enableNdefPush();
+    } catch (RemoteException e) {
+        attemptDeadServiceRecovery(e);
+        return false;
+    }
+}
+Body of Second Method:
+{
+    if (!sHasNfcFeature) {
+        throw new UnsupportedOperationException();
+    }
+    try {
+        return sService.enableNdefPush();
+    } catch (RemoteException e) {
+        attemptDeadServiceRecovery(e);
+        return false;
+    }
+}
+------------------------
+Find a silently evolved API code:android.telephony.ServiceState.isGsm:COMMENT
+Method Modifier: public      static      hidden      
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    return radioTechnology == RIL_RADIO_TECHNOLOGY_GPRS || radioTechnology == RIL_RADIO_TECHNOLOGY_EDGE || radioTechnology == RIL_RADIO_TECHNOLOGY_UMTS || radioTechnology == RIL_RADIO_TECHNOLOGY_HSDPA || radioTechnology == RIL_RADIO_TECHNOLOGY_HSUPA || radioTechnology == RIL_RADIO_TECHNOLOGY_HSPA || radioTechnology == RIL_RADIO_TECHNOLOGY_LTE || radioTechnology == RIL_RADIO_TECHNOLOGY_HSPAP || radioTechnology == RIL_RADIO_TECHNOLOGY_GSM || radioTechnology == RIL_RADIO_TECHNOLOGY_TD_SCDMA || radioTechnology == RIL_RADIO_TECHNOLOGY_IWLAN;
+}
+Body of Second Method:
+{
+    return radioTechnology == RIL_RADIO_TECHNOLOGY_GPRS || radioTechnology == RIL_RADIO_TECHNOLOGY_EDGE || radioTechnology == RIL_RADIO_TECHNOLOGY_UMTS || radioTechnology == RIL_RADIO_TECHNOLOGY_HSDPA || radioTechnology == RIL_RADIO_TECHNOLOGY_HSUPA || radioTechnology == RIL_RADIO_TECHNOLOGY_HSPA || radioTechnology == RIL_RADIO_TECHNOLOGY_LTE || radioTechnology == RIL_RADIO_TECHNOLOGY_HSPAP || radioTechnology == RIL_RADIO_TECHNOLOGY_GSM || radioTechnology == RIL_RADIO_TECHNOLOGY_TD_SCDMA || radioTechnology == RIL_RADIO_TECHNOLOGY_IWLAN || radioTechnology == RIL_RADIO_TECHNOLOGY_LTE_CA;
+}
+------------------------
+Find a silently evolved API code:android.net.wifi.WifiEnterpriseConfig.saveToSupplicant:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Internal use only; supply field values to wpa_supplicant config.  The configuration
+ * process aborts on the first failed call on {@code saver}.
+ * @param saver proxy for setting configuration in wpa_supplciant
+ * @return whether the save succeeded on all attempts
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (!isEapMethodValid()) {
+        return false;
+    }
+    for (String key : mFields.keySet()) {
+        if (!saver.saveValue(key, mFields.get(key))) {
+            return false;
+        }
+    }
+    if (!saver.saveValue(EAP_KEY, Eap.strings[mEapMethod])) {
+        return false;
+    }
+    if (mEapMethod != Eap.TLS && mPhase2Method != Phase2.NONE) {
+        boolean is_autheap = mEapMethod == Eap.TTLS && mPhase2Method == Phase2.GTC;
+        String prefix = is_autheap ? Phase2.AUTHEAP_PREFIX : Phase2.AUTH_PREFIX;
+        String value = convertToQuotedString(prefix + Phase2.strings[mPhase2Method]);
+        return saver.saveValue(PHASE2_KEY, value);
+    } else if (mPhase2Method == Phase2.NONE) {
+        // By default, send a null phase 2 to clear old configuration values.
+        return saver.saveValue(PHASE2_KEY, null);
+    } else {
+        Log.e(TAG, "WiFi enterprise configuration is invalid as it supplies a " + "phase 2 method but the phase1 method does not support it.");
+        return false;
+    }
+}
+Body of Second Method:
+{
+    if (!isEapMethodValid()) {
+        return false;
+    }
+    // wpa_supplicant can update the anonymous identity for these kinds of networks after
+    // framework reads them, so make sure the framework doesn't try to overwrite them.
+    boolean shouldNotWriteAnonIdentity = mEapMethod == WifiEnterpriseConfig.Eap.SIM || mEapMethod == WifiEnterpriseConfig.Eap.AKA || mEapMethod == WifiEnterpriseConfig.Eap.AKA_PRIME;
+    for (String key : mFields.keySet()) {
+        if (shouldNotWriteAnonIdentity && ANON_IDENTITY_KEY.equals(key)) {
+            continue;
+        }
+        if (!saver.saveValue(key, mFields.get(key))) {
+            return false;
+        }
+    }
+    if (!saver.saveValue(EAP_KEY, Eap.strings[mEapMethod])) {
+        return false;
+    }
+    if (mEapMethod != Eap.TLS && mPhase2Method != Phase2.NONE) {
+        boolean is_autheap = mEapMethod == Eap.TTLS && mPhase2Method == Phase2.GTC;
+        String prefix = is_autheap ? Phase2.AUTHEAP_PREFIX : Phase2.AUTH_PREFIX;
+        String value = convertToQuotedString(prefix + Phase2.strings[mPhase2Method]);
+        return saver.saveValue(PHASE2_KEY, value);
+    } else if (mPhase2Method == Phase2.NONE) {
+        // By default, send a null phase 2 to clear old configuration values.
+        return saver.saveValue(PHASE2_KEY, null);
+    } else {
+        Log.e(TAG, "WiFi enterprise configuration is invalid as it supplies a " + "phase 2 method but the phase1 method does not support it.");
+        return false;
+    }
+}
+------------------------
+Find a silently evolved API code:android.graphics.PathMeasure.setPath:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Assign a new path, or null to have none.
+ */
+
+Body of Frist Method:
+{
+    mPath = path;
+    native_setPath(native_instance, path != null ? path.ni() : 0, forceClosed);
+}
+Body of Second Method:
+{
+    mPath = path;
+    native_setPath(native_instance, path != null ? path.readOnlyNI() : 0, forceClosed);
+}
+------------------------
+Find a silently evolved API code:android.telephony.RadioAccessFamily.getAdjustedRaf:COMMENT
+Method Modifier: private     static      hidden      
+Comment:/**
+ * if the raf includes ANY bit set for a group
+ * adjust it to contain ALL the bits for that group
+ */
+
+Body of Frist Method:
+{
+    raf = ((GSM & raf) > 0) ? (GSM | raf) : raf;
+    raf = ((WCDMA & raf) > 0) ? (WCDMA | raf) : raf;
+    raf = ((CDMA & raf) > 0) ? (CDMA | raf) : raf;
+    raf = ((EVDO & raf) > 0) ? (EVDO | raf) : raf;
+    return raf;
+}
+Body of Second Method:
+{
+    raf = ((GSM & raf) > 0) ? (GSM | raf) : raf;
+    raf = ((WCDMA & raf) > 0) ? (WCDMA | raf) : raf;
+    raf = ((CDMA & raf) > 0) ? (CDMA | raf) : raf;
+    raf = ((EVDO & raf) > 0) ? (EVDO | raf) : raf;
+    raf = ((LTE & raf) > 0) ? (LTE | raf) : raf;
+    return raf;
+}
+------------------------
+Find a silently evolved API code:android.view.KeyEvent.isSystemKey:COMMENT
+Method Modifier: public      static      final       hidden      
+Comment:/**
+ * Is this a system key? System keys can not be used for menu shortcuts.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    switch(keyCode) {
+        case KeyEvent.KEYCODE_MENU:
+        case KeyEvent.KEYCODE_SOFT_RIGHT:
+        case KeyEvent.KEYCODE_HOME:
+        case KeyEvent.KEYCODE_BACK:
+        case KeyEvent.KEYCODE_CALL:
+        case KeyEvent.KEYCODE_ENDCALL:
+        case KeyEvent.KEYCODE_VOLUME_UP:
+        case KeyEvent.KEYCODE_VOLUME_DOWN:
+        case KeyEvent.KEYCODE_VOLUME_MUTE:
+        case KeyEvent.KEYCODE_MUTE:
+        case KeyEvent.KEYCODE_POWER:
+        case KeyEvent.KEYCODE_HEADSETHOOK:
+        case KeyEvent.KEYCODE_MEDIA_PLAY:
+        case KeyEvent.KEYCODE_MEDIA_PAUSE:
+        case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+        case KeyEvent.KEYCODE_MEDIA_STOP:
+        case KeyEvent.KEYCODE_MEDIA_NEXT:
+        case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+        case KeyEvent.KEYCODE_MEDIA_REWIND:
+        case KeyEvent.KEYCODE_MEDIA_RECORD:
+        case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
+        case KeyEvent.KEYCODE_CAMERA:
+        case KeyEvent.KEYCODE_FOCUS:
+        case KeyEvent.KEYCODE_SEARCH:
+        case KeyEvent.KEYCODE_BRIGHTNESS_DOWN:
+        case KeyEvent.KEYCODE_BRIGHTNESS_UP:
+        case KeyEvent.KEYCODE_MEDIA_AUDIO_TRACK:
+            return true;
+    }
+    return false;
+}
+Body of Second Method:
+{
+    switch(keyCode) {
+        case KeyEvent.KEYCODE_MENU:
+        case KeyEvent.KEYCODE_SOFT_RIGHT:
+        case KeyEvent.KEYCODE_HOME:
+        case KeyEvent.KEYCODE_BACK:
+        case KeyEvent.KEYCODE_CALL:
+        case KeyEvent.KEYCODE_ENDCALL:
+        case KeyEvent.KEYCODE_VOLUME_UP:
+        case KeyEvent.KEYCODE_VOLUME_DOWN:
+        case KeyEvent.KEYCODE_VOLUME_MUTE:
+        case KeyEvent.KEYCODE_MUTE:
+        case KeyEvent.KEYCODE_POWER:
+        case KeyEvent.KEYCODE_HEADSETHOOK:
+        case KeyEvent.KEYCODE_MEDIA_PLAY:
+        case KeyEvent.KEYCODE_MEDIA_PAUSE:
+        case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+        case KeyEvent.KEYCODE_MEDIA_STOP:
+        case KeyEvent.KEYCODE_MEDIA_NEXT:
+        case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+        case KeyEvent.KEYCODE_MEDIA_REWIND:
+        case KeyEvent.KEYCODE_MEDIA_RECORD:
+        case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
+        case KeyEvent.KEYCODE_CAMERA:
+        case KeyEvent.KEYCODE_FOCUS:
+        case KeyEvent.KEYCODE_SEARCH:
+        case KeyEvent.KEYCODE_BRIGHTNESS_DOWN:
+        case KeyEvent.KEYCODE_BRIGHTNESS_UP:
+        case KeyEvent.KEYCODE_MEDIA_AUDIO_TRACK:
+        case KeyEvent.KEYCODE_SYSTEM_NAVIGATION_UP:
+        case KeyEvent.KEYCODE_SYSTEM_NAVIGATION_DOWN:
+        case KeyEvent.KEYCODE_SYSTEM_NAVIGATION_LEFT:
+        case KeyEvent.KEYCODE_SYSTEM_NAVIGATION_RIGHT:
+            return true;
+    }
+    return false;
+}
+------------------------
+Find a silently evolved API code:android.telephony.DisconnectCause.toString:COMMENT
+Method Modifier: public      static      hidden      
+Comment:/**
+ * Returns descriptive string for the specified disconnect cause.
+ */
+
+Body of Frist Method:
+{
+    switch(cause) {
+        case NOT_DISCONNECTED:
+            return "NOT_DISCONNECTED";
+        case INCOMING_MISSED:
+            return "INCOMING_MISSED";
+        case NORMAL:
+            return "NORMAL";
+        case LOCAL:
+            return "LOCAL";
+        case BUSY:
+            return "BUSY";
+        case CONGESTION:
+            return "CONGESTION";
+        case INVALID_NUMBER:
+            return "INVALID_NUMBER";
+        case NUMBER_UNREACHABLE:
+            return "NUMBER_UNREACHABLE";
+        case SERVER_UNREACHABLE:
+            return "SERVER_UNREACHABLE";
+        case INVALID_CREDENTIALS:
+            return "INVALID_CREDENTIALS";
+        case OUT_OF_NETWORK:
+            return "OUT_OF_NETWORK";
+        case SERVER_ERROR:
+            return "SERVER_ERROR";
+        case TIMED_OUT:
+            return "TIMED_OUT";
+        case LOST_SIGNAL:
+            return "LOST_SIGNAL";
+        case LIMIT_EXCEEDED:
+            return "LIMIT_EXCEEDED";
+        case INCOMING_REJECTED:
+            return "INCOMING_REJECTED";
+        case POWER_OFF:
+            return "POWER_OFF";
+        case OUT_OF_SERVICE:
+            return "OUT_OF_SERVICE";
+        case ICC_ERROR:
+            return "ICC_ERROR";
+        case CALL_BARRED:
+            return "CALL_BARRED";
+        case FDN_BLOCKED:
+            return "FDN_BLOCKED";
+        case CS_RESTRICTED:
+            return "CS_RESTRICTED";
+        case CS_RESTRICTED_NORMAL:
+            return "CS_RESTRICTED_NORMAL";
+        case CS_RESTRICTED_EMERGENCY:
+            return "CS_RESTRICTED_EMERGENCY";
+        case UNOBTAINABLE_NUMBER:
+            return "UNOBTAINABLE_NUMBER";
+        case CDMA_LOCKED_UNTIL_POWER_CYCLE:
+            return "CDMA_LOCKED_UNTIL_POWER_CYCLE";
+        case CDMA_DROP:
+            return "CDMA_DROP";
+        case CDMA_INTERCEPT:
+            return "CDMA_INTERCEPT";
+        case CDMA_REORDER:
+            return "CDMA_REORDER";
+        case CDMA_SO_REJECT:
+            return "CDMA_SO_REJECT";
+        case CDMA_RETRY_ORDER:
+            return "CDMA_RETRY_ORDER";
+        case CDMA_ACCESS_FAILURE:
+            return "CDMA_ACCESS_FAILURE";
+        case CDMA_PREEMPTED:
+            return "CDMA_PREEMPTED";
+        case CDMA_NOT_EMERGENCY:
+            return "CDMA_NOT_EMERGENCY";
+        case CDMA_ACCESS_BLOCKED:
+            return "CDMA_ACCESS_BLOCKED";
+        case EMERGENCY_ONLY:
+            return "EMERGENCY_ONLY";
+        case NO_PHONE_NUMBER_SUPPLIED:
+            return "NO_PHONE_NUMBER_SUPPLIED";
+        case DIALED_MMI:
+            return "DIALED_MMI";
+        case VOICEMAIL_NUMBER_MISSING:
+            return "VOICEMAIL_NUMBER_MISSING";
+        case CDMA_CALL_LOST:
+            return "CDMA_CALL_LOST";
+        case EXITED_ECM:
+            return "EXITED_ECM";
+        case DIAL_MODIFIED_TO_USSD:
+            return "DIAL_MODIFIED_TO_USSD";
+        case DIAL_MODIFIED_TO_SS:
+            return "DIAL_MODIFIED_TO_SS";
+        case DIAL_MODIFIED_TO_DIAL:
+            return "DIAL_MODIFIED_TO_DIAL";
+        case ERROR_UNSPECIFIED:
+            return "ERROR_UNSPECIFIED";
+        case OUTGOING_FAILURE:
+            return "OUTGOING_FAILURE";
+        case OUTGOING_CANCELED:
+            return "OUTGOING_CANCELED";
+        case IMS_MERGED_SUCCESSFULLY:
+            return "IMS_MERGED_SUCCESSFULLY";
+        case CDMA_ALREADY_ACTIVATED:
+            return "CDMA_ALREADY_ACTIVATED";
+        case VIDEO_CALL_NOT_ALLOWED_WHILE_TTY_ENABLED:
+            return "VIDEO_CALL_NOT_ALLOWED_WHILE_TTY_ENABLED";
+        default:
+            return "INVALID: " + cause;
+    }
+}
+Body of Second Method:
+{
+    switch(cause) {
+        case NOT_DISCONNECTED:
+            return "NOT_DISCONNECTED";
+        case INCOMING_MISSED:
+            return "INCOMING_MISSED";
+        case NORMAL:
+            return "NORMAL";
+        case LOCAL:
+            return "LOCAL";
+        case BUSY:
+            return "BUSY";
+        case CONGESTION:
+            return "CONGESTION";
+        case INVALID_NUMBER:
+            return "INVALID_NUMBER";
+        case NUMBER_UNREACHABLE:
+            return "NUMBER_UNREACHABLE";
+        case SERVER_UNREACHABLE:
+            return "SERVER_UNREACHABLE";
+        case INVALID_CREDENTIALS:
+            return "INVALID_CREDENTIALS";
+        case OUT_OF_NETWORK:
+            return "OUT_OF_NETWORK";
+        case SERVER_ERROR:
+            return "SERVER_ERROR";
+        case TIMED_OUT:
+            return "TIMED_OUT";
+        case LOST_SIGNAL:
+            return "LOST_SIGNAL";
+        case LIMIT_EXCEEDED:
+            return "LIMIT_EXCEEDED";
+        case INCOMING_REJECTED:
+            return "INCOMING_REJECTED";
+        case POWER_OFF:
+            return "POWER_OFF";
+        case OUT_OF_SERVICE:
+            return "OUT_OF_SERVICE";
+        case ICC_ERROR:
+            return "ICC_ERROR";
+        case CALL_BARRED:
+            return "CALL_BARRED";
+        case FDN_BLOCKED:
+            return "FDN_BLOCKED";
+        case CS_RESTRICTED:
+            return "CS_RESTRICTED";
+        case CS_RESTRICTED_NORMAL:
+            return "CS_RESTRICTED_NORMAL";
+        case CS_RESTRICTED_EMERGENCY:
+            return "CS_RESTRICTED_EMERGENCY";
+        case UNOBTAINABLE_NUMBER:
+            return "UNOBTAINABLE_NUMBER";
+        case CDMA_LOCKED_UNTIL_POWER_CYCLE:
+            return "CDMA_LOCKED_UNTIL_POWER_CYCLE";
+        case CDMA_DROP:
+            return "CDMA_DROP";
+        case CDMA_INTERCEPT:
+            return "CDMA_INTERCEPT";
+        case CDMA_REORDER:
+            return "CDMA_REORDER";
+        case CDMA_SO_REJECT:
+            return "CDMA_SO_REJECT";
+        case CDMA_RETRY_ORDER:
+            return "CDMA_RETRY_ORDER";
+        case CDMA_ACCESS_FAILURE:
+            return "CDMA_ACCESS_FAILURE";
+        case CDMA_PREEMPTED:
+            return "CDMA_PREEMPTED";
+        case CDMA_NOT_EMERGENCY:
+            return "CDMA_NOT_EMERGENCY";
+        case CDMA_ACCESS_BLOCKED:
+            return "CDMA_ACCESS_BLOCKED";
+        case EMERGENCY_ONLY:
+            return "EMERGENCY_ONLY";
+        case NO_PHONE_NUMBER_SUPPLIED:
+            return "NO_PHONE_NUMBER_SUPPLIED";
+        case DIALED_MMI:
+            return "DIALED_MMI";
+        case VOICEMAIL_NUMBER_MISSING:
+            return "VOICEMAIL_NUMBER_MISSING";
+        case CDMA_CALL_LOST:
+            return "CDMA_CALL_LOST";
+        case EXITED_ECM:
+            return "EXITED_ECM";
+        case DIAL_MODIFIED_TO_USSD:
+            return "DIAL_MODIFIED_TO_USSD";
+        case DIAL_MODIFIED_TO_SS:
+            return "DIAL_MODIFIED_TO_SS";
+        case DIAL_MODIFIED_TO_DIAL:
+            return "DIAL_MODIFIED_TO_DIAL";
+        case ERROR_UNSPECIFIED:
+            return "ERROR_UNSPECIFIED";
+        case OUTGOING_FAILURE:
+            return "OUTGOING_FAILURE";
+        case OUTGOING_CANCELED:
+            return "OUTGOING_CANCELED";
+        case IMS_MERGED_SUCCESSFULLY:
+            return "IMS_MERGED_SUCCESSFULLY";
+        case CDMA_ALREADY_ACTIVATED:
+            return "CDMA_ALREADY_ACTIVATED";
+        case VIDEO_CALL_NOT_ALLOWED_WHILE_TTY_ENABLED:
+            return "VIDEO_CALL_NOT_ALLOWED_WHILE_TTY_ENABLED";
+        case CALL_PULLED:
+            return "CALL_PULLED";
+        case ANSWERED_ELSEWHERE:
+            return "ANSWERED_ELSEWHERE";
+        case MAXIMUM_NUMBER_OF_CALLS_REACHED:
+            return "MAXIMUM_NUMER_OF_CALLS_REACHED";
+        case DATA_DISABLED:
+            return "DATA_DISABLED";
+        case DATA_LIMIT_REACHED:
+            return "DATA_LIMIT_REACHED";
+        default:
+            return "INVALID: " + cause;
+    }
+}
+------------------------
+Find a silently evolved API code:android.service.quicksettings.Tile.updateTile:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Pushes the state of the Tile to Quick Settings to be displayed.
+ */
+
+Body of Frist Method:
+{
+    try {
+        mService.updateQsTile(this);
+    } catch (RemoteException e) {
+        Log.e(TAG, "Couldn't update tile");
+    }
+}
+Body of Second Method:
+{
+    try {
+        mService.updateQsTile(this, mToken);
+    } catch (RemoteException e) {
+        Log.e(TAG, "Couldn't update tile");
+    }
+}
+------------------------
+Find a silently evolved API code:android.util.MemoryIntArray.get:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Gets the value at a given index.
+ *
+ * @param index The index.
+ * @return The value at this index.
+ * @throws IOException If an error occurs while accessing the shared memory.
+ */
+
+Body of Frist Method:
+{
+    enforceNotClosed();
+    enforceValidIndex(index);
+    return nativeGet(mFd.getFd(), mMemoryAddr, index, isOwner());
+}
+Body of Second Method:
+{
+    enforceNotClosed();
+    enforceValidIndex(index);
+    return nativeGet(mFd, mMemoryAddr, index, isOwner());
+}
+------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothA2dp.disconnect:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Initiate disconnection from a profile
+ *
+ * <p> This API will return false in scenarios like the profile on the
+ * Bluetooth device is not in connected state etc. When this API returns,
+ * true, it is guaranteed that the connection state change
+ * intent will be broadcasted with the state. Users can get the
+ * disconnection state of the profile from this intent.
+ *
+ * <p> If the disconnection is initiated by a remote device, the state
+ * will transition from {@link #STATE_CONNECTED} to
+ * {@link #STATE_DISCONNECTED}. If the disconnect is initiated by the
+ * host (local) device the state will transition from
+ * {@link #STATE_CONNECTED} to state {@link #STATE_DISCONNECTING} to
+ * state {@link #STATE_DISCONNECTED}. The transition to
+ * {@link #STATE_DISCONNECTING} can be used to distinguish between the
+ * two scenarios.
+ *
+ * <p>Requires {@link android.Manifest.permission#BLUETOOTH_ADMIN}
+ * permission.
+ *
+ * @param device Remote Bluetooth Device
+ * @return false on immediate error,
+ * true otherwise
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (DBG)
+        log("disconnect(" + device + ")");
+    if (mService != null && isEnabled() && isValidDevice(device)) {
+        try {
+            return mService.disconnect(device);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Stack:" + Log.getStackTraceString(new Throwable()));
+            return false;
+        }
+    }
+    if (mService == null)
+        Log.w(TAG, "Proxy not attached to service");
+    return false;
+}
+Body of Second Method:
+{
+    if (DBG)
+        log("disconnect(" + device + ")");
+    try {
+        mServiceLock.readLock().lock();
+        if (mService != null && isEnabled() && isValidDevice(device)) {
+            return mService.disconnect(device);
+        }
+        if (mService == null)
+            Log.w(TAG, "Proxy not attached to service");
+        return false;
+    } catch (RemoteException e) {
+        Log.e(TAG, "Stack:" + Log.getStackTraceString(new Throwable()));
+        return false;
+    } finally {
+        mServiceLock.readLock().unlock();
+    }
+}
+------------------------
+Find a silently evolved API code:android.service.quicksettings.TileService.setStatusIcon:COMMENT
+Method Modifier: public      final       hidden      
+Comment:/**
+ * Sets an icon to be shown in the status bar.
+ * <p>
+ * The icon will be displayed before all other icons.  Can only be called between
+ * {@link #onStartListening} and {@link #onStopListening}.  Can only be called by system apps.
+ *
+ * @param icon The icon to be displayed, null to hide
+ * @param contentDescription Content description of the icon to be displayed
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (mService != null) {
+        try {
+            mService.updateStatusIcon(mTile, icon, contentDescription);
+        } catch (RemoteException e) {
+        }
+    }
+}
+Body of Second Method:
+{
+    if (mService != null) {
+        try {
+            mService.updateStatusIcon(mTileToken, icon, contentDescription);
+        } catch (RemoteException e) {
+        }
+    }
+}
+------------------------
+Find a silently evolved API code:android.net.ConnectivityMetricsLogger.getEvents:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Retrieve events
+ *
+ * @param reference of the last event previously returned. The function will return
+ * events following it.
+ * If 0 then all events will be returned.
+ * After the function call it will contain reference of the
+ * last returned event.
+ * @return events
+ */
+
+Body of Frist Method:
+{
+    try {
+        return mService.getEvents(reference);
+    } catch (RemoteException ex) {
+        Log.e(TAG, "IConnectivityMetricsLogger.getEvents: " + ex);
+        return null;
+    }
+}
+Body of Second Method:
+{
+    try {
+        return mService.getEvents(reference);
+    } catch (RemoteException e) {
+        Log.e(TAG, "IConnectivityMetricsLogger.getEvents", e);
+        return null;
+    }
+}
+------------------------
+Find a silently evolved API code:android.app.Activity.startActivityFromChild:COMMENT
+Method Modifier: public      
+Comment:/**
+ * This is called when a child activity of this one calls its
+ * {@link #startActivity} or {@link #startActivityForResult} method.
+ *
+ * <p>This method throws {@link android.content.ActivityNotFoundException}
+ * if there was no Activity found to run the given Intent.
+ *
+ * @param child The activity making the call.
+ * @param intent The intent to start.
+ * @param requestCode Reply request code.  < 0 if reply is not requested.
+ * @param options Additional options for how the Activity should be started.
+ * See {@link android.content.Context#startActivity(Intent, Bundle)
+ * Context.startActivity(Intent, Bundle)} for more details.
+ *
+ * @throws android.content.ActivityNotFoundException
+ *
+ * @see #startActivity
+ * @see #startActivityForResult
+ */
+
+Body of Frist Method:
+{
+    Instrumentation.ActivityResult ar = mInstrumentation.execStartActivity(this, mMainThread.getApplicationThread(), mToken, child, intent, requestCode, options);
+    if (ar != null) {
+        mMainThread.sendActivityResult(mToken, child.mEmbeddedID, requestCode, ar.getResultCode(), ar.getResultData());
+    }
+    cancelInputsAndStartExitTransition(options);
+}
+Body of Second Method:
+{
+    options = transferSpringboardActivityOptions(options);
+    Instrumentation.ActivityResult ar = mInstrumentation.execStartActivity(this, mMainThread.getApplicationThread(), mToken, child, intent, requestCode, options);
+    if (ar != null) {
+        mMainThread.sendActivityResult(mToken, child.mEmbeddedID, requestCode, ar.getResultCode(), ar.getResultData());
+    }
+    cancelInputsAndStartExitTransition(options);
+}
+------------------------
+Find a silently evolved API code:android.app.WallpaperInfo.writeToParcel:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Used to package this object into a {@link Parcel}.
+ *
+ * @param dest The {@link Parcel} to be written.
+ * @param flags The flags used for parceling.
+ */
+
+Body of Frist Method:
+{
+    dest.writeString(mSettingsActivityName);
+    dest.writeInt(mThumbnailResource);
+    dest.writeInt(mAuthorResource);
+    dest.writeInt(mDescriptionResource);
+    mService.writeToParcel(dest, flags);
+}
+Body of Second Method:
+{
+    dest.writeString(mSettingsActivityName);
+    dest.writeInt(mThumbnailResource);
+    dest.writeInt(mAuthorResource);
+    dest.writeInt(mDescriptionResource);
+    dest.writeInt(mContextUriResource);
+    dest.writeInt(mContextDescriptionResource);
+    dest.writeInt(mShowMetadataInPreview ? 1 : 0);
+    mService.writeToParcel(dest, flags);
+}
+------------------------
+Find a silently evolved API code:android.service.quicksettings.TileService.showDialog:COMMENT
+Method Modifier: public      final       
+Comment:/**
+ * Used to show a dialog.
+ *
+ * This will collapse the Quick Settings panel and show the dialog.
+ *
+ * @param dialog Dialog to show.
+ *
+ * @see #isLocked()
+ */
+
+Body of Frist Method:
+{
+    dialog.getWindow().getAttributes().token = mToken;
+    dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_QS_DIALOG);
+    dialog.getWindow().getDecorView().addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
+
+        @Override
+        public void onViewAttachedToWindow(View v) {
+        }
+
+        @Override
+        public void onViewDetachedFromWindow(View v) {
+            try {
+                mService.onDialogHidden(getQsTile());
+            } catch (RemoteException e) {
+            }
+        }
+    });
+    dialog.show();
+    try {
+        mService.onShowDialog(mTile);
+    } catch (RemoteException e) {
+    }
+}
+Body of Second Method:
+{
+    dialog.getWindow().getAttributes().token = mToken;
+    dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_QS_DIALOG);
+    dialog.getWindow().getDecorView().addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
+
+        @Override
+        public void onViewAttachedToWindow(View v) {
+        }
+
+        @Override
+        public void onViewDetachedFromWindow(View v) {
+            try {
+                mService.onDialogHidden(mTileToken);
+            } catch (RemoteException e) {
+            }
+        }
+    });
+    dialog.show();
+    try {
+        mService.onShowDialog(mTileToken);
+    } catch (RemoteException e) {
+    }
+}
+------------------------
+Find a silently evolved API code:android.app.WallpaperManager.getWallpaperInfo:COMMENT
+Method Modifier: public      
+Comment:/**
+ * If the current wallpaper is a live wallpaper component, return the
+ * information about that wallpaper.  Otherwise, if it is a static image,
+ * simply return null.
+ */
+
+Body of Frist Method:
+{
+    try {
+        if (sGlobals.mService == null) {
+            Log.w(TAG, "WallpaperService not running");
+            throw new RuntimeException(new DeadSystemException());
+        } else {
+            return sGlobals.mService.getWallpaperInfo();
+        }
+    } catch (RemoteException e) {
+        throw e.rethrowFromSystemServer();
+    }
+}
+Body of Second Method:
+{
+    try {
+        if (sGlobals.mService == null) {
+            Log.w(TAG, "WallpaperService not running");
+            throw new RuntimeException(new DeadSystemException());
+        } else {
+            return sGlobals.mService.getWallpaperInfo(UserHandle.myUserId());
+        }
+    } catch (RemoteException e) {
+        throw e.rethrowFromSystemServer();
+    }
+}
+------------------------
+Find a silently evolved API code:android.app.backup.WallpaperBackupHelper.onRestoreFinished:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Hook for the agent to call this helper upon completion of the restore.  We do this
+ * upon completion so that we know both the imagery and the wallpaper info have
+ * been emplaced without requiring either or relying on ordering.
+ */
+
+Body of Frist Method:
+{
+    final File f = new File(STAGE_FILE);
+    if (f.exists()) {
+        // TODO: spin a service to copy the restored image to sd/usb storage,
+        // since it does not exist anywhere other than the private wallpaper
+        // file.
+        Slog.d(TAG, "Applying restored wallpaper image.");
+        f.renameTo(new File(WALLPAPER_IMAGE));
+    }
+}
+Body of Second Method:
+{
+    final File f = new File(STAGE_FILE);
+    if (f.exists()) {
+        // TODO: spin a service to copy the restored image to sd/usb storage,
+        // since it does not exist anywhere other than the private wallpaper
+        // file.
+        Slog.d(TAG, "Applying restored wallpaper image.");
+        f.renameTo(new File(WALLPAPER_ORIG_IMAGE));
+    }
+}
+------------------------
+Find a silently evolved API code:android.nfc.NfcAdapter.disableNdefPush:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Disable NDEF Push feature.
+ * <p>This API is for the Settings application.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    try {
+        return sService.disableNdefPush();
+    } catch (RemoteException e) {
+        attemptDeadServiceRecovery(e);
+        return false;
+    }
+}
+Body of Second Method:
+{
+    synchronized (NfcAdapter.class) {
+        if (!sHasNfcFeature) {
+            throw new UnsupportedOperationException();
+        }
+    }
+    try {
+        return sService.disableNdefPush();
+    } catch (RemoteException e) {
+        attemptDeadServiceRecovery(e);
+        return false;
+    }
+}
+------------------------
+Find a silently evolved API code:android.util.MemoryIntArray.set:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Sets the value at a given index. This method can be called only if
+ * {@link #isWritable()} returns true which means your process is the
+ * owner.
+ *
+ * @param index The index.
+ * @param value The value to set.
+ * @throws IOException If an error occurs while accessing the shared memory.
+ */
+
+Body of Frist Method:
+{
+    enforceNotClosed();
+    enforceWritable();
+    enforceValidIndex(index);
+    nativeSet(mFd.getFd(), mMemoryAddr, index, value, isOwner());
+}
+Body of Second Method:
+{
+    enforceNotClosed();
+    enforceWritable();
+    enforceValidIndex(index);
+    nativeSet(mFd, mMemoryAddr, index, value, isOwner());
+}
+------------------------
+Find a silently evolved API code:android.view.animation.AnimationUtils.currentAnimationTimeMillis:COMMENT
+Method Modifier: public      static      
+Comment:/**
+ * Returns the current animation time in milliseconds. This time should be used when invoking
+ * {@link Animation#setStartTime(long)}. Refer to {@link android.os.SystemClock} for more
+ * information about the different available clocks. The clock used by this method is
+ * <em>not</em> the "wall" clock (it is not {@link System#currentTimeMillis}).
+ *
+ * @return the current animation time in milliseconds
+ *
+ * @see android.os.SystemClock
+ */
+
+Body of Frist Method:
+{
+    return SystemClock.uptimeMillis();
+}
+Body of Second Method:
+{
+    AnimationState state = sAnimationState.get();
+    if (state.animationClockLocked) {
+        // It's important that time never rewinds
+        return Math.max(state.currentVsyncTimeMillis, state.lastReportedTimeMillis);
+    }
+    state.lastReportedTimeMillis = SystemClock.uptimeMillis();
+    return state.lastReportedTimeMillis;
+}
+------------------------
+Find a silently evolved API code:android.hardware.camera2.params.OutputConfiguration.hashCode:COMMENT
+Method Modifier: public      
+Comment:/**
+ * {@inheritDoc}
+ */
+
+Body of Frist Method:
+{
+    return HashCodeHelpers.hashCode(mRotation, mSurface.hashCode(), mConfiguredGenerationId, mConfiguredSize.hashCode(), mConfiguredFormat, mConfiguredDataspace, mSurfaceGroupId);
+}
+Body of Second Method:
+{
+    // surface is set.
+    if (mIsDeferredConfig) {
+        return HashCodeHelpers.hashCode(mRotation, mConfiguredSize.hashCode(), mConfiguredFormat, mConfiguredDataspace, mSurfaceGroupId, mSurfaceType);
+    }
+    return HashCodeHelpers.hashCode(mRotation, mSurface.hashCode(), mConfiguredGenerationId, mConfiguredSize.hashCode(), mConfiguredFormat, mConfiguredDataspace, mSurfaceGroupId);
+}
+------------------------
+Find a silently evolved API code:android.graphics.Region.setPath:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Set the region to the area described by the path and clip.
+ * Return true if the resulting region is non-empty. This produces a region
+ * that is identical to the pixels that would be drawn by the path
+ * (with no antialiasing).
+ */
+
+Body of Frist Method:
+{
+    return nativeSetPath(mNativeRegion, path.ni(), clip.mNativeRegion);
+}
+Body of Second Method:
+{
+    return nativeSetPath(mNativeRegion, path.readOnlyNI(), clip.mNativeRegion);
+}
+------------------------
+Find a silently evolved API code:android.app.backup.FullBackup.BackupScheme.tokenToDirectoryPath:COMMENT
+Method Modifier: default     
+Comment:/**
+ * Parse out the semantic domains into the correct physical location.
+ */
+
+Body of Frist Method:
+{
+    try {
+        if (domainToken.equals(FullBackup.FILES_TREE_TOKEN)) {
+            return FILES_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.DATABASE_TREE_TOKEN)) {
+            return DATABASE_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.ROOT_TREE_TOKEN)) {
+            return ROOT_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.SHAREDPREFS_TREE_TOKEN)) {
+            return SHAREDPREF_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.CACHE_TREE_TOKEN)) {
+            return CACHE_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.NO_BACKUP_TREE_TOKEN)) {
+            return NOBACKUP_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.DEVICE_FILES_TREE_TOKEN)) {
+            return DEVICE_FILES_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.DEVICE_DATABASE_TREE_TOKEN)) {
+            return DEVICE_DATABASE_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.DEVICE_ROOT_TREE_TOKEN)) {
+            return DEVICE_ROOT_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.DEVICE_SHAREDPREFS_TREE_TOKEN)) {
+            return DEVICE_SHAREDPREF_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.DEVICE_CACHE_TREE_TOKEN)) {
+            return DEVICE_CACHE_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.DEVICE_NO_BACKUP_TREE_TOKEN)) {
+            return DEVICE_NOBACKUP_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.MANAGED_EXTERNAL_TREE_TOKEN)) {
+            if (EXTERNAL_DIR != null) {
+                return EXTERNAL_DIR.getCanonicalPath();
+            } else {
+                return null;
+            }
+        }
+        // Not a supported location
+        Log.i(TAG, "Unrecognized domain " + domainToken);
+        return null;
+    } catch (IOException e) {
+        Log.i(TAG, "Error reading directory for domain: " + domainToken);
+        return null;
+    }
+}
+Body of Second Method:
+{
+    try {
+        if (domainToken.equals(FullBackup.FILES_TREE_TOKEN)) {
+            return FILES_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.DATABASE_TREE_TOKEN)) {
+            return DATABASE_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.ROOT_TREE_TOKEN)) {
+            return ROOT_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.SHAREDPREFS_TREE_TOKEN)) {
+            return SHAREDPREF_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.CACHE_TREE_TOKEN)) {
+            return CACHE_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.NO_BACKUP_TREE_TOKEN)) {
+            return NOBACKUP_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.DEVICE_FILES_TREE_TOKEN)) {
+            return DEVICE_FILES_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.DEVICE_DATABASE_TREE_TOKEN)) {
+            return DEVICE_DATABASE_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.DEVICE_ROOT_TREE_TOKEN)) {
+            return DEVICE_ROOT_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.DEVICE_SHAREDPREFS_TREE_TOKEN)) {
+            return DEVICE_SHAREDPREF_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.DEVICE_CACHE_TREE_TOKEN)) {
+            return DEVICE_CACHE_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.DEVICE_NO_BACKUP_TREE_TOKEN)) {
+            return DEVICE_NOBACKUP_DIR.getCanonicalPath();
+        } else if (domainToken.equals(FullBackup.MANAGED_EXTERNAL_TREE_TOKEN)) {
+            if (EXTERNAL_DIR != null) {
+                return EXTERNAL_DIR.getCanonicalPath();
+            } else {
+                return null;
+            }
+        } else if (domainToken.startsWith(FullBackup.SHARED_PREFIX)) {
+            return sharedDomainToPath(domainToken);
+        }
+        // Not a supported location
+        Log.i(TAG, "Unrecognized domain " + domainToken);
+        return null;
+    } catch (Exception e) {
+        Log.i(TAG, "Error reading directory for domain: " + domainToken);
+        return null;
+    }
+}
+------------------------
+Find a silently evolved API code:android.transition.TransitionManager.endTransitions:COMMENT
+Method Modifier: public      static      
+Comment:/**
+ * Ends all pending and ongoing transitions on the specified scene root.
+ *
+ * @param sceneRoot The root of the View hierarchy to end transitions on.
+ */
+
+Body of Frist Method:
+{
+    sPendingTransitions.remove(sceneRoot);
+    final ArrayList<Transition> runningTransitions = getRunningTransitions().get(sceneRoot);
+    if (runningTransitions != null && !runningTransitions.isEmpty()) {
+        // Make a copy in case this is called by an onTransitionEnd listener
+        ArrayList<Transition> copy = new ArrayList(runningTransitions);
+        for (int i = copy.size() - 1; i >= 0; i--) {
+            final Transition transition = copy.get(i);
+            transition.end();
+        }
+    }
+}
+Body of Second Method:
+{
+    sPendingTransitions.remove(sceneRoot);
+    final ArrayList<Transition> runningTransitions = getRunningTransitions().get(sceneRoot);
+    if (runningTransitions != null && !runningTransitions.isEmpty()) {
+        // Make a copy in case this is called by an onTransitionEnd listener
+        ArrayList<Transition> copy = new ArrayList(runningTransitions);
+        for (int i = copy.size() - 1; i >= 0; i--) {
+            final Transition transition = copy.get(i);
+            transition.forceToEnd(sceneRoot);
+        }
+    }
+}
+------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothA2dp.setPriority:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Set priority of the profile
+ *
+ * <p> The device should already be paired.
+ * Priority can be one of {@link #PRIORITY_ON} orgetBluetoothManager
+ * {@link #PRIORITY_OFF},
+ *
+ * <p>Requires {@link android.Manifest.permission#BLUETOOTH_ADMIN}
+ * permission.
+ *
+ * @param device Paired bluetooth device
+ * @param priority
+ * @return true if priority is set, false on error
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (DBG)
+        log("setPriority(" + device + ", " + priority + ")");
+    if (mService != null && isEnabled() && isValidDevice(device)) {
+        if (priority != BluetoothProfile.PRIORITY_OFF && priority != BluetoothProfile.PRIORITY_ON) {
+            return false;
+        }
+        try {
+            return mService.setPriority(device, priority);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Stack:" + Log.getStackTraceString(new Throwable()));
+            return false;
+        }
+    }
+    if (mService == null)
+        Log.w(TAG, "Proxy not attached to service");
+    return false;
+}
+Body of Second Method:
+{
+    if (DBG)
+        log("setPriority(" + device + ", " + priority + ")");
+    try {
+        mServiceLock.readLock().lock();
+        if (mService != null && isEnabled() && isValidDevice(device)) {
+            if (priority != BluetoothProfile.PRIORITY_OFF && priority != BluetoothProfile.PRIORITY_ON) {
+                return false;
+            }
+            return mService.setPriority(device, priority);
+        }
+        if (mService == null)
+            Log.w(TAG, "Proxy not attached to service");
+        return false;
+    } catch (RemoteException e) {
+        Log.e(TAG, "Stack:" + Log.getStackTraceString(new Throwable()));
+        return false;
+    } finally {
+        mServiceLock.readLock().unlock();
+    }
+}
+------------------------
+Find a silently evolved API code:android.os.Process.zygoteSendArgsAndGetResult:COMMENT
+Method Modifier: private     static      
+Comment:/**
+ * Sends an argument list to the zygote process, which starts a new child
+ * and returns the child's pid. Please note: the present implementation
+ * replaces newlines in the argument list with spaces.
+ *
+ * @throws ZygoteStartFailedEx if process start failed for any reason
+ */
+
+Body of Frist Method:
+{
+    try {
+        /**
+         * See com.android.internal.os.ZygoteInit.readArgumentList()
+         * Presently the wire format to the zygote process is:
+         * a) a count of arguments (argc, in essence)
+         * b) a number of newline-separated argument strings equal to count
+         *
+         * After the zygote process reads these it will write the pid of
+         * the child or -1 on failure, followed by boolean to
+         * indicate whether a wrapper process was used.
+         */
+        final BufferedWriter writer = zygoteState.writer;
+        final DataInputStream inputStream = zygoteState.inputStream;
+        writer.write(Integer.toString(args.size()));
+        writer.newLine();
+        int sz = args.size();
+        for (int i = 0; i < sz; i++) {
+            String arg = args.get(i);
+            if (arg.indexOf('\n') >= 0) {
+                throw new ZygoteStartFailedEx("embedded newlines not allowed");
+            }
+            writer.write(arg);
+            writer.newLine();
+        }
+        writer.flush();
+        // Should there be a timeout on this?
+        ProcessStartResult result = new ProcessStartResult();
+        result.pid = inputStream.readInt();
+        if (result.pid < 0) {
+            throw new ZygoteStartFailedEx("fork() failed");
+        }
+        result.usingWrapper = inputStream.readBoolean();
+        return result;
+    } catch (IOException ex) {
+        zygoteState.close();
+        throw new ZygoteStartFailedEx(ex);
+    }
+}
+Body of Second Method:
+{
+    try {
+        // Throw early if any of the arguments are malformed. This means we can
+        // avoid writing a partial response to the zygote.
+        int sz = args.size();
+        for (int i = 0; i < sz; i++) {
+            if (args.get(i).indexOf('\n') >= 0) {
+                throw new ZygoteStartFailedEx("embedded newlines not allowed");
+            }
+        }
+        /**
+         * See com.android.internal.os.ZygoteInit.readArgumentList()
+         * Presently the wire format to the zygote process is:
+         * a) a count of arguments (argc, in essence)
+         * b) a number of newline-separated argument strings equal to count
+         *
+         * After the zygote process reads these it will write the pid of
+         * the child or -1 on failure, followed by boolean to
+         * indicate whether a wrapper process was used.
+         */
+        final BufferedWriter writer = zygoteState.writer;
+        final DataInputStream inputStream = zygoteState.inputStream;
+        writer.write(Integer.toString(args.size()));
+        writer.newLine();
+        for (int i = 0; i < sz; i++) {
+            String arg = args.get(i);
+            writer.write(arg);
+            writer.newLine();
+        }
+        writer.flush();
+        // Should there be a timeout on this?
+        ProcessStartResult result = new ProcessStartResult();
+        // Always read the entire result from the input stream to avoid leaving
+        // bytes in the stream for future process starts to accidentally stumble
+        // upon.
+        result.pid = inputStream.readInt();
+        result.usingWrapper = inputStream.readBoolean();
+        if (result.pid < 0) {
+            throw new ZygoteStartFailedEx("fork() failed");
+        }
+        return result;
+    } catch (IOException ex) {
+        zygoteState.close();
+        throw new ZygoteStartFailedEx(ex);
+    }
+}
+------------------------
+Find a silently evolved API code:android.graphics.Canvas.drawTextOnPath:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Draw the text, with origin at (x,y), using the specified paint, along
+ * the specified path. The paint's Align setting determins where along the
+ * path to start the text.
+ *
+ * @param text     The text to be drawn
+ * @param path     The path the text should follow for its baseline
+ * @param hOffset  The distance along the path to add to the text's
+ * starting position
+ * @param vOffset  The distance above(-) or below(+) the path to position
+ * the text
+ * @param paint    The paint used for the text (e.g. color, size, style)
+ */
+
+Body of Frist Method:
+{
+    if (index < 0 || index + count > text.length) {
+        throw new ArrayIndexOutOfBoundsException();
+    }
+    native_drawTextOnPath(mNativeCanvasWrapper, text, index, count, path.ni(), hOffset, vOffset, paint.mBidiFlags, paint.getNativeInstance(), paint.mNativeTypeface);
+}
+Body of Second Method:
+{
+    if (index < 0 || index + count > text.length) {
+        throw new ArrayIndexOutOfBoundsException();
+    }
+    native_drawTextOnPath(mNativeCanvasWrapper, text, index, count, path.readOnlyNI(), hOffset, vOffset, paint.mBidiFlags, paint.getNativeInstance(), paint.mNativeTypeface);
+}
+------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothA2dp.isAvrcpAbsoluteVolumeSupported:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Checks if Avrcp device supports the absolute volume feature.
+ *
+ * @return true if device supports absolute volume
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (DBG)
+        Log.d(TAG, "isAvrcpAbsoluteVolumeSupported");
+    if (mService != null && isEnabled()) {
+        try {
+            return mService.isAvrcpAbsoluteVolumeSupported();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Error talking to BT service in isAvrcpAbsoluteVolumeSupported()", e);
+            return false;
+        }
+    }
+    if (mService == null)
+        Log.w(TAG, "Proxy not attached to service");
+    return false;
+}
+Body of Second Method:
+{
+    if (DBG)
+        Log.d(TAG, "isAvrcpAbsoluteVolumeSupported");
+    try {
+        mServiceLock.readLock().lock();
+        if (mService != null && isEnabled()) {
+            return mService.isAvrcpAbsoluteVolumeSupported();
+        }
+        if (mService == null)
+            Log.w(TAG, "Proxy not attached to service");
+        return false;
+    } catch (RemoteException e) {
+        Log.e(TAG, "Error talking to BT service in isAvrcpAbsoluteVolumeSupported()", e);
+        return false;
+    } finally {
+        mServiceLock.readLock().unlock();
+    }
+}
+------------------------
+Find a silently evolved API code:android.telephony.ServiceState.setRilDataRadioTechnology:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    this.mRilDataRadioTechnology = rt;
+    if (VDBG)
+        Rlog.d(LOG_TAG, "[ServiceState] setRilDataRadioTechnology=" + mRilDataRadioTechnology);
+}
+Body of Second Method:
+{
+    if (rt == RIL_RADIO_TECHNOLOGY_LTE_CA) {
+        rt = RIL_RADIO_TECHNOLOGY_LTE;
+        this.mIsUsingCarrierAggregation = true;
+    } else {
+        this.mIsUsingCarrierAggregation = false;
+    }
+    this.mRilDataRadioTechnology = rt;
+    if (VDBG)
+        Rlog.d(LOG_TAG, "[ServiceState] setRilDataRadioTechnology=" + mRilDataRadioTechnology);
+}
+------------------------
+Find a silently evolved API code:android.net.NetworkRequest.Builder.build:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Build {@link NetworkRequest} give the current set of capabilities.
+ */
+
+Body of Frist Method:
+{
+    // Make a copy of mNetworkCapabilities so we don't inadvertently remove NOT_RESTRICTED
+    // when later an unrestricted capability could be added to mNetworkCapabilities, in
+    // which case NOT_RESTRICTED should be returned to mNetworkCapabilities, which
+    // maybeMarkCapabilitiesRestricted() doesn't add back.
+    final NetworkCapabilities nc = new NetworkCapabilities(mNetworkCapabilities);
+    nc.maybeMarkCapabilitiesRestricted();
+    return new NetworkRequest(nc, ConnectivityManager.TYPE_NONE, ConnectivityManager.REQUEST_ID_UNSET);
+}
+Body of Second Method:
+{
+    // Make a copy of mNetworkCapabilities so we don't inadvertently remove NOT_RESTRICTED
+    // when later an unrestricted capability could be added to mNetworkCapabilities, in
+    // which case NOT_RESTRICTED should be returned to mNetworkCapabilities, which
+    // maybeMarkCapabilitiesRestricted() doesn't add back.
+    final NetworkCapabilities nc = new NetworkCapabilities(mNetworkCapabilities);
+    nc.maybeMarkCapabilitiesRestricted();
+    return new NetworkRequest(nc, ConnectivityManager.TYPE_NONE, ConnectivityManager.REQUEST_ID_UNSET, Type.NONE);
+}
+------------------------
