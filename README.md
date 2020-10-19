@@ -1,5 +1,4 @@
 # AndroSea
 A tool for identifying Android Silently-evolved APIs
 ### Tool running
-* Running the project from the class ```FunctionallyEquivalentCodeAnalysisMain``` under package ```edu.monash.androsea.equivalentcode``` with the parameters of the paths to codebases, such as ```/home/android-platform/android-5.0.0_r1 /home/android-platform/android-6.0.0_r1```
-* The directory output shows the identified silently-evolved methods between the 10 Android revisions.
+* Running the tool with the shell script under directory tool with three parameters, Android repo1, Android repo2, a txt file contain the pairwise tag names seperated by a colon such the file androidPlatforms.txt.
