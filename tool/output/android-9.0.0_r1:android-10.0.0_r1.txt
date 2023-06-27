@@ -384,6 +384,51 @@ Body of Second Method:
     }
 }
 ------------------------
+Find a silently evolved API code:android.location.SettingInjectorService.sendStatus:COMMENT
+Method Modifier: private     
+Comment:/**
+ * Send the enabled values back to the caller via the messenger encoded in the
+ * intent.
+ */
+
+Body of Frist Method:
+{
+    Message message = Message.obtain();
+    Bundle bundle = new Bundle();
+    bundle.putBoolean(ENABLED_KEY, enabled);
+    message.setData(bundle);
+    if (Log.isLoggable(TAG, Log.DEBUG)) {
+        Log.d(TAG, mName + ": received " + intent + ", enabled=" + enabled + ", sending message: " + message);
+    }
+    Messenger messenger = intent.getParcelableExtra(MESSENGER_KEY);
+    try {
+        messenger.send(message);
+    } catch (RemoteException e) {
+        Log.e(TAG, mName + ": sending dynamic status failed", e);
+    }
+}
+Body of Second Method:
+{
+    Messenger messenger = intent.getParcelableExtra(MESSENGER_KEY);
+    // Bail out to avoid crashing GmsCore with incoming malicious Intent.
+    if (messenger == null) {
+        return;
+    }
+    Message message = Message.obtain();
+    Bundle bundle = new Bundle();
+    bundle.putString(SUMMARY_KEY, summary);
+    bundle.putBoolean(ENABLED_KEY, enabled);
+    message.setData(bundle);
+    if (Log.isLoggable(TAG, Log.DEBUG)) {
+        Log.d(TAG, mName + ": received " + intent + ", summary=" + summary + ", enabled=" + enabled + ", sending message: " + message);
+    }
+    try {
+        messenger.send(message);
+    } catch (RemoteException e) {
+        Log.e(TAG, mName + ": sending dynamic status failed", e);
+    }
+}
+------------------------
 Find a silently evolved API code:android.bluetooth.BluetoothSap.getPriority:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -997,23 +1042,9 @@ Comment:/**
 
 Body of Frist Method:
 {
-    if (uid < Process.FIRST_APPLICATION_UID) {
-        sb.append(uid);
-    } else {
-        sb.append('u');
-        sb.append(getUserId(uid));
-        final int appId = getAppId(uid);
-        if (appId >= Process.FIRST_ISOLATED_UID && appId <= Process.LAST_ISOLATED_UID) {
-            sb.append('i');
-            sb.append(appId - Process.FIRST_ISOLATED_UID);
-        } else if (appId >= Process.FIRST_APPLICATION_UID) {
-            sb.append('a');
-            sb.append(appId - Process.FIRST_APPLICATION_UID);
-        } else {
-            sb.append('s');
-            sb.append(appId);
-        }
-    }
+    StringBuilder sb = new StringBuilder();
+    formatUid(sb, uid);
+    return sb.toString();
 }
 Body of Second Method:
 {
@@ -3374,35 +3405,6 @@ Body of Second Method:
     return null;
 }
 ------------------------
-Find a silently evolved API code:android.os.ParcelFileDescriptor.createSocketPair:COMMENT
-Method Modifier: public      static      hidden      
-Comment:/**
- * @hide
- */
-
-Body of Frist Method:
-{
-    try {
-        final FileDescriptor fd0 = new FileDescriptor();
-        final FileDescriptor fd1 = new FileDescriptor();
-        Os.socketpair(AF_UNIX, type, 0, fd0, fd1);
-        return new ParcelFileDescriptor[] { new ParcelFileDescriptor(fd0), new ParcelFileDescriptor(fd1) };
-    } catch (ErrnoException e) {
-        throw e.rethrowAsIOException();
-    }
-}
-Body of Second Method:
-{
-    try {
-        final FileDescriptor fd0 = new FileDescriptor();
-        final FileDescriptor fd1 = new FileDescriptor();
-        Os.socketpair(AF_UNIX, type | ifAtLeastQ(SOCK_CLOEXEC), 0, fd0, fd1);
-        return new ParcelFileDescriptor[] { new ParcelFileDescriptor(fd0), new ParcelFileDescriptor(fd1) };
-    } catch (ErrnoException e) {
-        throw e.rethrowAsIOException();
-    }
-}
-------------------------
 Find a silently evolved API code:android.view.WindowInsets.getSystemWindowInsetBottom:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -3700,6 +3702,65 @@ Body of Second Method:
     setSurface(surface);
 }
 ------------------------
+Find a silently evolved API code:android.net.wifi.WifiConfiguration.configKey:COMMENT
+<android.net.wifi.WifiConfiguration: String configKey(boolean)>
+public      hidden      ->public      hidden      deprecated  
+Method Modifier: public      hidden      deprecated  
+Method Modifier: Yes         Yes         No          
+Method Updated:  Yes         Yes         Yes         
+Comment:/**
+ * @hide
+ * return the string used to calculate the hash in WifiConfigStore
+ * and uniquely identify this WifiConfiguration
+ */
+
+Body of Frist Method:
+{
+    String key;
+    if (allowCached && mCachedConfigKey != null) {
+        key = mCachedConfigKey;
+    } else if (providerFriendlyName != null) {
+        key = FQDN + KeyMgmt.strings[KeyMgmt.WPA_EAP];
+        if (!shared) {
+            key += "-" + Integer.toString(UserHandle.getUserId(creatorUid));
+        }
+    } else {
+        if (allowedKeyManagement.get(KeyMgmt.WPA_PSK)) {
+            key = SSID + KeyMgmt.strings[KeyMgmt.WPA_PSK];
+        } else if (allowedKeyManagement.get(KeyMgmt.WPA_EAP) || allowedKeyManagement.get(KeyMgmt.IEEE8021X)) {
+            key = SSID + KeyMgmt.strings[KeyMgmt.WPA_EAP];
+        } else if (wepKeys[0] != null) {
+            key = SSID + "WEP";
+        } else {
+            key = SSID + KeyMgmt.strings[KeyMgmt.NONE];
+        }
+        if (!shared) {
+            key += "-" + Integer.toString(UserHandle.getUserId(creatorUid));
+        }
+        mCachedConfigKey = key;
+    }
+    return key;
+}
+Body of Second Method:
+{
+    String key;
+    if (allowCached && mCachedConfigKey != null) {
+        key = mCachedConfigKey;
+    } else if (providerFriendlyName != null) {
+        key = FQDN + KeyMgmt.strings[KeyMgmt.WPA_EAP];
+        if (!shared) {
+            key += "-" + Integer.toString(UserHandle.getUserId(creatorUid));
+        }
+    } else {
+        key = getSsidAndSecurityTypeString();
+        if (!shared) {
+            key += "-" + Integer.toString(UserHandle.getUserId(creatorUid));
+        }
+        mCachedConfigKey = key;
+    }
+    return key;
+}
+------------------------
 Find a silently evolved API code:android.widget.Switch.getTrackTintMode:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -3717,6 +3778,48 @@ Body of Second Method:
 {
     BlendMode mode = getTrackTintBlendMode();
     return mode != null ? BlendMode.blendModeToPorterDuffMode(mode) : null;
+}
+------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothHeadset.phoneStateChanged:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Notify Headset of phone state change.
+ * This is a backdoor for phone app to call BluetoothHeadset since
+ * there is currently not a good way to get precise call state change outside
+ * of phone app.
+ *
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    final IBluetoothHeadset service = mService;
+    if (service != null && isEnabled()) {
+        try {
+            service.phoneStateChanged(numActive, numHeld, callState, number, type);
+        } catch (RemoteException e) {
+            Log.e(TAG, e.toString());
+        }
+    } else {
+        Log.w(TAG, "Proxy not attached to service");
+        if (DBG)
+            Log.d(TAG, Log.getStackTraceString(new Throwable()));
+    }
+}
+Body of Second Method:
+{
+    final IBluetoothHeadset service = mService;
+    if (service != null && isEnabled()) {
+        try {
+            service.phoneStateChanged(numActive, numHeld, callState, number, type, name);
+        } catch (RemoteException e) {
+            Log.e(TAG, e.toString());
+        }
+    } else {
+        Log.w(TAG, "Proxy not attached to service");
+        if (DBG)
+            Log.d(TAG, Log.getStackTraceString(new Throwable()));
+    }
 }
 ------------------------
 Find a silently evolved API code:android.app.backup.BackupManager.beginRestoreSession:COMMENT
@@ -4003,51 +4106,6 @@ Body of Second Method:
     mExtras = (l.mExtras == null) ? null : new Bundle(l.mExtras);
 }
 ------------------------
-Find a silently evolved API code:android.provider.CallLog.Calls.addCall:COMMENT
-Method Modifier: public      static      hidden      
-Comment:/**
- * Adds a call to the call log.
- *
- * @param ci the CallerInfo object to get the target contact from.  Can be null
- * if the contact is unknown.
- * @param context the context used to get the ContentResolver
- * @param number the phone number to be added to the calls db
- * @param presentation enum value from PhoneConstants.PRESENTATION_xxx, which
- * is set by the network and denotes the number presenting rules for
- * "allowed", "payphone", "restricted" or "unknown"
- * @param callType enumerated values for "incoming", "outgoing", or "missed"
- * @param features features of the call (e.g. Video).
- * @param accountHandle The accountHandle object identifying the provider of the call
- * @param start time stamp for the call in milliseconds
- * @param duration call duration in seconds
- * @param dataUsage data usage for the call in bytes, null if data usage was not tracked for
- * the call.
- * @result The URI of the call log entry belonging to the user that made or received this
- * call.
- * {@hide}
- */
-
-Body of Frist Method:
-{
-    return addCall(ci, context, number, /* postDialDigits =*/
-    "", /* viaNumber =*/
-    "", presentation, callType, features, accountHandle, start, duration, dataUsage, /* addForAllUsers =*/
-    false, /* userToBeInsertedTo =*/
-    null, /* is_read =*/
-    false);
-}
-Body of Second Method:
-{
-    return addCall(ci, context, number, "", /* postDialDigits */
-    "", /* viaNumber */
-    presentation, callType, features, accountHandle, start, duration, dataUsage, false, /* addForAllUsers */
-    null, /* userToBeInsertedTo */
-    false, /* isRead */
-    Calls.BLOCK_REASON_NOT_BLOCKED, /* callBlockReason */
-    null, /* callScreeningAppName */
-    null);
-}
-------------------------
 Find a silently evolved API code:android.graphics.drawable.Icon.hasTint:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -4277,6 +4335,95 @@ Body of Second Method:
         throw new IllegalArgumentException("Unknown type");
     }
     return result;
+}
+------------------------
+Find a silently evolved API code:android.app.Instrumentation.startActivitySync:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Start a new activity and wait for it to begin running before returning.
+ * In addition to being synchronous, this method as some semantic
+ * differences from the standard {@link Context#startActivity} call: the
+ * activity component is resolved before talking with the activity manager
+ * (its class name is specified in the Intent that this method ultimately
+ * starts), and it does not allow you to start activities that run in a
+ * different process.  In addition, if the given Intent resolves to
+ * multiple activities, instead of displaying a dialog for the user to
+ * select an activity, an exception will be thrown.
+ *
+ * <p>The function returns as soon as the activity goes idle following the
+ * call to its {@link Activity#onCreate}.  Generally this means it has gone
+ * through the full initialization including {@link Activity#onResume} and
+ * drawn and displayed its initial window.
+ *
+ * @param intent Description of the activity to start.
+ * @param options Additional options for how the Activity should be started.
+ * May be null if there are no options.  See {@link android.app.ActivityOptions}
+ * for how to build the Bundle supplied here; there are no supported definitions
+ * for building it manually.
+ *
+ * @see Context#startActivity(Intent, Bundle)
+ */
+
+Body of Frist Method:
+{
+    validateNotAppThread();
+    synchronized (mSync) {
+        intent = new Intent(intent);
+        ActivityInfo ai = intent.resolveActivityInfo(getTargetContext().getPackageManager(), 0);
+        if (ai == null) {
+            throw new RuntimeException("Unable to resolve activity for: " + intent);
+        }
+        String myProc = mThread.getProcessName();
+        if (!ai.processName.equals(myProc)) {
+            // there is a single match that is in our package.
+            throw new RuntimeException("Intent in process " + myProc + " resolved to different process " + ai.processName + ": " + intent);
+        }
+        intent.setComponent(new ComponentName(ai.applicationInfo.packageName, ai.name));
+        final ActivityWaiter aw = new ActivityWaiter(intent);
+        if (mWaitingActivities == null) {
+            mWaitingActivities = new ArrayList();
+        }
+        mWaitingActivities.add(aw);
+        getTargetContext().startActivity(intent, options);
+        do {
+            try {
+                mSync.wait();
+            } catch (InterruptedException e) {
+            }
+        } while (mWaitingActivities.contains(aw));
+        return aw.activity;
+    }
+}
+Body of Second Method:
+{
+    validateNotAppThread();
+    synchronized (mSync) {
+        intent = new Intent(intent);
+        ActivityInfo ai = intent.resolveActivityInfo(getTargetContext().getPackageManager(), 0);
+        if (ai == null) {
+            throw new RuntimeException("Unable to resolve activity for: " + intent);
+        }
+        String myProc = mThread.getProcessName();
+        if (!ai.processName.equals(myProc)) {
+            // there is a single match that is in our package.
+            throw new RuntimeException("Intent in process " + myProc + " resolved to different process " + ai.processName + ": " + intent);
+        }
+        intent.setComponent(new ComponentName(ai.applicationInfo.packageName, ai.name));
+        final ActivityWaiter aw = new ActivityWaiter(intent);
+        if (mWaitingActivities == null) {
+            mWaitingActivities = new ArrayList();
+        }
+        mWaitingActivities.add(aw);
+        getTargetContext().startActivity(intent, options);
+        do {
+            try {
+                mSync.wait();
+            } catch (InterruptedException e) {
+            }
+        } while (mWaitingActivities.contains(aw));
+        waitForEnterAnimationComplete(aw.activity);
+        return aw.activity;
+    }
 }
 ------------------------
 Find a silently evolved API code:android.media.session.MediaController.adjustVolume:COMMENT
@@ -4523,6 +4670,21 @@ Body of Frist Method:
 Body of Second Method:
 {
     return Objects.hash(super.hashCode(), mCellIdentityWcdma, mCellSignalStrengthWcdma);
+}
+------------------------
+Find a silently evolved API code:android.view.InputEventReceiver.dispatchInputEvent:COMMENT
+Method Modifier: private     hidden      
+Comment:// Called from native code.
+
+Body of Frist Method:
+{
+    mSeqMap.put(event.getSequenceNumber(), seq);
+    onInputEvent(event, displayId);
+}
+Body of Second Method:
+{
+    mSeqMap.put(event.getSequenceNumber(), seq);
+    onInputEvent(event);
 }
 ------------------------
 Find a silently evolved API code:android.bluetooth.BluetoothA2dpSink.isA2dpPlaying:COMMENT
@@ -4970,6 +5132,26 @@ Body of Second Method:
     setLightSourceGeometry(lightX, lightY, mLightZ, mLightRadius);
 }
 ------------------------
+Find a silently evolved API code:android.os.Process.startWebView:COMMENT
+<android.os.Process: ProcessStartResult startWebView(String,String,int,int,int[],int,int,int,String,String,String,String,String,String[])>
+public      static      final       hidden      ->public      static      hidden      
+Method Modifier: public      static      final       hidden      
+Method Modifier: Yes         Yes         Yes         Yes         
+Method Updated:  Yes         Yes         No          Yes         
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    return WebViewZygote.getProcess().start(processClass, niceName, uid, gid, gids, runtimeFlags, mountExternal, targetSdkVersion, seInfo, abi, instructionSet, appDataDir, invokeWith, zygoteArgs);
+}
+Body of Second Method:
+{
+    return WebViewZygote.getProcess().start(processClass, niceName, uid, gid, gids, runtimeFlags, mountExternal, targetSdkVersion, seInfo, abi, instructionSet, appDataDir, invokeWith, packageName, /*useUsapPool=*/
+    false, zygoteArgs);
+}
+------------------------
 Find a silently evolved API code:android.app.WindowConfiguration.hasWindowDecorCaption:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -5270,6 +5452,19 @@ Body of Second Method:
         mBounds.writeToProto(protoOutputStream, BOUNDS);
     }
     protoOutputStream.end(token);
+}
+------------------------
+Find a silently evolved API code:android.view.DisplayEventReceiver.dispatchHotplug:COMMENT
+Method Modifier: private     hidden      
+Comment:// Called from native code.
+
+Body of Frist Method:
+{
+    onHotplug(timestampNanos, builtInDisplayId, connected);
+}
+Body of Second Method:
+{
+    onHotplug(timestampNanos, physicalDisplayId, connected);
 }
 ------------------------
 Find a silently evolved API code:android.view.animation.AnimationSet.getTransformation:COMMENT
@@ -5914,6 +6109,31 @@ Body of Second Method:
             Log.e(TAG, "selectBackupTransportAsync() couldn't connect");
         }
     }
+}
+------------------------
+Find a silently evolved API code:android.app.servertransaction.LaunchActivityItem.obtain:COMMENT
+Method Modifier: public      static      hidden      
+Comment:/**
+ * Obtain an instance initialized with provided params.
+ */
+
+Body of Frist Method:
+{
+    LaunchActivityItem instance = ObjectPool.obtain(LaunchActivityItem.class);
+    if (instance == null) {
+        instance = new LaunchActivityItem();
+    }
+    setValues(instance, intent, ident, info, curConfig, overrideConfig, compatInfo, referrer, voiceInteractor, procState, state, persistentState, pendingResults, pendingNewIntents, isForward, profilerInfo);
+    return instance;
+}
+Body of Second Method:
+{
+    LaunchActivityItem instance = ObjectPool.obtain(LaunchActivityItem.class);
+    if (instance == null) {
+        instance = new LaunchActivityItem();
+    }
+    setValues(instance, intent, ident, info, curConfig, overrideConfig, compatInfo, referrer, voiceInteractor, procState, state, persistentState, pendingResults, pendingNewIntents, isForward, profilerInfo, assistToken);
+    return instance;
 }
 ------------------------
 Find a silently evolved API code:android.bluetooth.BluetoothHeadsetClient.close:COMMENT
@@ -7059,89 +7279,6 @@ Body of Second Method:
     p.writeInt(event.mFlags);
 }
 ------------------------
-Find a silently evolved API code:android.opengl.GLUtils.texSubImage2D:COMMENT
-Method Modifier: public      static      
-Comment:/**
- * Calls glTexSubImage2D() on the current OpenGL context. If no context is
- * current the behavior is the same as calling glTexSubImage2D() with  no
- * current context, that is, eglGetError() will return the appropriate
- * error.
- * Unlike glTexSubImage2D() bitmap cannot be null and will raise an exception
- * in that case.
- * All other parameters are identical to those used for glTexSubImage2D().
- *
- * NOTE: this method doesn't change GL_UNPACK_ALIGNMENT, you must make
- * sure to set it properly according to the supplied bitmap.
- *
- * Whether or not bitmap can have non power of two dimensions depends on
- * the current OpenGL context. Always check glGetError() some time
- * after calling this method, just like when using OpenGL directly.
- *
- * @param target
- * @param level
- * @param xoffset
- * @param yoffset
- * @param bitmap
- */
-
-Body of Frist Method:
-{
-    if (bitmap == null) {
-        throw new NullPointerException("texSubImage2D can't be used with a null Bitmap");
-    }
-    if (bitmap.isRecycled()) {
-        throw new IllegalArgumentException("bitmap is recycled");
-    }
-    int type = getType(bitmap);
-    if (native_texSubImage2D(target, level, xoffset, yoffset, bitmap, -1, type) != 0) {
-        throw new IllegalArgumentException("invalid Bitmap format");
-    }
-}
-Body of Second Method:
-{
-    if (bitmap == null) {
-        throw new NullPointerException("texSubImage2D can't be used with a null Bitmap");
-    }
-    if (bitmap.isRecycled()) {
-        throw new IllegalArgumentException("bitmap is recycled");
-    }
-    int type = getType(bitmap);
-    if (native_texSubImage2D(target, level, xoffset, yoffset, bitmap.getNativeInstance(), -1, type) != 0) {
-        throw new IllegalArgumentException("invalid Bitmap format");
-    }
-}
-------------------------
-Find a silently evolved API code:android.os.ParcelFileDescriptor.createReliableSocketPair:COMMENT
-Method Modifier: public      static      hidden      
-Comment:/**
- * @hide
- */
-
-Body of Frist Method:
-{
-    try {
-        final FileDescriptor[] comm = createCommSocketPair();
-        final FileDescriptor fd0 = new FileDescriptor();
-        final FileDescriptor fd1 = new FileDescriptor();
-        Os.socketpair(AF_UNIX, type, 0, fd0, fd1);
-        return new ParcelFileDescriptor[] { new ParcelFileDescriptor(fd0, comm[0]), new ParcelFileDescriptor(fd1, comm[1]) };
-    } catch (ErrnoException e) {
-        throw e.rethrowAsIOException();
-    }
-}
-Body of Second Method:
-{
-    try {
-        final FileDescriptor[] comm = createCommSocketPair();
-        final FileDescriptor fd0 = new FileDescriptor();
-        final FileDescriptor fd1 = new FileDescriptor();
-        Os.socketpair(AF_UNIX, type | ifAtLeastQ(SOCK_CLOEXEC), 0, fd0, fd1);
-        return new ParcelFileDescriptor[] { new ParcelFileDescriptor(fd0, comm[0]), new ParcelFileDescriptor(fd1, comm[1]) };
-    } catch (ErrnoException e) {
-        throw e.rethrowAsIOException();
-    }
-}
-------------------------
 Find a silently evolved API code:android.telephony.CellSignalStrengthCdma.toString:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -8077,6 +8214,43 @@ Body of Second Method:
     }
 }
 ------------------------
+Find a silently evolved API code:android.content.ContentProviderClient.applyBatch:COMMENT
+Method Modifier: public      
+Comment:/**
+ * See {@link ContentProvider#applyBatch ContentProvider.applyBatch}
+ */
+
+Body of Frist Method:
+{
+    Preconditions.checkNotNull(operations, "operations");
+    beforeRemote();
+    try {
+        return mContentProvider.applyBatch(mPackageName, operations);
+    } catch (DeadObjectException e) {
+        if (!mStable) {
+            mContentResolver.unstableProviderDied(mContentProvider);
+        }
+        throw e;
+    } finally {
+        afterRemote();
+    }
+}
+Body of Second Method:
+{
+    Preconditions.checkNotNull(operations, "operations");
+    beforeRemote();
+    try {
+        return mContentProvider.applyBatch(mPackageName, authority, operations);
+    } catch (DeadObjectException e) {
+        if (!mStable) {
+            mContentResolver.unstableProviderDied(mContentProvider);
+        }
+        throw e;
+    } finally {
+        afterRemote();
+    }
+}
+------------------------
 Find a silently evolved API code:android.bluetooth.le.ScanRecord.parseFromBytes:COMMENT
 Method Modifier: public      static      hidden      
 Comment:/**
@@ -8989,44 +9163,6 @@ Body of Second Method:
     return null;
 }
 ------------------------
-Find a silently evolved API code:android.net.wifi.WifiScanner.startScan:COMMENT
-Method Modifier: public      hidden      
-Comment:/**
- * starts a single scan and reports results asynchronously
- * @param settings specifies various parameters for the scan; for more information look at
- * {@link ScanSettings}
- * @param workSource WorkSource to blame for power usage
- * @param listener specifies the object to report events to. This object is also treated as a
- * key for this scan, and must also be specified to cancel the scan. Multiple
- * scans should also not share this object.
- */
-
-Body of Frist Method:
-{
-    Preconditions.checkNotNull(listener, "listener cannot be null");
-    int key = addListener(listener);
-    if (key == INVALID_KEY)
-        return;
-    validateChannel();
-    Bundle scanParams = new Bundle();
-    scanParams.putParcelable(SCAN_PARAMS_SCAN_SETTINGS_KEY, settings);
-    scanParams.putParcelable(SCAN_PARAMS_WORK_SOURCE_KEY, workSource);
-    mAsyncChannel.sendMessage(CMD_START_SINGLE_SCAN, 0, key, scanParams);
-}
-Body of Second Method:
-{
-    Preconditions.checkNotNull(listener, "listener cannot be null");
-    int key = addListener(listener);
-    if (key == INVALID_KEY)
-        return;
-    validateChannel();
-    Bundle scanParams = new Bundle();
-    scanParams.putParcelable(SCAN_PARAMS_SCAN_SETTINGS_KEY, settings);
-    scanParams.putParcelable(SCAN_PARAMS_WORK_SOURCE_KEY, workSource);
-    scanParams.putString(REQUEST_PACKAGE_NAME_KEY, mContext.getOpPackageName());
-    mAsyncChannel.sendMessage(CMD_START_SINGLE_SCAN, 0, key, scanParams);
-}
-------------------------
 Find a silently evolved API code:android.telephony.CellIdentityTdscdma.writeToParcel:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -9323,6 +9459,19 @@ Body of Second Method:
     if (service == null)
         Log.w(TAG, "Proxy not attached to service");
     return false;
+}
+------------------------
+Find a silently evolved API code:android.view.DisplayEventReceiver.dispatchVsync:COMMENT
+Method Modifier: private     hidden      
+Comment:// Called from native code.
+
+Body of Frist Method:
+{
+    onVsync(timestampNanos, builtInDisplayId, frame);
+}
+Body of Second Method:
+{
+    onVsync(timestampNanos, physicalDisplayId, frame);
 }
 ------------------------
 Find a silently evolved API code:android.net.wifi.WifiEnterpriseConfig.setCaCertificates:COMMENT
@@ -10017,6 +10166,30 @@ Body of Second Method:
     return mAvailableResultKeys;
 }
 ------------------------
+Find a silently evolved API code:android.net.NetworkAgent.explicitlySelected:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Called by the bearer to indicate this network was manually selected by the user.
+ * This should be called before the NetworkInfo is marked CONNECTED so that this
+ * Network can be given special treatment at that time. If {@code acceptUnvalidated} is
+ * {@code true}, then the system will switch to this network. If it is {@code false} and the
+ * network cannot be validated, the system will ask the user whether to switch to this network.
+ * If the user confirms and selects "don't ask again", then the system will call
+ * {@link #saveAcceptUnvalidated} to persist the user's choice. Thus, if the transport ever
+ * calls this method with {@code acceptUnvalidated} set to {@code false}, it must also implement
+ * {@link #saveAcceptUnvalidated} to respect the user's choice.
+ */
+
+Body of Frist Method:
+{
+    queueOrSendMessage(EVENT_SET_EXPLICITLY_SELECTED, acceptUnvalidated);
+}
+Body of Second Method:
+{
+    explicitlySelected(true, /* explicitlySelected */
+    acceptUnvalidated);
+}
+------------------------
 Find a silently evolved API code:android.location.GnssMeasurement.getStateString:COMMENT
 Method Modifier: private     
 Comment:/**
@@ -10153,6 +10326,33 @@ Body of Second Method:
     }
     builder.setLength(builder.length() - 1);
     return builder.toString();
+}
+------------------------
+Find a silently evolved API code:android.app.Service.stopForeground:COMMENT
+Method Modifier: public      final       
+Comment:/**
+ * Remove this service from foreground state, allowing it to be killed if
+ * more memory is needed.  This does not stop the service from running (for that
+ * you use {@link #stopSelf()} or related methods), just takes it out of the
+ * foreground state.
+ *
+ * @param flags additional behavior options.
+ * @see #startForeground(int, Notification)
+ */
+
+Body of Frist Method:
+{
+    try {
+        mActivityManager.setServiceForeground(new ComponentName(this, mClassName), mToken, 0, null, flags);
+    } catch (RemoteException ex) {
+    }
+}
+Body of Second Method:
+{
+    try {
+        mActivityManager.setServiceForeground(new ComponentName(this, mClassName), mToken, 0, null, flags, 0);
+    } catch (RemoteException ex) {
+    }
 }
 ------------------------
 Find a silently evolved API code:android.bluetooth.BluetoothHidHost.getReport:COMMENT
@@ -11217,6 +11417,137 @@ Body of Frist Method:
 Body of Second Method:
 {
     return !getSystemWindowInsets().equals(Insets.NONE);
+}
+------------------------
+Find a silently evolved API code:android.net.NetworkStats.apply464xlatAdjustments:COMMENT
+<android.net.NetworkStats: void apply464xlatAdjustments(Map<String, String>)>
+public      hidden      ->public      
+Method Modifier: public      hidden      
+Method Modifier: Yes         Yes         
+Method Updated:  Yes         No          
+Comment:/**
+ * Calculate and apply adjustments to captured statistics for 464xlat traffic counted twice.
+ *
+ * <p>This mutates the object this method is called on. Equivalent to calling
+ * {@link #apply464xlatAdjustments(NetworkStats, NetworkStats, Map)} with {@code this} as
+ * base and stacked traffic.
+ * @param stackedIfaces Mapping ipv6if -> ipv4if interface where traffic is counted on both.
+ */
+
+Body of Frist Method:
+{
+    apply464xlatAdjustments(this, this, stackedIfaces);
+}
+Body of Second Method:
+{
+    apply464xlatAdjustments(this, this, stackedIfaces, useBpfStats);
+}
+------------------------
+Find a silently evolved API code:android.content.pm.PackageManager.installStatusToString:COMMENT
+Method Modifier: public      static      hidden      
+Comment:/**
+ * {@hide}
+ */
+
+Body of Frist Method:
+{
+    switch(status) {
+        case INSTALL_SUCCEEDED:
+            return "INSTALL_SUCCEEDED";
+        case INSTALL_FAILED_ALREADY_EXISTS:
+            return "INSTALL_FAILED_ALREADY_EXISTS";
+        case INSTALL_FAILED_INVALID_APK:
+            return "INSTALL_FAILED_INVALID_APK";
+        case INSTALL_FAILED_INVALID_URI:
+            return "INSTALL_FAILED_INVALID_URI";
+        case INSTALL_FAILED_INSUFFICIENT_STORAGE:
+            return "INSTALL_FAILED_INSUFFICIENT_STORAGE";
+        case INSTALL_FAILED_DUPLICATE_PACKAGE:
+            return "INSTALL_FAILED_DUPLICATE_PACKAGE";
+        case INSTALL_FAILED_NO_SHARED_USER:
+            return "INSTALL_FAILED_NO_SHARED_USER";
+        case INSTALL_FAILED_UPDATE_INCOMPATIBLE:
+            return "INSTALL_FAILED_UPDATE_INCOMPATIBLE";
+        case INSTALL_FAILED_SHARED_USER_INCOMPATIBLE:
+            return "INSTALL_FAILED_SHARED_USER_INCOMPATIBLE";
+        case INSTALL_FAILED_MISSING_SHARED_LIBRARY:
+            return "INSTALL_FAILED_MISSING_SHARED_LIBRARY";
+        case INSTALL_FAILED_REPLACE_COULDNT_DELETE:
+            return "INSTALL_FAILED_REPLACE_COULDNT_DELETE";
+        case INSTALL_FAILED_DEXOPT:
+            return "INSTALL_FAILED_DEXOPT";
+        case INSTALL_FAILED_OLDER_SDK:
+            return "INSTALL_FAILED_OLDER_SDK";
+        case INSTALL_FAILED_CONFLICTING_PROVIDER:
+            return "INSTALL_FAILED_CONFLICTING_PROVIDER";
+        case INSTALL_FAILED_NEWER_SDK:
+            return "INSTALL_FAILED_NEWER_SDK";
+        case INSTALL_FAILED_TEST_ONLY:
+            return "INSTALL_FAILED_TEST_ONLY";
+        case INSTALL_FAILED_CPU_ABI_INCOMPATIBLE:
+            return "INSTALL_FAILED_CPU_ABI_INCOMPATIBLE";
+        case INSTALL_FAILED_MISSING_FEATURE:
+            return "INSTALL_FAILED_MISSING_FEATURE";
+        case INSTALL_FAILED_CONTAINER_ERROR:
+            return "INSTALL_FAILED_CONTAINER_ERROR";
+        case INSTALL_FAILED_INVALID_INSTALL_LOCATION:
+            return "INSTALL_FAILED_INVALID_INSTALL_LOCATION";
+        case INSTALL_FAILED_MEDIA_UNAVAILABLE:
+            return "INSTALL_FAILED_MEDIA_UNAVAILABLE";
+        case INSTALL_FAILED_VERIFICATION_TIMEOUT:
+            return "INSTALL_FAILED_VERIFICATION_TIMEOUT";
+        case INSTALL_FAILED_VERIFICATION_FAILURE:
+            return "INSTALL_FAILED_VERIFICATION_FAILURE";
+        case INSTALL_FAILED_PACKAGE_CHANGED:
+            return "INSTALL_FAILED_PACKAGE_CHANGED";
+        case INSTALL_FAILED_UID_CHANGED:
+            return "INSTALL_FAILED_UID_CHANGED";
+        case INSTALL_FAILED_VERSION_DOWNGRADE:
+            return "INSTALL_FAILED_VERSION_DOWNGRADE";
+        case INSTALL_PARSE_FAILED_NOT_APK:
+            return "INSTALL_PARSE_FAILED_NOT_APK";
+        case INSTALL_PARSE_FAILED_BAD_MANIFEST:
+            return "INSTALL_PARSE_FAILED_BAD_MANIFEST";
+        case INSTALL_PARSE_FAILED_UNEXPECTED_EXCEPTION:
+            return "INSTALL_PARSE_FAILED_UNEXPECTED_EXCEPTION";
+        case INSTALL_PARSE_FAILED_NO_CERTIFICATES:
+            return "INSTALL_PARSE_FAILED_NO_CERTIFICATES";
+        case INSTALL_PARSE_FAILED_INCONSISTENT_CERTIFICATES:
+            return "INSTALL_PARSE_FAILED_INCONSISTENT_CERTIFICATES";
+        case INSTALL_PARSE_FAILED_CERTIFICATE_ENCODING:
+            return "INSTALL_PARSE_FAILED_CERTIFICATE_ENCODING";
+        case INSTALL_PARSE_FAILED_BAD_PACKAGE_NAME:
+            return "INSTALL_PARSE_FAILED_BAD_PACKAGE_NAME";
+        case INSTALL_PARSE_FAILED_BAD_SHARED_USER_ID:
+            return "INSTALL_PARSE_FAILED_BAD_SHARED_USER_ID";
+        case INSTALL_PARSE_FAILED_MANIFEST_MALFORMED:
+            return "INSTALL_PARSE_FAILED_MANIFEST_MALFORMED";
+        case INSTALL_PARSE_FAILED_MANIFEST_EMPTY:
+            return "INSTALL_PARSE_FAILED_MANIFEST_EMPTY";
+        case INSTALL_FAILED_INTERNAL_ERROR:
+            return "INSTALL_FAILED_INTERNAL_ERROR";
+        case INSTALL_FAILED_USER_RESTRICTED:
+            return "INSTALL_FAILED_USER_RESTRICTED";
+        case INSTALL_FAILED_DUPLICATE_PERMISSION:
+            return "INSTALL_FAILED_DUPLICATE_PERMISSION";
+        case INSTALL_FAILED_NO_MATCHING_ABIS:
+            return "INSTALL_FAILED_NO_MATCHING_ABIS";
+        case INSTALL_FAILED_ABORTED:
+            return "INSTALL_FAILED_ABORTED";
+        case INSTALL_FAILED_BAD_DEX_METADATA:
+            return "INSTALL_FAILED_BAD_DEX_METADATA";
+        default:
+            return Integer.toString(status);
+    }
+}
+Body of Second Method:
+{
+    final String str = installStatusToString(status);
+    if (msg != null) {
+        return str + ": " + msg;
+    } else {
+        return str;
+    }
 }
 ------------------------
 Find a silently evolved API code:android.bluetooth.BluetoothA2dp.connect:COMMENT
@@ -12620,6 +12951,22 @@ Body of Second Method:
     return false;
 }
 ------------------------
+Find a silently evolved API code:android.app.servertransaction.TransactionExecutor.cycleToPath:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Transition the client between states.
+ */
+
+Body of Frist Method:
+{
+    cycleToPath(r, finish, false);
+}
+Body of Second Method:
+{
+    cycleToPath(r, finish, false, /* excludeLastState */
+    transaction);
+}
+------------------------
 Find a silently evolved API code:android.nfc.NfcAdapter.getNfcAdapter:COMMENT
 Method Modifier: public      static      hidden      
 Comment:/**
@@ -12853,6 +13200,44 @@ Body of Second Method:
     if (service == null)
         Log.w(TAG, "Proxy not attached to service");
     return new ArrayList<BluetoothDevice>();
+}
+------------------------
+Find a silently evolved API code:android.os.ParcelFileDescriptor.fromFd:COMMENT
+Method Modifier: public      static      
+Comment:/**
+ * Create a new ParcelFileDescriptor from a raw native fd.  The new
+ * ParcelFileDescriptor holds a dup of the original fd passed in here,
+ * so you must still close that fd as well as the new ParcelFileDescriptor.
+ *
+ * @param fd The native fd that the ParcelFileDescriptor should dup.
+ *
+ * @return Returns a new ParcelFileDescriptor holding a FileDescriptor
+ * for a dup of the given fd.
+ */
+
+Body of Frist Method:
+{
+    final FileDescriptor original = new FileDescriptor();
+    original.setInt$(fd);
+    try {
+        final FileDescriptor dup = Os.dup(original);
+        return new ParcelFileDescriptor(dup);
+    } catch (ErrnoException e) {
+        throw e.rethrowAsIOException();
+    }
+}
+Body of Second Method:
+{
+    final FileDescriptor original = new FileDescriptor();
+    original.setInt$(fd);
+    try {
+        final FileDescriptor dup = new FileDescriptor();
+        int intfd = Os.fcntlInt(original, (isAtLeastQ() ? F_DUPFD_CLOEXEC : F_DUPFD), 0);
+        dup.setInt$(intfd);
+        return new ParcelFileDescriptor(dup);
+    } catch (ErrnoException e) {
+        throw e.rethrowAsIOException();
+    }
 }
 ------------------------
 Find a silently evolved API code:android.telephony.CellIdentityGsm.writeToParcel:COMMENT
@@ -13367,25 +13752,6 @@ Body of Second Method:
     mNeededSensors = neededSensors;
 }
 ------------------------
-Find a silently evolved API code:android.database.AbstractCursor.setNotificationUri:COMMENT
-Method Modifier: public      
-Comment:/**
- * Specifies a content URI to watch for changes.
- *
- * @param cr The content resolver from the caller's context.
- * @param notifyUri The URI to watch for changes. This can be a
- * specific row URI, or a base URI for a whole class of content.
- */
-
-Body of Frist Method:
-{
-    setNotificationUri(cr, notifyUri, cr.getUserId());
-}
-Body of Second Method:
-{
-    setNotificationUris(cr, Arrays.asList(notifyUri));
-}
-------------------------
 Find a silently evolved API code:android.widget.CompoundButton.setButtonTintMode:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -13581,7 +13947,19 @@ Body of Frist Method:
 }
 Body of Second Method:
 {
-    return call(mAuthority, method, arg, extras);
+    Preconditions.checkNotNull(authority, "authority");
+    Preconditions.checkNotNull(method, "method");
+    beforeRemote();
+    try {
+        return mContentProvider.call(mPackageName, authority, method, arg, extras);
+    } catch (DeadObjectException e) {
+        if (!mStable) {
+            mContentResolver.unstableProviderDied(mContentProvider);
+        }
+        throw e;
+    } finally {
+        afterRemote();
+    }
 }
 ------------------------
 Find a silently evolved API code:android.util.StatsLog.logStop:COMMENT
@@ -13634,6 +14012,43 @@ Body of Second Method:
             return false;
         }
     }
+}
+------------------------
+Find a silently evolved API code:android.content.pm.PackageItemInfo.writeToProto:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    long token = proto.start(fieldId);
+    if (name != null) {
+        proto.write(PackageItemInfoProto.NAME, name);
+    }
+    proto.write(PackageItemInfoProto.PACKAGE_NAME, packageName);
+    if (labelRes != 0 || nonLocalizedLabel != null || icon != 0 || banner != 0) {
+        proto.write(PackageItemInfoProto.LABEL_RES, labelRes);
+        proto.write(PackageItemInfoProto.NON_LOCALIZED_LABEL, nonLocalizedLabel.toString());
+        proto.write(PackageItemInfoProto.ICON, icon);
+        proto.write(PackageItemInfoProto.BANNER, banner);
+    }
+    proto.end(token);
+}
+Body of Second Method:
+{
+    long token = proto.start(fieldId);
+    if (name != null) {
+        proto.write(PackageItemInfoProto.NAME, name);
+    }
+    proto.write(PackageItemInfoProto.PACKAGE_NAME, packageName);
+    proto.write(PackageItemInfoProto.LABEL_RES, labelRes);
+    if (nonLocalizedLabel != null) {
+        proto.write(PackageItemInfoProto.NON_LOCALIZED_LABEL, nonLocalizedLabel.toString());
+    }
+    proto.write(PackageItemInfoProto.ICON, icon);
+    proto.write(PackageItemInfoProto.BANNER, banner);
+    proto.end(token);
 }
 ------------------------
 Find a silently evolved API code:android.database.sqlite.SQLiteGlobal.getWALSyncMode:COMMENT
@@ -14689,40 +15104,6 @@ Body of Second Method:
     } catch (RuntimeException ex) {
         Rlog.e(TAG, "stopNetworkScan  RuntimeException", ex);
     }
-}
-------------------------
-Find a silently evolved API code:android.util.IntArray.add:COMMENT
-Method Modifier: public      hidden      
-Comment:/**
- * Inserts a value at the specified position in this array. If the specified index is equal to
- * the length of the array, the value is added at the end.
- *
- * @throws IndexOutOfBoundsException when index &lt; 0 || index &gt; size()
- */
-
-Body of Frist Method:
-{
-    ensureCapacity(1);
-    int rightSegment = mSize - index;
-    mSize++;
-    checkBounds(index);
-    if (rightSegment != 0) {
-        // Move by 1 all values from the right of 'index'
-        System.arraycopy(mValues, index, mValues, index + 1, rightSegment);
-    }
-    mValues[index] = value;
-}
-Body of Second Method:
-{
-    ensureCapacity(1);
-    int rightSegment = mSize - index;
-    mSize++;
-    ArrayUtils.checkBounds(mSize, index);
-    if (rightSegment != 0) {
-        // Move by 1 all values from the right of 'index'
-        System.arraycopy(mValues, index, mValues, index + 1, rightSegment);
-    }
-    mValues[index] = value;
 }
 ------------------------
 Find a silently evolved API code:android.net.http.HttpResponseCache.size:COMMENT
@@ -16353,6 +16734,130 @@ Body of Second Method:
     return address.equals(other.address) && prefixLength == other.prefixLength;
 }
 ------------------------
+Find a silently evolved API code:android.database.sqlite.SQLiteConnectionPool.dump:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Dumps debugging information about this connection pool.
+ *
+ * @param printer The printer to receive the dump, not null.
+ * @param verbose True to dump more verbose information.
+ */
+
+Body of Frist Method:
+{
+    Printer indentedPrinter = PrefixPrinter.create(printer, "    ");
+    synchronized (mLock) {
+        printer.println("Connection pool for " + mConfiguration.path + ":");
+        printer.println("  Open: " + mIsOpen);
+        printer.println("  Max connections: " + mMaxConnectionPoolSize);
+        printer.println("  Total execution time: " + mTotalExecutionTimeCounter);
+        printer.println("  Configuration: openFlags=" + mConfiguration.openFlags + ", useCompatibilityWal=" + mConfiguration.useCompatibilityWal() + ", journalMode=" + TextUtils.emptyIfNull(mConfiguration.journalMode) + ", syncMode=" + TextUtils.emptyIfNull(mConfiguration.syncMode));
+        if (SQLiteCompatibilityWalFlags.areFlagsSet()) {
+            printer.println("  Compatibility WAL settings: compatibility_wal_supported=" + SQLiteCompatibilityWalFlags.isCompatibilityWalSupported() + ", wal_syncmode=" + SQLiteCompatibilityWalFlags.getWALSyncMode());
+        }
+        if (mConfiguration.isLookasideConfigSet()) {
+            printer.println("  Lookaside config: sz=" + mConfiguration.lookasideSlotSize + " cnt=" + mConfiguration.lookasideSlotCount);
+        }
+        if (mConfiguration.idleConnectionTimeoutMs != Long.MAX_VALUE) {
+            printer.println("  Idle connection timeout: " + mConfiguration.idleConnectionTimeoutMs);
+        }
+        printer.println("  Available primary connection:");
+        if (mAvailablePrimaryConnection != null) {
+            mAvailablePrimaryConnection.dump(indentedPrinter, verbose);
+        } else {
+            indentedPrinter.println("<none>");
+        }
+        printer.println("  Available non-primary connections:");
+        if (!mAvailableNonPrimaryConnections.isEmpty()) {
+            final int count = mAvailableNonPrimaryConnections.size();
+            for (int i = 0; i < count; i++) {
+                mAvailableNonPrimaryConnections.get(i).dump(indentedPrinter, verbose);
+            }
+        } else {
+            indentedPrinter.println("<none>");
+        }
+        printer.println("  Acquired connections:");
+        if (!mAcquiredConnections.isEmpty()) {
+            for (Map.Entry<SQLiteConnection, AcquiredConnectionStatus> entry : mAcquiredConnections.entrySet()) {
+                final SQLiteConnection connection = entry.getKey();
+                connection.dumpUnsafe(indentedPrinter, verbose);
+                indentedPrinter.println("  Status: " + entry.getValue());
+            }
+        } else {
+            indentedPrinter.println("<none>");
+        }
+        printer.println("  Connection waiters:");
+        if (mConnectionWaiterQueue != null) {
+            int i = 0;
+            final long now = SystemClock.uptimeMillis();
+            for (ConnectionWaiter waiter = mConnectionWaiterQueue; waiter != null; waiter = waiter.mNext, i++) {
+                indentedPrinter.println(i + ": waited for " + ((now - waiter.mStartTime) * 0.001f) + " ms - thread=" + waiter.mThread + ", priority=" + waiter.mPriority + ", sql='" + waiter.mSql + "'");
+            }
+        } else {
+            indentedPrinter.println("<none>");
+        }
+    }
+}
+Body of Second Method:
+{
+    Printer indentedPrinter = PrefixPrinter.create(printer, "    ");
+    synchronized (mLock) {
+        if (directories != null) {
+            directories.add(new File(mConfiguration.path).getParent());
+        }
+        boolean isCompatibilityWalEnabled = mConfiguration.isLegacyCompatibilityWalEnabled();
+        printer.println("Connection pool for " + mConfiguration.path + ":");
+        printer.println("  Open: " + mIsOpen);
+        printer.println("  Max connections: " + mMaxConnectionPoolSize);
+        printer.println("  Total execution time: " + mTotalExecutionTimeCounter);
+        printer.println("  Configuration: openFlags=" + mConfiguration.openFlags + ", isLegacyCompatibilityWalEnabled=" + isCompatibilityWalEnabled + ", journalMode=" + TextUtils.emptyIfNull(mConfiguration.journalMode) + ", syncMode=" + TextUtils.emptyIfNull(mConfiguration.syncMode));
+        if (isCompatibilityWalEnabled) {
+            printer.println("  Compatibility WAL enabled: wal_syncmode=" + SQLiteCompatibilityWalFlags.getWALSyncMode());
+        }
+        if (mConfiguration.isLookasideConfigSet()) {
+            printer.println("  Lookaside config: sz=" + mConfiguration.lookasideSlotSize + " cnt=" + mConfiguration.lookasideSlotCount);
+        }
+        if (mConfiguration.idleConnectionTimeoutMs != Long.MAX_VALUE) {
+            printer.println("  Idle connection timeout: " + mConfiguration.idleConnectionTimeoutMs);
+        }
+        printer.println("  Available primary connection:");
+        if (mAvailablePrimaryConnection != null) {
+            mAvailablePrimaryConnection.dump(indentedPrinter, verbose);
+        } else {
+            indentedPrinter.println("<none>");
+        }
+        printer.println("  Available non-primary connections:");
+        if (!mAvailableNonPrimaryConnections.isEmpty()) {
+            final int count = mAvailableNonPrimaryConnections.size();
+            for (int i = 0; i < count; i++) {
+                mAvailableNonPrimaryConnections.get(i).dump(indentedPrinter, verbose);
+            }
+        } else {
+            indentedPrinter.println("<none>");
+        }
+        printer.println("  Acquired connections:");
+        if (!mAcquiredConnections.isEmpty()) {
+            for (Map.Entry<SQLiteConnection, AcquiredConnectionStatus> entry : mAcquiredConnections.entrySet()) {
+                final SQLiteConnection connection = entry.getKey();
+                connection.dumpUnsafe(indentedPrinter, verbose);
+                indentedPrinter.println("  Status: " + entry.getValue());
+            }
+        } else {
+            indentedPrinter.println("<none>");
+        }
+        printer.println("  Connection waiters:");
+        if (mConnectionWaiterQueue != null) {
+            int i = 0;
+            final long now = SystemClock.uptimeMillis();
+            for (ConnectionWaiter waiter = mConnectionWaiterQueue; waiter != null; waiter = waiter.mNext, i++) {
+                indentedPrinter.println(i + ": waited for " + ((now - waiter.mStartTime) * 0.001f) + " ms - thread=" + waiter.mThread + ", priority=" + waiter.mPriority + ", sql='" + waiter.mSql + "'");
+            }
+        } else {
+            indentedPrinter.println("<none>");
+        }
+    }
+}
+------------------------
 Find a silently evolved API code:android.net.wifi.rtt.RangingResult.toString:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -16774,88 +17279,6 @@ Body of Second Method:
     itemTooltipText = a.getText(com.android.internal.R.styleable.MenuItem_tooltipText);
     a.recycle();
     itemAdded = false;
-}
-------------------------
-Find a silently evolved API code:android.graphics.BitmapFactory.decodeStream:COMMENT
-Method Modifier: public      static      
-Comment:/**
- * Decode an input stream into a bitmap. If the input stream is null, or
- * cannot be used to decode a bitmap, the function returns null.
- * The stream's position will be where ever it was after the encoded data
- * was read.
- *
- * @param is The input stream that holds the raw data to be decoded into a
- * bitmap.
- * @param outPadding If not null, return the padding rect for the bitmap if
- * it exists, otherwise set padding to [-1,-1,-1,-1]. If
- * no bitmap is returned (null) then padding is
- * unchanged.
- * @param opts null-ok; Options that control downsampling and whether the
- * image should be completely decoded, or just is size returned.
- * @return The decoded bitmap, or null if the image data could not be
- * decoded, or, if opts is non-null, if opts requested only the
- * size be returned (in opts.outWidth and opts.outHeight)
- * @throws IllegalArgumentException if {@link BitmapFactory.Options#inPreferredConfig}
- * is {@link android.graphics.Bitmap.Config#HARDWARE}
- * and {@link BitmapFactory.Options#inMutable} is set, if the specified color space
- * is not {@link ColorSpace.Model#RGB RGB}, or if the specified color space's transfer
- * function is not an {@link ColorSpace.Rgb.TransferParameters ICC parametric curve}
- *
- * <p class="note">Prior to {@link android.os.Build.VERSION_CODES#KITKAT},
- * if {@link InputStream#markSupported is.markSupported()} returns true,
- * <code>is.mark(1024)</code> would be called. As of
- * {@link android.os.Build.VERSION_CODES#KITKAT}, this is no longer the case.</p>
- */
-
-Body of Frist Method:
-{
-    // the cache, and not force the image to be decoded.
-    if (is == null) {
-        return null;
-    }
-    validate(opts);
-    Bitmap bm = null;
-    Trace.traceBegin(Trace.TRACE_TAG_GRAPHICS, "decodeBitmap");
-    try {
-        if (is instanceof AssetManager.AssetInputStream) {
-            final long asset = ((AssetManager.AssetInputStream) is).getNativeAsset();
-            bm = nativeDecodeAsset(asset, outPadding, opts);
-        } else {
-            bm = decodeStreamInternal(is, outPadding, opts);
-        }
-        if (bm == null && opts != null && opts.inBitmap != null) {
-            throw new IllegalArgumentException("Problem decoding into existing bitmap");
-        }
-        setDensityFromOptions(bm, opts);
-    } finally {
-        Trace.traceEnd(Trace.TRACE_TAG_GRAPHICS);
-    }
-    return bm;
-}
-Body of Second Method:
-{
-    // the cache, and not force the image to be decoded.
-    if (is == null) {
-        return null;
-    }
-    validate(opts);
-    Bitmap bm = null;
-    Trace.traceBegin(Trace.TRACE_TAG_GRAPHICS, "decodeBitmap");
-    try {
-        if (is instanceof AssetManager.AssetInputStream) {
-            final long asset = ((AssetManager.AssetInputStream) is).getNativeAsset();
-            bm = nativeDecodeAsset(asset, outPadding, opts, Options.nativeInBitmap(opts), Options.nativeColorSpace(opts));
-        } else {
-            bm = decodeStreamInternal(is, outPadding, opts);
-        }
-        if (bm == null && opts != null && opts.inBitmap != null) {
-            throw new IllegalArgumentException("Problem decoding into existing bitmap");
-        }
-        setDensityFromOptions(bm, opts);
-    } finally {
-        Trace.traceEnd(Trace.TRACE_TAG_GRAPHICS);
-    }
-    return bm;
 }
 ------------------------
 Find a silently evolved API code:android.database.sqlite.SQLiteOpenHelper.setWriteAheadLoggingEnabled:COMMENT
@@ -17361,69 +17784,6 @@ Body of Second Method:
 {
     final AutofillOptions options = getAutofillOptions();
     return options != null && options.compatModeEnabled;
-}
-------------------------
-Find a silently evolved API code:android.os.VibrationEffect.get:COMMENT
-Method Modifier: public      static      hidden      
-Comment:/**
- * Get a predefined vibration effect associated with a given URI.
- *
- * Predefined effects are a set of common vibration effects that should be identical, regardless
- * of the app they come from, in order to provide a cohesive experience for users across
- * the entire device. They also may be custom tailored to the device hardware in order to
- * provide a better experience than you could otherwise build using the generic building
- * blocks.
- *
- * @param uri The URI associated with the haptic effect.
- * @param context The context used to get the URI to haptic effect association.
- *
- * @return The desired effect, or {@code null} if there's no associated effect.
- *
- * @hide
- */
-
-Body of Frist Method:
-{
-    String[] uris = context.getResources().getStringArray(com.android.internal.R.array.config_ringtoneEffectUris);
-    for (int i = 0; i < uris.length && i < RINGTONES.length; i++) {
-        if (uris[i] == null) {
-            continue;
-        }
-        ContentResolver cr = context.getContentResolver();
-        Uri mappedUri = cr.uncanonicalize(Uri.parse(uris[i]));
-        if (mappedUri == null) {
-            continue;
-        }
-        if (mappedUri.equals(uri)) {
-            return get(RINGTONES[i]);
-        }
-    }
-    return null;
-}
-Body of Second Method:
-{
-    final ContentResolver cr = context.getContentResolver();
-    Uri uncanonicalUri = cr.uncanonicalize(uri);
-    if (uncanonicalUri == null) {
-        // If we already had an uncanonical URI, it's possible we'll get null back here. In
-        // this case, just use the URI as passed in since it wasn't canonicalized in the first
-        // place.
-        uncanonicalUri = uri;
-    }
-    String[] uris = context.getResources().getStringArray(com.android.internal.R.array.config_ringtoneEffectUris);
-    for (int i = 0; i < uris.length && i < RINGTONES.length; i++) {
-        if (uris[i] == null) {
-            continue;
-        }
-        Uri mappedUri = cr.uncanonicalize(Uri.parse(uris[i]));
-        if (mappedUri == null) {
-            continue;
-        }
-        if (mappedUri.equals(uncanonicalUri)) {
-            return get(RINGTONES[i]);
-        }
-    }
-    return null;
 }
 ------------------------
 Find a silently evolved API code:android.telephony.ims.compat.feature.ImsFeature.notifyFeatureState:COMMENT
@@ -18640,6 +19000,48 @@ Body of Second Method:
     return PERMISSION_GRANTED;
 }
 ------------------------
+Find a silently evolved API code:android.app.servertransaction.LaunchActivityItem.setValues:COMMENT
+Method Modifier: private     static      hidden      
+Comment:// Using the same method to set and clear values to make sure we don't forget anything
+
+Body of Frist Method:
+{
+    instance.mIntent = intent;
+    instance.mIdent = ident;
+    instance.mInfo = info;
+    instance.mCurConfig = curConfig;
+    instance.mOverrideConfig = overrideConfig;
+    instance.mCompatInfo = compatInfo;
+    instance.mReferrer = referrer;
+    instance.mVoiceInteractor = voiceInteractor;
+    instance.mProcState = procState;
+    instance.mState = state;
+    instance.mPersistentState = persistentState;
+    instance.mPendingResults = pendingResults;
+    instance.mPendingNewIntents = pendingNewIntents;
+    instance.mIsForward = isForward;
+    instance.mProfilerInfo = profilerInfo;
+}
+Body of Second Method:
+{
+    instance.mIntent = intent;
+    instance.mIdent = ident;
+    instance.mInfo = info;
+    instance.mCurConfig = curConfig;
+    instance.mOverrideConfig = overrideConfig;
+    instance.mCompatInfo = compatInfo;
+    instance.mReferrer = referrer;
+    instance.mVoiceInteractor = voiceInteractor;
+    instance.mProcState = procState;
+    instance.mState = state;
+    instance.mPersistentState = persistentState;
+    instance.mPendingResults = pendingResults;
+    instance.mPendingNewIntents = pendingNewIntents;
+    instance.mIsForward = isForward;
+    instance.mProfilerInfo = profilerInfo;
+    instance.mAssistToken = assistToken;
+}
+------------------------
 Find a silently evolved API code:android.net.wifi.WifiConfiguration.isOpenNetwork:COMMENT
 <android.net.wifi.WifiConfiguration: boolean isOpenNetwork()>
 public      hidden      ->public      hidden      deprecated  
@@ -18794,23 +19196,6 @@ Body of Second Method:
     } else {
         dest.writeInt(0);
     }
-}
-------------------------
-Find a silently evolved API code:android.os.Process.isIsolated:COMMENT
-Method Modifier: public      static      final       hidden      
-Comment:/**
- * {@hide}
- */
-
-Body of Frist Method:
-{
-    uid = UserHandle.getAppId(uid);
-    return uid >= FIRST_ISOLATED_UID && uid <= LAST_ISOLATED_UID;
-}
-Body of Second Method:
-{
-    uid = UserHandle.getAppId(uid);
-    return (uid >= FIRST_ISOLATED_UID && uid <= LAST_ISOLATED_UID) || (uid >= FIRST_APP_ZYGOTE_ISOLATED_UID && uid <= LAST_APP_ZYGOTE_ISOLATED_UID);
 }
 ------------------------
 Find a silently evolved API code:android.util.proto.ProtoOutputStream.endObjectImpl:COMMENT
@@ -19481,6 +19866,39 @@ Body of Second Method:
     return record;
 }
 ------------------------
+Find a silently evolved API code:android.content.ContentProviderClient.openTypedAssetFileDescriptor:COMMENT
+Method Modifier: public      final       
+Comment:/**
+ * See {@link ContentProvider#openTypedAssetFile ContentProvider.openTypedAssetFile}
+ */
+
+Body of Frist Method:
+{
+    Preconditions.checkNotNull(uri, "uri");
+    Preconditions.checkNotNull(mimeType, "mimeType");
+    beforeRemote();
+    try {
+        ICancellationSignal remoteSignal = null;
+        if (signal != null) {
+            signal.throwIfCanceled();
+            remoteSignal = mContentProvider.createCancellationSignal();
+            signal.setRemote(remoteSignal);
+        }
+        return mContentProvider.openTypedAssetFile(mPackageName, uri, mimeType, opts, remoteSignal);
+    } catch (DeadObjectException e) {
+        if (!mStable) {
+            mContentResolver.unstableProviderDied(mContentProvider);
+        }
+        throw e;
+    } finally {
+        afterRemote();
+    }
+}
+Body of Second Method:
+{
+    return openTypedAssetFile(uri, mimeType, opts, signal);
+}
+------------------------
 Find a silently evolved API code:android.widget.ProgressBar.getProgressBackgroundTintMode:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -20143,28 +20561,6 @@ Body of Second Method:
 {
     String propVal = SystemProperties.get(TelephonyProperties.PROPERTY_BASEBAND_VERSION);
     return TextUtils.isEmpty(propVal) ? null : propVal;
-}
-------------------------
-Find a silently evolved API code:android.bluetooth.le.ScanRecord.getServiceData:COMMENT
-Method Modifier: public      
-Comment:/**
- * Returns the service data byte array associated with the {@code serviceUuid}. Returns
- * {@code null} if the {@code serviceDataUuid} is not found.
- */
-
-Body of Frist Method:
-{
-    if (serviceDataUuid == null) {
-        return null;
-    }
-    return mServiceData.get(serviceDataUuid);
-}
-Body of Second Method:
-{
-    if (serviceDataUuid == null || mServiceData == null) {
-        return null;
-    }
-    return mServiceData.get(serviceDataUuid);
 }
 ------------------------
 Find a silently evolved API code:android.text.Emoji.isNewEmoji:COMMENT
@@ -21374,6 +21770,84 @@ Body of Second Method:
     return new ScanFilter(mDeviceName, mDeviceAddress, mServiceUuid, mUuidMask, mServiceSolicitationUuid, mServiceSolicitationUuidMask, mServiceDataUuid, mServiceData, mServiceDataMask, mManufacturerId, mManufacturerData, mManufacturerDataMask);
 }
 ------------------------
+Find a silently evolved API code:android.app.Instrumentation.execStartActivityAsCaller:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Special version!
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    IApplicationThread whoThread = (IApplicationThread) contextThread;
+    if (mActivityMonitors != null) {
+        synchronized (mSync) {
+            final int N = mActivityMonitors.size();
+            for (int i = 0; i < N; i++) {
+                final ActivityMonitor am = mActivityMonitors.get(i);
+                ActivityResult result = null;
+                if (am.ignoreMatchingSpecificIntents()) {
+                    result = am.onStartActivity(intent);
+                }
+                if (result != null) {
+                    am.mHits++;
+                    return result;
+                } else if (am.match(who, null, intent)) {
+                    am.mHits++;
+                    if (am.isBlocking()) {
+                        return requestCode >= 0 ? am.getResult() : null;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    try {
+        intent.migrateExtraStreamToClipData();
+        intent.prepareToLeaveProcess(who);
+        int result = ActivityManager.getService().startActivityAsCaller(whoThread, who.getBasePackageName(), intent, intent.resolveTypeIfNeeded(who.getContentResolver()), token, target != null ? target.mEmbeddedID : null, requestCode, 0, null, options, ignoreTargetSecurity, userId);
+        checkStartActivityResult(result, intent);
+    } catch (RemoteException e) {
+        throw new RuntimeException("Failure from system", e);
+    }
+    return null;
+}
+Body of Second Method:
+{
+    IApplicationThread whoThread = (IApplicationThread) contextThread;
+    if (mActivityMonitors != null) {
+        synchronized (mSync) {
+            final int N = mActivityMonitors.size();
+            for (int i = 0; i < N; i++) {
+                final ActivityMonitor am = mActivityMonitors.get(i);
+                ActivityResult result = null;
+                if (am.ignoreMatchingSpecificIntents()) {
+                    result = am.onStartActivity(intent);
+                }
+                if (result != null) {
+                    am.mHits++;
+                    return result;
+                } else if (am.match(who, null, intent)) {
+                    am.mHits++;
+                    if (am.isBlocking()) {
+                        return requestCode >= 0 ? am.getResult() : null;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    try {
+        intent.migrateExtraStreamToClipData();
+        intent.prepareToLeaveProcess(who);
+        int result = ActivityTaskManager.getService().startActivityAsCaller(whoThread, who.getBasePackageName(), intent, intent.resolveTypeIfNeeded(who.getContentResolver()), token, target != null ? target.mEmbeddedID : null, requestCode, 0, null, options, permissionToken, ignoreTargetSecurity, userId);
+        checkStartActivityResult(result, intent);
+    } catch (RemoteException e) {
+        throw new RuntimeException("Failure from system", e);
+    }
+    return null;
+}
+------------------------
 Find a silently evolved API code:android.view.ViewPropertyAnimator.getValue:COMMENT
 Method Modifier: private     
 Comment:/**
@@ -22128,6 +22602,34 @@ Body of Second Method:
     return nSaveUnclippedLayer(mNativeCanvasWrapper, left, top, right, bottom);
 }
 ------------------------
+Find a silently evolved API code:android.graphics.drawable.GradientDrawable.setColors:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Sets the colors used to draw the gradient.
+ * <p>
+ * Each color is specified as an ARGB integer and the array must contain at
+ * least 2 colors.
+ * <p>
+ * <strong>Note</strong>: changing colors will affect all instances of a
+ * drawable loaded from a resource. It is recommended to invoke
+ * {@link #mutate()} before changing the colors.
+ *
+ * @param colors an array containing 2 or more ARGB colors
+ * @see #mutate()
+ * @see #setColor(int)
+ */
+
+Body of Frist Method:
+{
+    mGradientState.setGradientColors(colors);
+    mGradientIsDirty = true;
+    invalidateSelf();
+}
+Body of Second Method:
+{
+    setColors(colors, null);
+}
+------------------------
 Find a silently evolved API code:android.app.ApplicationErrorReport.CrashInfo.writeToParcel:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -22175,6 +22677,101 @@ Body of Second Method:
         Slog.d("Error", "ERR: method=" + throwMethodName + " line=" + throwLineNumber);
         Slog.d("Error", "ERR: stack=" + stackTrace);
         Slog.d("Error", "ERR: TOTAL BYTES WRITTEN: " + (dest.dataPosition() - start));
+    }
+}
+------------------------
+Find a silently evolved API code:android.app.servertransaction.TransactionExecutor.performLifecycleSequence:COMMENT
+Method Modifier: private     hidden      
+Comment:/**
+ * Transition the client through previously initialized state sequence.
+ */
+
+Body of Frist Method:
+{
+    final int size = path.size();
+    for (int i = 0, state; i < size; i++) {
+        state = path.get(i);
+        log("Transitioning to state: " + state);
+        switch(state) {
+            case ON_CREATE:
+                mTransactionHandler.handleLaunchActivity(r, mPendingActions, null);
+                break;
+            case ON_START:
+                mTransactionHandler.handleStartActivity(r, mPendingActions);
+                break;
+            case ON_RESUME:
+                mTransactionHandler.handleResumeActivity(r.token, false, /* finalStateRequest */
+                r.isForward, "LIFECYCLER_RESUME_ACTIVITY");
+                break;
+            case ON_PAUSE:
+                mTransactionHandler.handlePauseActivity(r.token, false, /* finished */
+                false, /* userLeaving */
+                0, /* configChanges */
+                mPendingActions, "LIFECYCLER_PAUSE_ACTIVITY");
+                break;
+            case ON_STOP:
+                mTransactionHandler.handleStopActivity(r.token, false, /* show */
+                0, /* configChanges */
+                mPendingActions, false, /* finalStateRequest */
+                "LIFECYCLER_STOP_ACTIVITY");
+                break;
+            case ON_DESTROY:
+                mTransactionHandler.handleDestroyActivity(r.token, false, /* finishing */
+                0, /* configChanges */
+                false, /* getNonConfigInstance */
+                "performLifecycleSequence. cycling to:" + path.get(size - 1));
+                break;
+            case ON_RESTART:
+                mTransactionHandler.performRestartActivity(r.token, false);
+                break;
+            default:
+                throw new IllegalArgumentException("Unexpected lifecycle state: " + state);
+        }
+    }
+}
+Body of Second Method:
+{
+    final int size = path.size();
+    for (int i = 0, state; i < size; i++) {
+        state = path.get(i);
+        if (DEBUG_RESOLVER) {
+            Slog.d(TAG, tId(transaction) + "Transitioning activity: " + getShortActivityName(r.token, mTransactionHandler) + " to state: " + getStateName(state));
+        }
+        switch(state) {
+            case ON_CREATE:
+                mTransactionHandler.handleLaunchActivity(r, mPendingActions, null);
+                break;
+            case ON_START:
+                mTransactionHandler.handleStartActivity(r, mPendingActions);
+                break;
+            case ON_RESUME:
+                mTransactionHandler.handleResumeActivity(r.token, false, /* finalStateRequest */
+                r.isForward, "LIFECYCLER_RESUME_ACTIVITY");
+                break;
+            case ON_PAUSE:
+                mTransactionHandler.handlePauseActivity(r.token, false, /* finished */
+                false, /* userLeaving */
+                0, /* configChanges */
+                mPendingActions, "LIFECYCLER_PAUSE_ACTIVITY");
+                break;
+            case ON_STOP:
+                mTransactionHandler.handleStopActivity(r.token, false, /* show */
+                0, /* configChanges */
+                mPendingActions, false, /* finalStateRequest */
+                "LIFECYCLER_STOP_ACTIVITY");
+                break;
+            case ON_DESTROY:
+                mTransactionHandler.handleDestroyActivity(r.token, false, /* finishing */
+                0, /* configChanges */
+                false, /* getNonConfigInstance */
+                "performLifecycleSequence. cycling to:" + path.get(size - 1));
+                break;
+            case ON_RESTART:
+                mTransactionHandler.performRestartActivity(r.token, false);
+                break;
+            default:
+                throw new IllegalArgumentException("Unexpected lifecycle state: " + state);
+        }
     }
 }
 ------------------------
@@ -22423,6 +23020,21 @@ Body of Second Method:
     if (service == null)
         Log.w(TAG, "Proxy not attached to service");
     return false;
+}
+------------------------
+Find a silently evolved API code:android.view.LayoutInflater.failNotAllowed:COMMENT
+Method Modifier: private     
+Comment:/**
+ * Throw an exception because the specified class is not allowed to be inflated.
+ */
+
+Body of Frist Method:
+{
+    throw new InflateException(attrs.getPositionDescription() + ": Class not allowed to be inflated " + (prefix != null ? (prefix + name) : name));
+}
+Body of Second Method:
+{
+    throw new InflateException(getParserStateDescription(context, attrs) + ": Class not allowed to be inflated " + (prefix != null ? (prefix + name) : name));
 }
 ------------------------
 Find a silently evolved API code:android.bluetooth.BluetoothAvrcpController.setPlayerApplicationSetting:COMMENT
@@ -22743,140 +23355,6 @@ Body of Second Method:
         ev.mNativePtr = nativeInitialize(ev.mNativePtr, nativeGetDeviceId(mNativePtr), nativeGetSource(mNativePtr), nativeGetDisplayId(mNativePtr), nativeGetAction(mNativePtr), nativeGetFlags(mNativePtr), nativeGetEdgeFlags(mNativePtr), nativeGetMetaState(mNativePtr), nativeGetButtonState(mNativePtr), nativeGetClassification(mNativePtr), nativeGetXOffset(mNativePtr), nativeGetYOffset(mNativePtr), nativeGetXPrecision(mNativePtr), nativeGetYPrecision(mNativePtr), nativeGetDownTimeNanos(mNativePtr), nativeGetEventTimeNanos(mNativePtr, HISTORY_CURRENT), pointerCount, pp, pc);
         return ev;
     }
-}
-------------------------
-Find a silently evolved API code:android.app.NotificationChannel.writeXml:COMMENT
-Method Modifier: private     
-Comment:/**
- * If {@param forBackup} is true, {@param Context} MUST be non-null.
- */
-
-Body of Frist Method:
-{
-    Preconditions.checkArgument(!forBackup || context != null, "forBackup is true but got null context");
-    out.startTag(null, TAG_CHANNEL);
-    out.attribute(null, ATT_ID, getId());
-    if (getName() != null) {
-        out.attribute(null, ATT_NAME, getName().toString());
-    }
-    if (getDescription() != null) {
-        out.attribute(null, ATT_DESC, getDescription());
-    }
-    if (getImportance() != DEFAULT_IMPORTANCE) {
-        out.attribute(null, ATT_IMPORTANCE, Integer.toString(getImportance()));
-    }
-    if (canBypassDnd()) {
-        out.attribute(null, ATT_PRIORITY, Integer.toString(Notification.PRIORITY_MAX));
-    }
-    if (getLockscreenVisibility() != DEFAULT_VISIBILITY) {
-        out.attribute(null, ATT_VISIBILITY, Integer.toString(getLockscreenVisibility()));
-    }
-    Uri sound = forBackup ? getSoundForBackup(context) : getSound();
-    if (sound != null) {
-        out.attribute(null, ATT_SOUND, sound.toString());
-    }
-    if (getAudioAttributes() != null) {
-        out.attribute(null, ATT_USAGE, Integer.toString(getAudioAttributes().getUsage()));
-        out.attribute(null, ATT_CONTENT_TYPE, Integer.toString(getAudioAttributes().getContentType()));
-        out.attribute(null, ATT_FLAGS, Integer.toString(getAudioAttributes().getFlags()));
-    }
-    if (shouldShowLights()) {
-        out.attribute(null, ATT_LIGHTS, Boolean.toString(shouldShowLights()));
-    }
-    if (getLightColor() != DEFAULT_LIGHT_COLOR) {
-        out.attribute(null, ATT_LIGHT_COLOR, Integer.toString(getLightColor()));
-    }
-    if (shouldVibrate()) {
-        out.attribute(null, ATT_VIBRATION_ENABLED, Boolean.toString(shouldVibrate()));
-    }
-    if (getVibrationPattern() != null) {
-        out.attribute(null, ATT_VIBRATION, longArrayToString(getVibrationPattern()));
-    }
-    if (getUserLockedFields() != 0) {
-        out.attribute(null, ATT_USER_LOCKED, Integer.toString(getUserLockedFields()));
-    }
-    if (isFgServiceShown()) {
-        out.attribute(null, ATT_FG_SERVICE_SHOWN, Boolean.toString(isFgServiceShown()));
-    }
-    if (canShowBadge()) {
-        out.attribute(null, ATT_SHOW_BADGE, Boolean.toString(canShowBadge()));
-    }
-    if (isDeleted()) {
-        out.attribute(null, ATT_DELETED, Boolean.toString(isDeleted()));
-    }
-    if (getGroup() != null) {
-        out.attribute(null, ATT_GROUP, getGroup());
-    }
-    if (isBlockableSystem()) {
-        out.attribute(null, ATT_BLOCKABLE_SYSTEM, Boolean.toString(isBlockableSystem()));
-    }
-    out.endTag(null, TAG_CHANNEL);
-}
-Body of Second Method:
-{
-    Preconditions.checkArgument(!forBackup || context != null, "forBackup is true but got null context");
-    out.startTag(null, TAG_CHANNEL);
-    out.attribute(null, ATT_ID, getId());
-    if (getName() != null) {
-        out.attribute(null, ATT_NAME, getName().toString());
-    }
-    if (getDescription() != null) {
-        out.attribute(null, ATT_DESC, getDescription());
-    }
-    if (getImportance() != DEFAULT_IMPORTANCE) {
-        out.attribute(null, ATT_IMPORTANCE, Integer.toString(getImportance()));
-    }
-    if (canBypassDnd()) {
-        out.attribute(null, ATT_PRIORITY, Integer.toString(Notification.PRIORITY_MAX));
-    }
-    if (getLockscreenVisibility() != DEFAULT_VISIBILITY) {
-        out.attribute(null, ATT_VISIBILITY, Integer.toString(getLockscreenVisibility()));
-    }
-    Uri sound = forBackup ? getSoundForBackup(context) : getSound();
-    if (sound != null) {
-        out.attribute(null, ATT_SOUND, sound.toString());
-    }
-    if (getAudioAttributes() != null) {
-        out.attribute(null, ATT_USAGE, Integer.toString(getAudioAttributes().getUsage()));
-        out.attribute(null, ATT_CONTENT_TYPE, Integer.toString(getAudioAttributes().getContentType()));
-        out.attribute(null, ATT_FLAGS, Integer.toString(getAudioAttributes().getFlags()));
-    }
-    if (shouldShowLights()) {
-        out.attribute(null, ATT_LIGHTS, Boolean.toString(shouldShowLights()));
-    }
-    if (getLightColor() != DEFAULT_LIGHT_COLOR) {
-        out.attribute(null, ATT_LIGHT_COLOR, Integer.toString(getLightColor()));
-    }
-    if (shouldVibrate()) {
-        out.attribute(null, ATT_VIBRATION_ENABLED, Boolean.toString(shouldVibrate()));
-    }
-    if (getVibrationPattern() != null) {
-        out.attribute(null, ATT_VIBRATION, longArrayToString(getVibrationPattern()));
-    }
-    if (getUserLockedFields() != 0) {
-        out.attribute(null, ATT_USER_LOCKED, Integer.toString(getUserLockedFields()));
-    }
-    if (isFgServiceShown()) {
-        out.attribute(null, ATT_FG_SERVICE_SHOWN, Boolean.toString(isFgServiceShown()));
-    }
-    if (canShowBadge()) {
-        out.attribute(null, ATT_SHOW_BADGE, Boolean.toString(canShowBadge()));
-    }
-    if (isDeleted()) {
-        out.attribute(null, ATT_DELETED, Boolean.toString(isDeleted()));
-    }
-    if (getGroup() != null) {
-        out.attribute(null, ATT_GROUP, getGroup());
-    }
-    if (isBlockableSystem()) {
-        out.attribute(null, ATT_BLOCKABLE_SYSTEM, Boolean.toString(isBlockableSystem()));
-    }
-    if (canBubble() != DEFAULT_ALLOW_BUBBLE) {
-        out.attribute(null, ATT_ALLOW_BUBBLE, Boolean.toString(canBubble()));
-    }
-    // mImportanceLockedDefaultApp and mImportanceLockedByOEM have a different source of
-    // truth and so aren't written to this xml file
-    out.endTag(null, TAG_CHANNEL);
 }
 ------------------------
 Find a silently evolved API code:android.bluetooth.BluetoothGatt.readDescriptor:COMMENT
@@ -23387,6 +23865,44 @@ Body of Second Method:
     return true;
 }
 ------------------------
+Find a silently evolved API code:android.telecom.ConnectionServiceAdapter.queryRemoteConnectionServices:COMMENT
+Method Modifier: default     hidden      
+Comment:/**
+ * Retrieves a list of remote connection services usable to place calls.
+ */
+
+Body of Frist Method:
+{
+    // Only supported when there is only one adapter.
+    if (mAdapters.size() == 1) {
+        try {
+            mAdapters.iterator().next().queryRemoteConnectionServices(callback, Log.getExternalSession());
+        } catch (RemoteException e) {
+            Log.e(this, e, "Exception trying to query for remote CSs");
+        }
+    }
+}
+Body of Second Method:
+{
+    // Only supported when there is only one adapter.
+    if (mAdapters.size() == 1) {
+        try {
+            mAdapters.iterator().next().queryRemoteConnectionServices(callback, callingPackage, Log.getExternalSession());
+        } catch (RemoteException e) {
+            Log.e(this, e, "Exception trying to query for remote CSs");
+        }
+    } else {
+        try {
+            // This is not an error condition, so just pass back an empty list.
+            // This happens when querying from a remote connection service, not the connection
+            // manager itself.
+            callback.onResult(Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+        } catch (RemoteException e) {
+            Log.e(this, e, "Exception trying to query for remote CSs");
+        }
+    }
+}
+------------------------
 Find a silently evolved API code:android.view.ViewPropertyAnimator.AnimatorEventListener.onAnimationUpdate:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -23883,80 +24399,77 @@ Body of Second Method:
     }
 }
 ------------------------
-Find a silently evolved API code:android.content.pm.ActivityInfo.dump:COMMENT
-Method Modifier: public      hidden      
+Find a silently evolved API code:android.text.BoringLayout.isBoring:COMMENT
+Method Modifier: public      static      hidden      
 Comment:/**
+ * Returns null if not boring; the width, ascent, and descent in the
+ * provided Metrics object (or a new one if the provided one was null)
+ * if boring.
  * @hide
  */
 
 Body of Frist Method:
 {
-    super.dumpFront(pw, prefix);
-    if (permission != null) {
-        pw.println(prefix + "permission=" + permission);
+    final int textLength = text.length();
+    if (hasAnyInterestingChars(text, textLength)) {
+        // There are some interesting characters. Not boring.
+        return null;
     }
-    if ((dumpFlags & DUMP_FLAG_DETAILS) != 0) {
-        pw.println(prefix + "taskAffinity=" + taskAffinity + " targetActivity=" + targetActivity + " persistableMode=" + persistableModeToString());
+    if (textDir != null && textDir.isRtl(text, 0, textLength)) {
+        // The heuristic considers the whole text RTL. Not boring.
+        return null;
     }
-    if (launchMode != 0 || flags != 0 || theme != 0) {
-        pw.println(prefix + "launchMode=" + launchMode + " flags=0x" + Integer.toHexString(flags) + " theme=0x" + Integer.toHexString(theme));
+    if (text instanceof Spanned) {
+        Spanned sp = (Spanned) text;
+        Object[] styles = sp.getSpans(0, textLength, ParagraphStyle.class);
+        if (styles.length > 0) {
+            // There are some PargraphStyle spans. Not boring.
+            return null;
+        }
     }
-    if (screenOrientation != SCREEN_ORIENTATION_UNSPECIFIED || configChanges != 0 || softInputMode != 0) {
-        pw.println(prefix + "screenOrientation=" + screenOrientation + " configChanges=0x" + Integer.toHexString(configChanges) + " softInputMode=0x" + Integer.toHexString(softInputMode));
+    Metrics fm = metrics;
+    if (fm == null) {
+        fm = new Metrics();
+    } else {
+        fm.reset();
     }
-    if (uiOptions != 0) {
-        pw.println(prefix + " uiOptions=0x" + Integer.toHexString(uiOptions));
-    }
-    if ((dumpFlags & DUMP_FLAG_DETAILS) != 0) {
-        pw.println(prefix + "lockTaskLaunchMode=" + lockTaskLaunchModeToString(lockTaskLaunchMode));
-    }
-    if (windowLayout != null) {
-        pw.println(prefix + "windowLayout=" + windowLayout.width + "|" + windowLayout.widthFraction + ", " + windowLayout.height + "|" + windowLayout.heightFraction + ", " + windowLayout.gravity);
-    }
-    pw.println(prefix + "resizeMode=" + resizeModeToString(resizeMode));
-    if (requestedVrComponent != null) {
-        pw.println(prefix + "requestedVrComponent=" + requestedVrComponent);
-    }
-    if (maxAspectRatio != 0) {
-        pw.println(prefix + "maxAspectRatio=" + maxAspectRatio);
-    }
-    super.dumpBack(pw, prefix, dumpFlags);
+    TextLine line = TextLine.obtain();
+    line.set(paint, text, 0, textLength, Layout.DIR_LEFT_TO_RIGHT, Layout.DIRS_ALL_LEFT_TO_RIGHT, false, null);
+    fm.width = (int) Math.ceil(line.metrics(fm));
+    TextLine.recycle(line);
+    return fm;
 }
 Body of Second Method:
 {
-    super.dumpFront(pw, prefix);
-    if (permission != null) {
-        pw.println(prefix + "permission=" + permission);
+    final int textLength = text.length();
+    if (hasAnyInterestingChars(text, textLength)) {
+        // There are some interesting characters. Not boring.
+        return null;
     }
-    if ((dumpFlags & DUMP_FLAG_DETAILS) != 0) {
-        pw.println(prefix + "taskAffinity=" + taskAffinity + " targetActivity=" + targetActivity + " persistableMode=" + persistableModeToString());
+    if (textDir != null && textDir.isRtl(text, 0, textLength)) {
+        // The heuristic considers the whole text RTL. Not boring.
+        return null;
     }
-    if (launchMode != 0 || flags != 0 || privateFlags != 0 || theme != 0) {
-        pw.println(prefix + "launchMode=" + launchMode + " flags=0x" + Integer.toHexString(flags) + " privateFlags=0x" + Integer.toHexString(privateFlags) + " theme=0x" + Integer.toHexString(theme));
+    if (text instanceof Spanned) {
+        Spanned sp = (Spanned) text;
+        Object[] styles = sp.getSpans(0, textLength, ParagraphStyle.class);
+        if (styles.length > 0) {
+            // There are some ParagraphStyle spans. Not boring.
+            return null;
+        }
     }
-    if (screenOrientation != SCREEN_ORIENTATION_UNSPECIFIED || configChanges != 0 || softInputMode != 0) {
-        pw.println(prefix + "screenOrientation=" + screenOrientation + " configChanges=0x" + Integer.toHexString(configChanges) + " softInputMode=0x" + Integer.toHexString(softInputMode));
+    Metrics fm = metrics;
+    if (fm == null) {
+        fm = new Metrics();
+    } else {
+        fm.reset();
     }
-    if (uiOptions != 0) {
-        pw.println(prefix + " uiOptions=0x" + Integer.toHexString(uiOptions));
-    }
-    if ((dumpFlags & DUMP_FLAG_DETAILS) != 0) {
-        pw.println(prefix + "lockTaskLaunchMode=" + lockTaskLaunchModeToString(lockTaskLaunchMode));
-    }
-    if (windowLayout != null) {
-        pw.println(prefix + "windowLayout=" + windowLayout.width + "|" + windowLayout.widthFraction + ", " + windowLayout.height + "|" + windowLayout.heightFraction + ", " + windowLayout.gravity);
-    }
-    pw.println(prefix + "resizeMode=" + resizeModeToString(resizeMode));
-    if (requestedVrComponent != null) {
-        pw.println(prefix + "requestedVrComponent=" + requestedVrComponent);
-    }
-    if (maxAspectRatio != 0) {
-        pw.println(prefix + "maxAspectRatio=" + maxAspectRatio);
-    }
-    if (minAspectRatio != 0) {
-        pw.println(prefix + "minAspectRatio=" + minAspectRatio);
-    }
-    super.dumpBack(pw, prefix, dumpFlags);
+    TextLine line = TextLine.obtain();
+    line.set(paint, text, 0, textLength, Layout.DIR_LEFT_TO_RIGHT, Layout.DIRS_ALL_LEFT_TO_RIGHT, false, null, 0, /* ellipsisStart, 0 since text has not been ellipsized at this point */
+    0);
+    fm.width = (int) Math.ceil(line.metrics(fm));
+    TextLine.recycle(line);
+    return fm;
 }
 ------------------------
 Find a silently evolved API code:android.graphics.Picture.getHeight:COMMENT
@@ -23976,3 +24489,4 @@ Body of Second Method:
     return nativeGetHeight(mNativePicture);
 }
 ------------------------
+

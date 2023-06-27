@@ -1,0 +1,1764 @@
+Find a silently evolved API code:android.app.ActivityOptions.toBundle:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Returns the created options as a Bundle, which can be passed to
+ * {@link android.content.Context#startActivity(android.content.Intent, android.os.Bundle)
+ * Context.startActivity(Intent, Bundle)} and related methods.
+ * Note that the returned Bundle is still owned by the ActivityOptions
+ * object; you must not modify it, but can supply it to the startActivity
+ * methods that take an options Bundle.
+ */
+
+Body of Frist Method:
+{
+    Bundle b = new Bundle();
+    if (mPackageName != null) {
+        b.putString(KEY_PACKAGE_NAME, mPackageName);
+    }
+    if (mLaunchBounds != null) {
+        b.putParcelable(KEY_LAUNCH_BOUNDS, mLaunchBounds);
+    }
+    if (mAnimationType != ANIM_UNDEFINED) {
+        b.putInt(KEY_ANIM_TYPE, mAnimationType);
+    }
+    if (mUsageTimeReport != null) {
+        b.putParcelable(KEY_USAGE_TIME_REPORT, mUsageTimeReport);
+    }
+    switch(mAnimationType) {
+        case ANIM_CUSTOM:
+            b.putInt(KEY_ANIM_ENTER_RES_ID, mCustomEnterResId);
+            b.putInt(KEY_ANIM_EXIT_RES_ID, mCustomExitResId);
+            b.putBinder(KEY_ANIM_START_LISTENER, mAnimationStartedListener != null ? mAnimationStartedListener.asBinder() : null);
+            break;
+        case ANIM_CUSTOM_IN_PLACE:
+            b.putInt(KEY_ANIM_IN_PLACE_RES_ID, mCustomInPlaceResId);
+            break;
+        case ANIM_SCALE_UP:
+        case ANIM_CLIP_REVEAL:
+            b.putInt(KEY_ANIM_START_X, mStartX);
+            b.putInt(KEY_ANIM_START_Y, mStartY);
+            b.putInt(KEY_ANIM_WIDTH, mWidth);
+            b.putInt(KEY_ANIM_HEIGHT, mHeight);
+            break;
+        case ANIM_THUMBNAIL_SCALE_UP:
+        case ANIM_THUMBNAIL_SCALE_DOWN:
+        case ANIM_THUMBNAIL_ASPECT_SCALE_UP:
+        case ANIM_THUMBNAIL_ASPECT_SCALE_DOWN:
+            // the bitmap to a hardware bitmap and pass through the HardwareBuffer
+            if (mThumbnail != null) {
+                final Bitmap hwBitmap = mThumbnail.copy(Config.HARDWARE, false);
+                if (hwBitmap != null) {
+                    b.putParcelable(KEY_ANIM_THUMBNAIL, hwBitmap.getHardwareBuffer());
+                } else {
+                    Slog.w(TAG, "Failed to copy thumbnail");
+                }
+            }
+            b.putInt(KEY_ANIM_START_X, mStartX);
+            b.putInt(KEY_ANIM_START_Y, mStartY);
+            b.putInt(KEY_ANIM_WIDTH, mWidth);
+            b.putInt(KEY_ANIM_HEIGHT, mHeight);
+            b.putBinder(KEY_ANIM_START_LISTENER, mAnimationStartedListener != null ? mAnimationStartedListener.asBinder() : null);
+            break;
+        case ANIM_SCENE_TRANSITION:
+            if (mTransitionReceiver != null) {
+                b.putParcelable(KEY_TRANSITION_COMPLETE_LISTENER, mTransitionReceiver);
+            }
+            b.putBoolean(KEY_TRANSITION_IS_RETURNING, mIsReturning);
+            b.putStringArrayList(KEY_TRANSITION_SHARED_ELEMENTS, mSharedElementNames);
+            b.putParcelable(KEY_RESULT_DATA, mResultData);
+            b.putInt(KEY_RESULT_CODE, mResultCode);
+            b.putInt(KEY_EXIT_COORDINATOR_INDEX, mExitCoordinatorIndex);
+            break;
+    }
+    if (mLockTaskMode) {
+        b.putBoolean(KEY_LOCK_TASK_MODE, mLockTaskMode);
+    }
+    if (mLaunchDisplayId != INVALID_DISPLAY) {
+        b.putInt(KEY_LAUNCH_DISPLAY_ID, mLaunchDisplayId);
+    }
+    if (mCallerDisplayId != INVALID_DISPLAY) {
+        b.putInt(KEY_CALLER_DISPLAY_ID, mCallerDisplayId);
+    }
+    if (mLaunchTaskDisplayArea != null) {
+        b.putParcelable(KEY_LAUNCH_TASK_DISPLAY_AREA_TOKEN, mLaunchTaskDisplayArea);
+    }
+    if (mLaunchRootTask != null) {
+        b.putParcelable(KEY_LAUNCH_ROOT_TASK_TOKEN, mLaunchRootTask);
+    }
+    if (mLaunchWindowingMode != WINDOWING_MODE_UNDEFINED) {
+        b.putInt(KEY_LAUNCH_WINDOWING_MODE, mLaunchWindowingMode);
+    }
+    if (mLaunchActivityType != ACTIVITY_TYPE_UNDEFINED) {
+        b.putInt(KEY_LAUNCH_ACTIVITY_TYPE, mLaunchActivityType);
+    }
+    if (mLaunchTaskId != -1) {
+        b.putInt(KEY_LAUNCH_TASK_ID, mLaunchTaskId);
+    }
+    if (mPendingIntentLaunchFlags != 0) {
+        b.putInt(KEY_PENDING_INTENT_LAUNCH_FLAGS, mPendingIntentLaunchFlags);
+    }
+    if (mTaskAlwaysOnTop) {
+        b.putBoolean(KEY_TASK_ALWAYS_ON_TOP, mTaskAlwaysOnTop);
+    }
+    if (mTaskOverlay) {
+        b.putBoolean(KEY_TASK_OVERLAY, mTaskOverlay);
+    }
+    if (mTaskOverlayCanResume) {
+        b.putBoolean(KEY_TASK_OVERLAY_CAN_RESUME, mTaskOverlayCanResume);
+    }
+    if (mAvoidMoveToFront) {
+        b.putBoolean(KEY_AVOID_MOVE_TO_FRONT, mAvoidMoveToFront);
+    }
+    if (mFreezeRecentTasksReordering) {
+        b.putBoolean(KEY_FREEZE_RECENT_TASKS_REORDERING, mFreezeRecentTasksReordering);
+    }
+    if (mDisallowEnterPictureInPictureWhileLaunching) {
+        b.putBoolean(KEY_DISALLOW_ENTER_PICTURE_IN_PICTURE_WHILE_LAUNCHING, mDisallowEnterPictureInPictureWhileLaunching);
+    }
+    if (mApplyActivityFlagsForBubbles) {
+        b.putBoolean(KEY_APPLY_ACTIVITY_FLAGS_FOR_BUBBLES, mApplyActivityFlagsForBubbles);
+    }
+    if (mAnimSpecs != null) {
+        b.putParcelableArray(KEY_ANIM_SPECS, mAnimSpecs);
+    }
+    if (mAnimationFinishedListener != null) {
+        b.putBinder(KEY_ANIMATION_FINISHED_LISTENER, mAnimationFinishedListener.asBinder());
+    }
+    if (mSpecsFuture != null) {
+        b.putBinder(KEY_SPECS_FUTURE, mSpecsFuture.asBinder());
+    }
+    if (mSourceInfo != null) {
+        b.putParcelable(KEY_SOURCE_INFO, mSourceInfo);
+    }
+    if (mRotationAnimationHint != -1) {
+        b.putInt(KEY_ROTATION_ANIMATION_HINT, mRotationAnimationHint);
+    }
+    if (mAppVerificationBundle != null) {
+        b.putBundle(KEY_INSTANT_APP_VERIFICATION_BUNDLE, mAppVerificationBundle);
+    }
+    if (mRemoteAnimationAdapter != null) {
+        b.putParcelable(KEY_REMOTE_ANIMATION_ADAPTER, mRemoteAnimationAdapter);
+    }
+    if (mLaunchCookie != null) {
+        b.putBinder(KEY_LAUNCH_COOKIE, mLaunchCookie);
+    }
+    if (mRemoteTransition != null) {
+        b.putBinder(KEY_REMOTE_TRANSITION, mRemoteTransition.asBinder());
+    }
+    if (mOverrideTaskTransition) {
+        b.putBoolean(KEY_OVERRIDE_TASK_TRANSITION, mOverrideTaskTransition);
+    }
+    if (mSplashScreenThemeResName != null && !mSplashScreenThemeResName.isEmpty()) {
+        b.putString(KEY_SPLASH_SCREEN_THEME, mSplashScreenThemeResName);
+    }
+    if (mRemoveWithTaskOrganizer) {
+        b.putBoolean(KEY_REMOVE_WITH_TASK_ORGANIZER, mRemoveWithTaskOrganizer);
+    }
+    if (mLaunchedFromBubble) {
+        b.putBoolean(KEY_LAUNCHED_FROM_BUBBLE, mLaunchedFromBubble);
+    }
+    if (mTransientLaunch) {
+        b.putBoolean(KEY_TRANSIENT_LAUNCH, mTransientLaunch);
+    }
+    if (mSplashScreenStyle != 0) {
+        b.putInt(KEY_SPLASH_SCREEN_STYLE, mSplashScreenStyle);
+    }
+    return b;
+}
+Body of Second Method:
+{
+    Bundle b = new Bundle();
+    if (mPackageName != null) {
+        b.putString(KEY_PACKAGE_NAME, mPackageName);
+    }
+    if (mLaunchBounds != null) {
+        b.putParcelable(KEY_LAUNCH_BOUNDS, mLaunchBounds);
+    }
+    if (mAnimationType != ANIM_UNDEFINED) {
+        b.putInt(KEY_ANIM_TYPE, mAnimationType);
+    }
+    if (mUsageTimeReport != null) {
+        b.putParcelable(KEY_USAGE_TIME_REPORT, mUsageTimeReport);
+    }
+    switch(mAnimationType) {
+        case ANIM_CUSTOM:
+            b.putInt(KEY_ANIM_ENTER_RES_ID, mCustomEnterResId);
+            b.putInt(KEY_ANIM_EXIT_RES_ID, mCustomExitResId);
+            b.putBinder(KEY_ANIM_START_LISTENER, mAnimationStartedListener != null ? mAnimationStartedListener.asBinder() : null);
+            break;
+        case ANIM_CUSTOM_IN_PLACE:
+            b.putInt(KEY_ANIM_IN_PLACE_RES_ID, mCustomInPlaceResId);
+            break;
+        case ANIM_SCALE_UP:
+        case ANIM_CLIP_REVEAL:
+            b.putInt(KEY_ANIM_START_X, mStartX);
+            b.putInt(KEY_ANIM_START_Y, mStartY);
+            b.putInt(KEY_ANIM_WIDTH, mWidth);
+            b.putInt(KEY_ANIM_HEIGHT, mHeight);
+            break;
+        case ANIM_THUMBNAIL_SCALE_UP:
+        case ANIM_THUMBNAIL_SCALE_DOWN:
+        case ANIM_THUMBNAIL_ASPECT_SCALE_UP:
+        case ANIM_THUMBNAIL_ASPECT_SCALE_DOWN:
+            // the bitmap to a hardware bitmap and pass through the HardwareBuffer
+            if (mThumbnail != null) {
+                final Bitmap hwBitmap = mThumbnail.copy(Config.HARDWARE, false);
+                if (hwBitmap != null) {
+                    b.putParcelable(KEY_ANIM_THUMBNAIL, hwBitmap.getHardwareBuffer());
+                } else {
+                    Slog.w(TAG, "Failed to copy thumbnail");
+                }
+            }
+            b.putInt(KEY_ANIM_START_X, mStartX);
+            b.putInt(KEY_ANIM_START_Y, mStartY);
+            b.putInt(KEY_ANIM_WIDTH, mWidth);
+            b.putInt(KEY_ANIM_HEIGHT, mHeight);
+            b.putBinder(KEY_ANIM_START_LISTENER, mAnimationStartedListener != null ? mAnimationStartedListener.asBinder() : null);
+            break;
+        case ANIM_SCENE_TRANSITION:
+            if (mTransitionReceiver != null) {
+                b.putParcelable(KEY_TRANSITION_COMPLETE_LISTENER, mTransitionReceiver);
+            }
+            b.putBoolean(KEY_TRANSITION_IS_RETURNING, mIsReturning);
+            b.putStringArrayList(KEY_TRANSITION_SHARED_ELEMENTS, mSharedElementNames);
+            b.putParcelable(KEY_RESULT_DATA, mResultData);
+            b.putInt(KEY_RESULT_CODE, mResultCode);
+            b.putInt(KEY_EXIT_COORDINATOR_INDEX, mExitCoordinatorIndex);
+            break;
+    }
+    if (mLockTaskMode) {
+        b.putBoolean(KEY_LOCK_TASK_MODE, mLockTaskMode);
+    }
+    if (mLaunchDisplayId != INVALID_DISPLAY) {
+        b.putInt(KEY_LAUNCH_DISPLAY_ID, mLaunchDisplayId);
+    }
+    if (mCallerDisplayId != INVALID_DISPLAY) {
+        b.putInt(KEY_CALLER_DISPLAY_ID, mCallerDisplayId);
+    }
+    if (mLaunchTaskDisplayArea != null) {
+        b.putParcelable(KEY_LAUNCH_TASK_DISPLAY_AREA_TOKEN, mLaunchTaskDisplayArea);
+    }
+    if (mLaunchRootTask != null) {
+        b.putParcelable(KEY_LAUNCH_ROOT_TASK_TOKEN, mLaunchRootTask);
+    }
+    if (mLaunchTaskFragmentToken != null) {
+        b.putBinder(KEY_LAUNCH_TASK_FRAGMENT_TOKEN, mLaunchTaskFragmentToken);
+    }
+    if (mLaunchWindowingMode != WINDOWING_MODE_UNDEFINED) {
+        b.putInt(KEY_LAUNCH_WINDOWING_MODE, mLaunchWindowingMode);
+    }
+    if (mLaunchActivityType != ACTIVITY_TYPE_UNDEFINED) {
+        b.putInt(KEY_LAUNCH_ACTIVITY_TYPE, mLaunchActivityType);
+    }
+    if (mLaunchTaskId != -1) {
+        b.putInt(KEY_LAUNCH_TASK_ID, mLaunchTaskId);
+    }
+    if (mPendingIntentLaunchFlags != 0) {
+        b.putInt(KEY_PENDING_INTENT_LAUNCH_FLAGS, mPendingIntentLaunchFlags);
+    }
+    if (mTaskAlwaysOnTop) {
+        b.putBoolean(KEY_TASK_ALWAYS_ON_TOP, mTaskAlwaysOnTop);
+    }
+    if (mTaskOverlay) {
+        b.putBoolean(KEY_TASK_OVERLAY, mTaskOverlay);
+    }
+    if (mTaskOverlayCanResume) {
+        b.putBoolean(KEY_TASK_OVERLAY_CAN_RESUME, mTaskOverlayCanResume);
+    }
+    if (mAvoidMoveToFront) {
+        b.putBoolean(KEY_AVOID_MOVE_TO_FRONT, mAvoidMoveToFront);
+    }
+    if (mFreezeRecentTasksReordering) {
+        b.putBoolean(KEY_FREEZE_RECENT_TASKS_REORDERING, mFreezeRecentTasksReordering);
+    }
+    if (mDisallowEnterPictureInPictureWhileLaunching) {
+        b.putBoolean(KEY_DISALLOW_ENTER_PICTURE_IN_PICTURE_WHILE_LAUNCHING, mDisallowEnterPictureInPictureWhileLaunching);
+    }
+    if (mApplyActivityFlagsForBubbles) {
+        b.putBoolean(KEY_APPLY_ACTIVITY_FLAGS_FOR_BUBBLES, mApplyActivityFlagsForBubbles);
+    }
+    if (mAnimSpecs != null) {
+        b.putParcelableArray(KEY_ANIM_SPECS, mAnimSpecs);
+    }
+    if (mAnimationFinishedListener != null) {
+        b.putBinder(KEY_ANIMATION_FINISHED_LISTENER, mAnimationFinishedListener.asBinder());
+    }
+    if (mSpecsFuture != null) {
+        b.putBinder(KEY_SPECS_FUTURE, mSpecsFuture.asBinder());
+    }
+    if (mSourceInfo != null) {
+        b.putParcelable(KEY_SOURCE_INFO, mSourceInfo);
+    }
+    if (mRotationAnimationHint != -1) {
+        b.putInt(KEY_ROTATION_ANIMATION_HINT, mRotationAnimationHint);
+    }
+    if (mAppVerificationBundle != null) {
+        b.putBundle(KEY_INSTANT_APP_VERIFICATION_BUNDLE, mAppVerificationBundle);
+    }
+    if (mRemoteAnimationAdapter != null) {
+        b.putParcelable(KEY_REMOTE_ANIMATION_ADAPTER, mRemoteAnimationAdapter);
+    }
+    if (mLaunchCookie != null) {
+        b.putBinder(KEY_LAUNCH_COOKIE, mLaunchCookie);
+    }
+    if (mRemoteTransition != null) {
+        b.putParcelable(KEY_REMOTE_TRANSITION, mRemoteTransition);
+    }
+    if (mOverrideTaskTransition) {
+        b.putBoolean(KEY_OVERRIDE_TASK_TRANSITION, mOverrideTaskTransition);
+    }
+    if (mSplashScreenThemeResName != null && !mSplashScreenThemeResName.isEmpty()) {
+        b.putString(KEY_SPLASH_SCREEN_THEME, mSplashScreenThemeResName);
+    }
+    if (mRemoveWithTaskOrganizer) {
+        b.putBoolean(KEY_REMOVE_WITH_TASK_ORGANIZER, mRemoveWithTaskOrganizer);
+    }
+    if (mLaunchedFromBubble) {
+        b.putBoolean(KEY_LAUNCHED_FROM_BUBBLE, mLaunchedFromBubble);
+    }
+    if (mTransientLaunch) {
+        b.putBoolean(KEY_TRANSIENT_LAUNCH, mTransientLaunch);
+    }
+    if (mSplashScreenStyle != 0) {
+        b.putInt(KEY_SPLASH_SCREEN_STYLE, mSplashScreenStyle);
+    }
+    return b;
+}
+------------------------
+Find a silently evolved API code:android.app.WallpaperInfo.writeToParcel:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Used to package this object into a {@link Parcel}.
+ *
+ * @param dest The {@link Parcel} to be written.
+ * @param flags The flags used for parceling.
+ */
+
+Body of Frist Method:
+{
+    dest.writeString(mSettingsActivityName);
+    dest.writeInt(mThumbnailResource);
+    dest.writeInt(mAuthorResource);
+    dest.writeInt(mDescriptionResource);
+    dest.writeInt(mContextUriResource);
+    dest.writeInt(mContextDescriptionResource);
+    dest.writeInt(mShowMetadataInPreview ? 1 : 0);
+    dest.writeInt(mSupportsAmbientMode ? 1 : 0);
+    dest.writeString(mSettingsSliceUri);
+    dest.writeInt(mSupportMultipleDisplays ? 1 : 0);
+    mService.writeToParcel(dest, flags);
+}
+Body of Second Method:
+{
+    dest.writeString(mSettingsActivityName);
+    dest.writeInt(mThumbnailResource);
+    dest.writeInt(mAuthorResource);
+    dest.writeInt(mDescriptionResource);
+    dest.writeInt(mContextUriResource);
+    dest.writeInt(mContextDescriptionResource);
+    dest.writeInt(mShowMetadataInPreview ? 1 : 0);
+    dest.writeInt(mSupportsAmbientMode ? 1 : 0);
+    dest.writeString(mSettingsSliceUri);
+    dest.writeInt(mSupportMultipleDisplays ? 1 : 0);
+    dest.writeInt(mShouldUseDefaultUnfoldTransition ? 1 : 0);
+    mService.writeToParcel(dest, flags);
+}
+------------------------
+Find a silently evolved API code:android.hardware.display.AmbientDisplayConfiguration.quickPickupSensorEnabled:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * {@hide}
+ */
+
+Body of Frist Method:
+{
+    return !TextUtils.isEmpty(quickPickupSensorType()) && !alwaysOnEnabled(user);
+}
+Body of Second Method:
+{
+    return boolSettingDefaultOn(Settings.Secure.DOZE_QUICK_PICKUP_GESTURE, user) && !TextUtils.isEmpty(quickPickupSensorType()) && pickupGestureEnabled(user) && !alwaysOnEnabled(user);
+}
+------------------------
+Find a silently evolved API code:android.window.WindowProviderService.createServiceBaseContext:COMMENT
+Method Modifier: public      final       hidden      
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    final Context context = super.createServiceBaseContext(mainThread, packageInfo);
+    // Always associate with the default display at initialization.
+    final Display defaultDisplay = context.getSystemService(DisplayManager.class).getDisplay(DEFAULT_DISPLAY);
+    return context.createTokenContext(mWindowToken, defaultDisplay);
+}
+Body of Second Method:
+{
+    final Context context = super.createServiceBaseContext(mainThread, packageInfo);
+    final Display display = context.getSystemService(DisplayManager.class).getDisplay(getInitialDisplayId());
+    return context.createTokenContext(mWindowToken, display);
+}
+------------------------
+Find a silently evolved API code:android.hardware.display.AmbientDisplayConfiguration.tapSensorAvailable:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * {@hide}
+ */
+
+Body of Frist Method:
+{
+    return !TextUtils.isEmpty(tapSensorType());
+}
+Body of Second Method:
+{
+    for (String tapType : tapSensorTypeMapping()) {
+        if (!TextUtils.isEmpty(tapType)) {
+            return true;
+        }
+    }
+    return false;
+}
+------------------------
+Find a silently evolved API code:android.graphics.ImageFormat.getBitsPerPixel:COMMENT
+Method Modifier: public      static      
+Comment:/**
+ * Use this function to retrieve the number of bits per pixel of an
+ * ImageFormat.
+ *
+ * @param format
+ * @return the number of bits per pixel of the given format or -1 if the
+ * format doesn't exist or is not supported.
+ */
+
+Body of Frist Method:
+{
+    switch(format) {
+        case RGB_565:
+            return 16;
+        case NV16:
+            return 16;
+        case YUY2:
+            return 16;
+        case YV12:
+            return 12;
+        case Y8:
+            return 8;
+        case Y16:
+        case DEPTH16:
+            return 16;
+        case NV21:
+            return 12;
+        case YUV_420_888:
+            return 12;
+        case YUV_422_888:
+            return 16;
+        case YUV_444_888:
+            return 24;
+        case FLEX_RGB_888:
+            return 24;
+        case FLEX_RGBA_8888:
+            return 32;
+        case RAW_DEPTH:
+        case RAW_SENSOR:
+            return 16;
+        case YCBCR_P010:
+            return 20;
+        case RAW_DEPTH10:
+        case RAW10:
+            return 10;
+        case RAW12:
+            return 12;
+    }
+    return -1;
+}
+Body of Second Method:
+{
+    switch(format) {
+        case RGB_565:
+            return 16;
+        case NV16:
+            return 16;
+        case YUY2:
+            return 16;
+        case YV12:
+            return 12;
+        case Y8:
+            return 8;
+        case Y16:
+        case DEPTH16:
+            return 16;
+        case NV21:
+            return 12;
+        case YUV_420_888:
+            return 12;
+        case YUV_422_888:
+            return 16;
+        case YUV_444_888:
+            return 24;
+        case FLEX_RGB_888:
+            return 24;
+        case FLEX_RGBA_8888:
+            return 32;
+        case RAW_DEPTH:
+        case RAW_SENSOR:
+            return 16;
+        case YCBCR_P010:
+            return 24;
+        case RAW_DEPTH10:
+        case RAW10:
+            return 10;
+        case RAW12:
+            return 12;
+    }
+    return -1;
+}
+------------------------
+Find a silently evolved API code:android.view.contentcapture.ContentCaptureContext.dump:COMMENT
+Method Modifier: public      
+Comment:// TODO(b/111276913): dump to proto as well
+
+Body of Frist Method:
+{
+    if (mComponentName != null) {
+        pw.print("activity=");
+        pw.print(mComponentName.flattenToShortString());
+    }
+    if (mId != null) {
+        pw.print(", id=");
+        mId.dump(pw);
+    }
+    pw.print(", activityId=");
+    pw.print(mActivityId);
+    pw.print(", displayId=");
+    pw.print(mDisplayId);
+    if (mParentSessionId != NO_SESSION_ID) {
+        pw.print(", parentId=");
+        pw.print(mParentSessionId);
+    }
+    if (mFlags > 0) {
+        pw.print(", flags=");
+        pw.print(mFlags);
+    }
+    if (mExtras != null) {
+        // NOTE: cannot dump because it could contain PII
+        pw.print(", hasExtras");
+    }
+}
+Body of Second Method:
+{
+    if (mComponentName != null) {
+        pw.print("activity=");
+        pw.print(mComponentName.flattenToShortString());
+    }
+    if (mId != null) {
+        pw.print(", id=");
+        mId.dump(pw);
+    }
+    pw.print(", activityId=");
+    pw.print(mActivityId);
+    pw.print(", displayId=");
+    pw.print(mDisplayId);
+    pw.print(", windowToken=");
+    pw.print(mWindowToken);
+    if (mParentSessionId != NO_SESSION_ID) {
+        pw.print(", parentId=");
+        pw.print(mParentSessionId);
+    }
+    if (mFlags > 0) {
+        pw.print(", flags=");
+        pw.print(mFlags);
+    }
+    if (mExtras != null) {
+        // NOTE: cannot dump because it could contain PII
+        pw.print(", hasExtras");
+    }
+}
+------------------------
+Find a silently evolved API code:android.window.WindowContextController.attachToDisplayArea:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Attaches the {@code mToken} to a {@link com.android.server.wm.DisplayArea}.
+ *
+ * @param type The window type of the {@link WindowContext}
+ * @param displayId The {@link Context#getDisplayId() ID of display} to associate with
+ * @param options The window context launched option
+ * @throws IllegalStateException if the {@code mToken} has already been attached to a
+ * DisplayArea.
+ */
+
+Body of Frist Method:
+{
+    if (mAttachedToDisplayArea) {
+        throw new IllegalStateException("A Window Context can be only attached to " + "a DisplayArea once.");
+    }
+    try {
+        mAttachedToDisplayArea = mWms.attachWindowContextToDisplayArea(mToken, type, displayId, options);
+    } catch (RemoteException e) {
+        throw e.rethrowFromSystemServer();
+    }
+}
+Body of Second Method:
+{
+    if (mAttachedToDisplayArea) {
+        throw new IllegalStateException("A Window Context can be only attached to " + "a DisplayArea once.");
+    }
+    mAttachedToDisplayArea = mToken.attachToDisplayArea(type, displayId, options);
+}
+------------------------
+Find a silently evolved API code:android.os.SharedMemory.close:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Close the backing {@link FileDescriptor} of this SharedMemory instance. Note that all
+ * open mappings of the shared memory will remain valid and may continue to be used. The
+ * shared memory will not be freed until all file descriptor handles are closed and all
+ * memory mappings are unmapped.
+ */
+
+Body of Frist Method:
+{
+    if (mCleaner != null) {
+        mCleaner.clean();
+        mCleaner = null;
+    }
+}
+Body of Second Method:
+{
+    mFileDescriptor.setInt$(-1);
+    if (mCleaner != null) {
+        mCleaner.clean();
+        mCleaner = null;
+    }
+}
+------------------------
+Find a silently evolved API code:android.view.Surface.destroy:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Free all server-side state associated with this surface and
+ * release this object's reference.  This method can only be
+ * called from the process that created the service.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    release();
+}
+Body of Second Method:
+{
+    if (mNativeObject != 0) {
+        nativeDestroy(mNativeObject);
+    }
+    release();
+}
+------------------------
+Find a silently evolved API code:android.view.MotionEvent.PointerCoords.copyFrom:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Copies the contents of another pointer coords object.
+ *
+ * @param other The pointer coords object to copy.
+ */
+
+Body of Frist Method:
+{
+    final long bits = other.mPackedAxisBits;
+    mPackedAxisBits = bits;
+    if (bits != 0) {
+        final float[] otherValues = other.mPackedAxisValues;
+        final int count = Long.bitCount(bits);
+        float[] values = mPackedAxisValues;
+        if (values == null || count > values.length) {
+            values = new float[otherValues.length];
+            mPackedAxisValues = values;
+        }
+        System.arraycopy(otherValues, 0, values, 0, count);
+    }
+    x = other.x;
+    y = other.y;
+    pressure = other.pressure;
+    size = other.size;
+    touchMajor = other.touchMajor;
+    touchMinor = other.touchMinor;
+    toolMajor = other.toolMajor;
+    toolMinor = other.toolMinor;
+    orientation = other.orientation;
+}
+Body of Second Method:
+{
+    final long bits = other.mPackedAxisBits;
+    mPackedAxisBits = bits;
+    if (bits != 0) {
+        final float[] otherValues = other.mPackedAxisValues;
+        final int count = Long.bitCount(bits);
+        float[] values = mPackedAxisValues;
+        if (values == null || count > values.length) {
+            values = new float[otherValues.length];
+            mPackedAxisValues = values;
+        }
+        System.arraycopy(otherValues, 0, values, 0, count);
+    }
+    x = other.x;
+    y = other.y;
+    pressure = other.pressure;
+    size = other.size;
+    touchMajor = other.touchMajor;
+    touchMinor = other.touchMinor;
+    toolMajor = other.toolMajor;
+    toolMinor = other.toolMinor;
+    orientation = other.orientation;
+    relativeX = other.relativeX;
+    relativeY = other.relativeY;
+}
+------------------------
+Find a silently evolved API code:android.content.pm.ActivityInfo.getMinAspectRatio:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Returns the min aspect ratio of this activity.
+ *
+ * This takes into account the minimum aspect ratio as defined in the app's manifest and
+ * possible overrides as per OVERRIDE_MIN_ASPECT_RATIO.
+ *
+ * In the rare cases where the manifest minimum aspect ratio is required, use
+ * {@code getManifestMinAspectRatio}.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (applicationInfo == null || !CompatChanges.isChangeEnabled(OVERRIDE_MIN_ASPECT_RATIO, applicationInfo.packageName, UserHandle.getUserHandleForUid(applicationInfo.uid))) {
+        return mMinAspectRatio;
+    }
+    if (CompatChanges.isChangeEnabled(OVERRIDE_MIN_ASPECT_RATIO_LARGE, applicationInfo.packageName, UserHandle.getUserHandleForUid(applicationInfo.uid))) {
+        return Math.max(OVERRIDE_MIN_ASPECT_RATIO_LARGE_VALUE, mMinAspectRatio);
+    }
+    if (CompatChanges.isChangeEnabled(OVERRIDE_MIN_ASPECT_RATIO_MEDIUM, applicationInfo.packageName, UserHandle.getUserHandleForUid(applicationInfo.uid))) {
+        return Math.max(OVERRIDE_MIN_ASPECT_RATIO_MEDIUM_VALUE, mMinAspectRatio);
+    }
+    return mMinAspectRatio;
+}
+Body of Second Method:
+{
+    if (applicationInfo == null || !isChangeEnabled(OVERRIDE_MIN_ASPECT_RATIO) || (isChangeEnabled(OVERRIDE_MIN_ASPECT_RATIO_PORTRAIT_ONLY) && !isFixedOrientationPortrait(orientation))) {
+        return mMinAspectRatio;
+    }
+    if (isChangeEnabled(OVERRIDE_MIN_ASPECT_RATIO_LARGE)) {
+        return Math.max(OVERRIDE_MIN_ASPECT_RATIO_LARGE_VALUE, mMinAspectRatio);
+    }
+    if (isChangeEnabled(OVERRIDE_MIN_ASPECT_RATIO_MEDIUM)) {
+        return Math.max(OVERRIDE_MIN_ASPECT_RATIO_MEDIUM_VALUE, mMinAspectRatio);
+    }
+    return mMinAspectRatio;
+}
+------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothDevice.getAlias:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Get the locally modifiable name (alias) of the remote Bluetooth device.
+ *
+ * @return the Bluetooth alias, the friendly device name if no alias, or
+ * null if there was a problem
+ */
+
+Body of Frist Method:
+{
+    final IBluetooth service = sService;
+    if (service == null) {
+        Log.e(TAG, "BT not enabled. Cannot get Remote Device Alias");
+        return null;
+    }
+    try {
+        String alias = service.getRemoteAliasWithAttribution(this, mAttributionSource);
+        if (alias == null) {
+            return getName();
+        }
+        return alias;
+    } catch (RemoteException e) {
+        Log.e(TAG, "", e);
+    }
+    return null;
+}
+Body of Second Method:
+{
+    final IBluetooth service = sService;
+    if (service == null) {
+        Log.e(TAG, "BT not enabled. Cannot get Remote Device Alias");
+        return null;
+    }
+    try {
+        String alias = service.getRemoteAliasWithAttribution(this, mAttributionSource);
+        if (alias == null) {
+            return getName();
+        }
+        return alias.replace('\t', ' ').replace('\n', ' ').replace('\r', ' ');
+    } catch (RemoteException e) {
+        Log.e(TAG, "", e);
+    }
+    return null;
+}
+------------------------
+Find a silently evolved API code:android.view.MotionEvent.PointerCoords.getAxisValue:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Gets the value associated with the specified axis.
+ *
+ * @param axis The axis identifier for the axis value to retrieve.
+ * @return The value associated with the axis, or 0 if none.
+ *
+ * @see MotionEvent#AXIS_X
+ * @see MotionEvent#AXIS_Y
+ */
+
+Body of Frist Method:
+{
+    switch(axis) {
+        case AXIS_X:
+            return x;
+        case AXIS_Y:
+            return y;
+        case AXIS_PRESSURE:
+            return pressure;
+        case AXIS_SIZE:
+            return size;
+        case AXIS_TOUCH_MAJOR:
+            return touchMajor;
+        case AXIS_TOUCH_MINOR:
+            return touchMinor;
+        case AXIS_TOOL_MAJOR:
+            return toolMajor;
+        case AXIS_TOOL_MINOR:
+            return toolMinor;
+        case AXIS_ORIENTATION:
+            return orientation;
+        default:
+            {
+                if (axis < 0 || axis > 63) {
+                    throw new IllegalArgumentException("Axis out of range.");
+                }
+                final long bits = mPackedAxisBits;
+                final long axisBit = 0x8000000000000000L >>> axis;
+                if ((bits & axisBit) == 0) {
+                    return 0;
+                }
+                final int index = Long.bitCount(bits & ~(0xFFFFFFFFFFFFFFFFL >>> axis));
+                return mPackedAxisValues[index];
+            }
+    }
+}
+Body of Second Method:
+{
+    switch(axis) {
+        case AXIS_X:
+            return x;
+        case AXIS_Y:
+            return y;
+        case AXIS_PRESSURE:
+            return pressure;
+        case AXIS_SIZE:
+            return size;
+        case AXIS_TOUCH_MAJOR:
+            return touchMajor;
+        case AXIS_TOUCH_MINOR:
+            return touchMinor;
+        case AXIS_TOOL_MAJOR:
+            return toolMajor;
+        case AXIS_TOOL_MINOR:
+            return toolMinor;
+        case AXIS_ORIENTATION:
+            return orientation;
+        case AXIS_RELATIVE_X:
+            return relativeX;
+        case AXIS_RELATIVE_Y:
+            return relativeY;
+        default:
+            {
+                if (axis < 0 || axis > 63) {
+                    throw new IllegalArgumentException("Axis out of range.");
+                }
+                final long bits = mPackedAxisBits;
+                final long axisBit = 0x8000000000000000L >>> axis;
+                if ((bits & axisBit) == 0) {
+                    return 0;
+                }
+                final int index = Long.bitCount(bits & ~(0xFFFFFFFFFFFFFFFFL >>> axis));
+                return mPackedAxisValues[index];
+            }
+    }
+}
+------------------------
+Find a silently evolved API code:android.content.pm.ActivityInfo.hasFixedAspectRatio:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Returns true if the activity has maximum or minimum aspect ratio.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    return getMaxAspectRatio() != 0 || getMinAspectRatio() != 0;
+}
+Body of Second Method:
+{
+    return getMaxAspectRatio() != 0 || getMinAspectRatio(orientation) != 0;
+}
+------------------------
+Find a silently evolved API code:android.content.pm.ActivityInfo.neverSandboxDisplayApis:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Returns if the activity should never be sandboxed to the activity window bounds.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    return CompatChanges.isChangeEnabled(NEVER_SANDBOX_DISPLAY_APIS, applicationInfo.packageName, UserHandle.getUserHandleForUid(applicationInfo.uid)) || ConstrainDisplayApisConfig.neverConstrainDisplayApis(applicationInfo);
+}
+Body of Second Method:
+{
+    return isChangeEnabled(NEVER_SANDBOX_DISPLAY_APIS) || constrainDisplayApisConfig.getNeverConstrainDisplayApis(applicationInfo);
+}
+------------------------
+Find a silently evolved API code:android.window.TransitionFilter.Requirement.matches:COMMENT
+Method Modifier: default     
+Comment:/**
+ * Check if the request matches this filter. It may generate false positives
+ */
+
+Body of Frist Method:
+{
+    // Can't check modes since the transition hasn't been built at this point.
+    if (mActivityType == ACTIVITY_TYPE_UNDEFINED)
+        return true;
+    return request.getTriggerTask() != null && request.getTriggerTask().getActivityType() == mActivityType;
+}
+Body of Second Method:
+{
+    // Can't check modes/order since the transition hasn't been built at this point.
+    if (mActivityType == ACTIVITY_TYPE_UNDEFINED)
+        return true;
+    return request.getTriggerTask() != null && request.getTriggerTask().getActivityType() == mActivityType && matchesTopActivity(request.getTriggerTask());
+}
+------------------------
+Find a silently evolved API code:android.media.projection.MediaProjection.createVirtualDisplay:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    DisplayManager dm = (DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE);
+    int flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR | DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION;
+    if (isSecure) {
+        flags |= DisplayManager.VIRTUAL_DISPLAY_FLAG_SECURE;
+    }
+    final VirtualDisplayConfig.Builder builder = new VirtualDisplayConfig.Builder(name, width, height, dpi);
+    builder.setFlags(flags);
+    if (surface != null) {
+        builder.setSurface(surface);
+    }
+    return dm.createVirtualDisplay(this, builder.build(), callback, handler);
+}
+Body of Second Method:
+{
+    int flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR | DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION;
+    if (isSecure) {
+        flags |= DisplayManager.VIRTUAL_DISPLAY_FLAG_SECURE;
+    }
+    Context windowContext = mContext.createWindowContext(mContext.getDisplayNoVerify(), TYPE_APPLICATION, null);
+    final VirtualDisplayConfig.Builder builder = buildMirroredVirtualDisplay(name, width, height, dpi, windowContext.getWindowContextToken());
+    builder.setFlags(flags);
+    if (surface != null) {
+        builder.setSurface(surface);
+    }
+    VirtualDisplay virtualDisplay = createVirtualDisplay(builder.build(), callback, handler, windowContext);
+    return virtualDisplay;
+}
+------------------------
+Find a silently evolved API code:android.hardware.display.VirtualDisplayConfig.Builder.build:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Builds the instance. This builder should not be touched after calling this!
+ */
+
+Body of Frist Method:
+{
+    checkNotUsed();
+    // Mark builder used
+    mBuilderFieldsSet |= 0x100;
+    if ((mBuilderFieldsSet & 0x10) == 0) {
+        mFlags = 0;
+    }
+    if ((mBuilderFieldsSet & 0x20) == 0) {
+        mSurface = null;
+    }
+    if ((mBuilderFieldsSet & 0x40) == 0) {
+        mUniqueId = null;
+    }
+    if ((mBuilderFieldsSet & 0x80) == 0) {
+        mDisplayIdToMirror = DEFAULT_DISPLAY;
+    }
+    VirtualDisplayConfig o = new VirtualDisplayConfig(mName, mWidth, mHeight, mDensityDpi, mFlags, mSurface, mUniqueId, mDisplayIdToMirror);
+    return o;
+}
+Body of Second Method:
+{
+    checkNotUsed();
+    // Mark builder used
+    mBuilderFieldsSet |= 0x200;
+    if ((mBuilderFieldsSet & 0x10) == 0) {
+        mFlags = 0;
+    }
+    if ((mBuilderFieldsSet & 0x20) == 0) {
+        mSurface = null;
+    }
+    if ((mBuilderFieldsSet & 0x40) == 0) {
+        mUniqueId = null;
+    }
+    if ((mBuilderFieldsSet & 0x80) == 0) {
+        mDisplayIdToMirror = DEFAULT_DISPLAY;
+    }
+    if ((mBuilderFieldsSet & 0x100) == 0) {
+        mWindowTokenClientToMirror = null;
+    }
+    VirtualDisplayConfig o = new VirtualDisplayConfig(mName, mWidth, mHeight, mDensityDpi, mFlags, mSurface, mUniqueId, mDisplayIdToMirror, mWindowTokenClientToMirror);
+    return o;
+}
+------------------------
+Find a silently evolved API code:android.hardware.camera2.CameraCharacteristics.get:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Get a camera characteristics field value.
+ *
+ * <p>The field definitions can be
+ * found in {@link CameraCharacteristics}.</p>
+ *
+ * <p>Querying the value for the same key more than once will return a value
+ * which is equal to the previous queried value.</p>
+ *
+ * @throws IllegalArgumentException if the key was not valid
+ *
+ * @param key The characteristics field to read.
+ * @return The value of that key, or {@code null} if the field is not set.
+ */
+
+Body of Frist Method:
+{
+    return mProperties.get(key);
+}
+Body of Second Method:
+{
+    T propertyOverride = overrideProperty(key);
+    return (propertyOverride != null) ? propertyOverride : mProperties.get(key);
+}
+------------------------
+Find a silently evolved API code:android.content.pm.ActivityInfo.supportsSizeChanges:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Returns whether the activity supports size changes.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (CompatChanges.isChangeEnabled(FORCE_NON_RESIZE_APP, applicationInfo.packageName, UserHandle.getUserHandleForUid(applicationInfo.uid))) {
+        return SIZE_CHANGES_UNSUPPORTED_OVERRIDE;
+    }
+    if (supportsSizeChanges) {
+        return SIZE_CHANGES_SUPPORTED_METADATA;
+    }
+    if (CompatChanges.isChangeEnabled(FORCE_RESIZE_APP, applicationInfo.packageName, UserHandle.getUserHandleForUid(applicationInfo.uid))) {
+        return SIZE_CHANGES_SUPPORTED_OVERRIDE;
+    }
+    return SIZE_CHANGES_UNSUPPORTED_METADATA;
+}
+Body of Second Method:
+{
+    if (isChangeEnabled(FORCE_NON_RESIZE_APP)) {
+        return SIZE_CHANGES_UNSUPPORTED_OVERRIDE;
+    }
+    if (supportsSizeChanges) {
+        return SIZE_CHANGES_SUPPORTED_METADATA;
+    }
+    if (isChangeEnabled(FORCE_RESIZE_APP)) {
+        return SIZE_CHANGES_SUPPORTED_OVERRIDE;
+    }
+    return SIZE_CHANGES_UNSUPPORTED_METADATA;
+}
+------------------------
+Find a silently evolved API code:android.window.WindowContextController.detachIfNeeded:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Detaches the window context from the node it's currently associated with.
+ */
+
+Body of Frist Method:
+{
+    if (mAttachedToDisplayArea) {
+        try {
+            mWms.detachWindowContextFromWindowContainer(mToken);
+            mAttachedToDisplayArea = false;
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+}
+Body of Second Method:
+{
+    if (mAttachedToDisplayArea) {
+        mToken.detachFromWindowContainerIfNeeded();
+        mAttachedToDisplayArea = false;
+    }
+}
+------------------------
+Find a silently evolved API code:android.app.servertransaction.TransferSplashScreenViewStateItem.obtain:COMMENT
+Method Modifier: public      static      hidden      
+Comment:/**
+ * Obtain an instance initialized with provided params.
+ */
+
+Body of Frist Method:
+{
+    TransferSplashScreenViewStateItem instance = ObjectPool.obtain(TransferSplashScreenViewStateItem.class);
+    if (instance == null) {
+        instance = new TransferSplashScreenViewStateItem();
+    }
+    instance.mRequest = state;
+    instance.mSplashScreenViewParcelable = parcelable;
+    return instance;
+}
+Body of Second Method:
+{
+    TransferSplashScreenViewStateItem instance = ObjectPool.obtain(TransferSplashScreenViewStateItem.class);
+    if (instance == null) {
+        instance = new TransferSplashScreenViewStateItem();
+    }
+    instance.mSplashScreenViewParcelable = parcelable;
+    instance.mStartingWindowLeash = startingWindowLeash;
+    return instance;
+}
+------------------------
+Find a silently evolved API code:android.app.ConfigurationController.handleConfigurationChanged:COMMENT
+Method Modifier: default     hidden      
+Comment:/**
+ * Update the configuration to latest.
+ * @param config The new configuration.
+ * @param compat The new compatibility information.
+ */
+
+Body of Frist Method:
+{
+    int configDiff;
+    boolean equivalent;
+    synchronized (mResourcesManager) {
+        final Resources.Theme systemTheme = mActivityThread.getSystemContext().getTheme();
+        final Resources.Theme systemUiTheme = mActivityThread.getSystemUiContext().getTheme();
+        if (mPendingConfiguration != null) {
+            if (!mPendingConfiguration.isOtherSeqNewer(config)) {
+                config = mPendingConfiguration;
+                updateDefaultDensity(config.densityDpi);
+            }
+            mPendingConfiguration = null;
+        }
+        final boolean hasIme = mActivityThread.hasImeComponent();
+        if (config == null) {
+            // TODO (b/135719017): Temporary log for debugging IME service.
+            if (Build.IS_DEBUGGABLE && hasIme) {
+                Log.w(TAG, "handleConfigurationChanged for IME app but config is null");
+            }
+            return;
+        }
+        // This flag tracks whether the new configuration is fundamentally equivalent to the
+        // existing configuration. This is necessary to determine whether non-activity callbacks
+        // should receive notice when the only changes are related to non-public fields.
+        // We do not gate calling {@link #performActivityConfigurationChanged} based on this
+        // flag as that method uses the same check on the activity config override as well.
+        equivalent = mConfiguration != null && (0 == mConfiguration.diffPublicOnly(config));
+        if (DEBUG_CONFIGURATION) {
+            Slog.v(TAG, "Handle configuration changed: " + config);
+        }
+        final Application app = mActivityThread.getApplication();
+        final Resources appResources = app.getResources();
+        if (appResources.hasOverrideDisplayAdjustments()) {
+            // The value of Display#getRealSize will be adjusted by FixedRotationAdjustments,
+            // but Display#getSize refers to DisplayAdjustments#mConfiguration. So the rotated
+            // configuration also needs to set to the adjustments for consistency.
+            appResources.getDisplayAdjustments().getConfiguration().updateFrom(config);
+        }
+        mResourcesManager.applyConfigurationToResources(config, compat, appResources.getDisplayAdjustments());
+        updateLocaleListFromAppContext(app.getApplicationContext());
+        if (mConfiguration == null) {
+            mConfiguration = new Configuration();
+        }
+        if (!mConfiguration.isOtherSeqNewer(config) && compat == null) {
+            // TODO (b/135719017): Temporary log for debugging IME service.
+            if (Build.IS_DEBUGGABLE && hasIme) {
+                Log.w(TAG, "handleConfigurationChanged for IME app but config seq is obsolete " + ", config=" + config + ", mConfiguration=" + mConfiguration);
+            }
+            return;
+        }
+        configDiff = mConfiguration.updateFrom(config);
+        config = applyCompatConfiguration();
+        HardwareRenderer.sendDeviceConfigurationForDebugging(config);
+        if ((systemTheme.getChangingConfigurations() & configDiff) != 0) {
+            systemTheme.rebase();
+        }
+        if ((systemUiTheme.getChangingConfigurations() & configDiff) != 0) {
+            systemUiTheme.rebase();
+        }
+    }
+    final ArrayList<ComponentCallbacks2> callbacks = mActivityThread.collectComponentCallbacks(false);
+    freeTextLayoutCachesIfNeeded(configDiff);
+    if (callbacks != null) {
+        final int size = callbacks.size();
+        for (int i = 0; i < size; i++) {
+            ComponentCallbacks2 cb = callbacks.get(i);
+            if (!equivalent) {
+                performConfigurationChanged(cb, config);
+            } else {
+                // TODO (b/135719017): Temporary log for debugging IME service.
+                if (Build.IS_DEBUGGABLE && cb instanceof InputMethodService) {
+                    Log.w(TAG, "performConfigurationChanged didn't callback to IME " + ", configDiff=" + configDiff + ", mConfiguration=" + mConfiguration);
+                }
+            }
+        }
+    }
+}
+Body of Second Method:
+{
+    int configDiff;
+    boolean equivalent;
+    // Get theme outside of synchronization to avoid nested lock.
+    final Resources.Theme systemTheme = mActivityThread.getSystemContext().getTheme();
+    final ContextImpl systemUiContext = mActivityThread.getSystemUiContextNoCreate();
+    final Resources.Theme systemUiTheme = systemUiContext != null ? systemUiContext.getTheme() : null;
+    synchronized (mResourcesManager) {
+        if (mPendingConfiguration != null) {
+            if (!mPendingConfiguration.isOtherSeqNewer(config)) {
+                config = mPendingConfiguration;
+                updateDefaultDensity(config.densityDpi);
+            }
+            mPendingConfiguration = null;
+        }
+        if (config == null) {
+            return;
+        }
+        // This flag tracks whether the new configuration is fundamentally equivalent to the
+        // existing configuration. This is necessary to determine whether non-activity callbacks
+        // should receive notice when the only changes are related to non-public fields.
+        // We do not gate calling {@link #performActivityConfigurationChanged} based on this
+        // flag as that method uses the same check on the activity config override as well.
+        equivalent = mConfiguration != null && (0 == mConfiguration.diffPublicOnly(config));
+        if (DEBUG_CONFIGURATION) {
+            Slog.v(TAG, "Handle configuration changed: " + config);
+        }
+        final Application app = mActivityThread.getApplication();
+        final Resources appResources = app.getResources();
+        if (appResources.hasOverrideDisplayAdjustments()) {
+            // The value of Display#getRealSize will be adjusted by FixedRotationAdjustments,
+            // but Display#getSize refers to DisplayAdjustments#mConfiguration. So the rotated
+            // configuration also needs to set to the adjustments for consistency.
+            appResources.getDisplayAdjustments().getConfiguration().updateFrom(config);
+        }
+        mResourcesManager.applyConfigurationToResources(config, compat, appResources.getDisplayAdjustments());
+        updateLocaleListFromAppContext(app.getApplicationContext());
+        if (mConfiguration == null) {
+            mConfiguration = new Configuration();
+        }
+        if (!mConfiguration.isOtherSeqNewer(config) && compat == null) {
+            return;
+        }
+        configDiff = mConfiguration.updateFrom(config);
+        config = applyCompatConfiguration();
+        HardwareRenderer.sendDeviceConfigurationForDebugging(config);
+        if ((systemTheme.getChangingConfigurations() & configDiff) != 0) {
+            systemTheme.rebase();
+        }
+        if (systemUiTheme != null && (systemUiTheme.getChangingConfigurations() & configDiff) != 0) {
+            systemUiTheme.rebase();
+        }
+    }
+    final ArrayList<ComponentCallbacks2> callbacks = mActivityThread.collectComponentCallbacks(false);
+    freeTextLayoutCachesIfNeeded(configDiff);
+    if (callbacks != null) {
+        final int size = callbacks.size();
+        for (int i = 0; i < size; i++) {
+            ComponentCallbacks2 cb = callbacks.get(i);
+            if (!equivalent) {
+                performConfigurationChanged(cb, config);
+            }
+        }
+    }
+}
+------------------------
+Find a silently evolved API code:android.window.PictureInPictureSurfaceTransaction.apply:COMMENT
+Method Modifier: public      static      hidden      
+Comment:/**
+ * Applies {@link PictureInPictureSurfaceTransaction} to a given leash.
+ */
+
+Body of Frist Method:
+{
+    final Matrix matrix = surfaceTransaction.getMatrix();
+    tx.setMatrix(surfaceControl, matrix, new float[9]).setPosition(surfaceControl, surfaceTransaction.mPositionX, surfaceTransaction.mPositionY).setWindowCrop(surfaceControl, surfaceTransaction.mWindowCrop).setCornerRadius(surfaceControl, surfaceTransaction.mCornerRadius);
+}
+Body of Second Method:
+{
+    final Matrix matrix = surfaceTransaction.getMatrix();
+    tx.setMatrix(surfaceControl, matrix, new float[9]);
+    if (surfaceTransaction.mPosition != null) {
+        tx.setPosition(surfaceControl, surfaceTransaction.mPosition.x, surfaceTransaction.mPosition.y);
+    }
+    if (surfaceTransaction.mWindowCrop != null) {
+        tx.setWindowCrop(surfaceControl, surfaceTransaction.mWindowCrop);
+    }
+    if (surfaceTransaction.hasCornerRadiusSet()) {
+        tx.setCornerRadius(surfaceControl, surfaceTransaction.mCornerRadius);
+    }
+    if (surfaceTransaction.mAlpha != NOT_SET) {
+        tx.setAlpha(surfaceControl, surfaceTransaction.mAlpha);
+    }
+}
+------------------------
+Find a silently evolved API code:android.hardware.fingerprint.FingerprintStateListener.onStateChanged:COMMENT
+<android.hardware.fingerprint.FingerprintStateListener: void onStateChanged(int)>
+public      abstract    hidden      ->public      hidden      
+Method Modifier: public      abstract    hidden      
+Method Modifier: Yes         Yes         Yes         
+Method Updated:  Yes         No          Yes         
+Comment:/**
+ * Defines behavior in response to state update
+ * @param newState new state of fingerprint sensor
+ */
+
+Body of Frist Method:
+
+Body of Second Method:
+{
+}
+------------------------
+Find a silently evolved API code:android.window.TransitionFilter.matches:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * @return true if `info` meets all the requirements to pass this filter.
+ */
+
+Body of Frist Method:
+{
+    if (mTypeSet != null) {
+        // non-null typeset, so make sure info is one of the types.
+        boolean typePass = false;
+        for (int i = 0; i < mTypeSet.length; ++i) {
+            if (info.getType() == mTypeSet[i]) {
+                typePass = true;
+                break;
+            }
+        }
+        if (!typePass)
+            return false;
+    }
+    // Make sure info meets all of the requirements.
+    if (mRequirements != null) {
+        for (int i = 0; i < mRequirements.length; ++i) {
+            if (!mRequirements[i].matches(info))
+                return false;
+        }
+    }
+    return true;
+}
+Body of Second Method:
+{
+    if (mTypeSet != null) {
+        // non-null typeset, so make sure info is one of the types.
+        boolean typePass = false;
+        for (int i = 0; i < mTypeSet.length; ++i) {
+            if (info.getType() == mTypeSet[i]) {
+                typePass = true;
+                break;
+            }
+        }
+        if (!typePass)
+            return false;
+    }
+    if ((info.getFlags() & mFlags) != mFlags) {
+        return false;
+    }
+    if ((info.getFlags() & mNotFlags) != 0) {
+        return false;
+    }
+    // Make sure info meets all of the requirements.
+    if (mRequirements != null) {
+        for (int i = 0; i < mRequirements.length; ++i) {
+            final boolean matches = mRequirements[i].matches(info);
+            if (matches == mRequirements[i].mNot) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+------------------------
+Find a silently evolved API code:android.service.notification.StatusBarNotification.getPackageContext:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (mContext == null) {
+        try {
+            ApplicationInfo ai = context.getPackageManager().getApplicationInfoAsUser(pkg, PackageManager.MATCH_UNINSTALLED_PACKAGES, getUserId());
+            mContext = context.createApplicationContext(ai, Context.CONTEXT_RESTRICTED);
+        } catch (PackageManager.NameNotFoundException e) {
+            mContext = null;
+        }
+    }
+    if (mContext == null) {
+        mContext = context;
+    }
+    return mContext;
+}
+Body of Second Method:
+{
+    if (mContext == null) {
+        try {
+            ApplicationInfo ai = context.getPackageManager().getApplicationInfoAsUser(pkg, PackageManager.MATCH_UNINSTALLED_PACKAGES, getNormalizedUserId());
+            mContext = context.createApplicationContext(ai, Context.CONTEXT_RESTRICTED);
+        } catch (PackageManager.NameNotFoundException e) {
+            mContext = null;
+        }
+    }
+    if (mContext == null) {
+        mContext = context;
+    }
+    return mContext;
+}
+------------------------
+Find a silently evolved API code:android.hardware.camera2.CaptureFailure.wasImageCaptured:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Determine if the image was captured from the camera.
+ *
+ * <p>If the image was not captured, no image buffers will be available.
+ * If the image was captured, then image buffers may be available.</p>
+ *
+ * @return boolean True if the image was captured, false otherwise.
+ */
+
+Body of Frist Method:
+{
+    return !mDropped;
+}
+Body of Second Method:
+{
+    return mWasImageCaptured;
+}
+------------------------
+Find a silently evolved API code:android.content.pm.ActivityInfo.alwaysSandboxDisplayApis:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Returns if the activity should always be sandboxed to the activity window bounds.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    return CompatChanges.isChangeEnabled(ALWAYS_SANDBOX_DISPLAY_APIS, applicationInfo.packageName, UserHandle.getUserHandleForUid(applicationInfo.uid)) || ConstrainDisplayApisConfig.alwaysConstrainDisplayApis(applicationInfo);
+}
+Body of Second Method:
+{
+    return isChangeEnabled(ALWAYS_SANDBOX_DISPLAY_APIS) || constrainDisplayApisConfig.getAlwaysConstrainDisplayApis(applicationInfo);
+}
+------------------------
+Find a silently evolved API code:android.view.MotionEvent.PointerCoords.clear:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Clears the contents of this object.
+ * Resets all axes to zero.
+ */
+
+Body of Frist Method:
+{
+    mPackedAxisBits = 0;
+    x = 0;
+    y = 0;
+    pressure = 0;
+    size = 0;
+    touchMajor = 0;
+    touchMinor = 0;
+    toolMajor = 0;
+    toolMinor = 0;
+    orientation = 0;
+}
+Body of Second Method:
+{
+    mPackedAxisBits = 0;
+    x = 0;
+    y = 0;
+    pressure = 0;
+    size = 0;
+    touchMajor = 0;
+    touchMinor = 0;
+    toolMajor = 0;
+    toolMinor = 0;
+    orientation = 0;
+    relativeX = 0;
+    relativeY = 0;
+}
+------------------------
+Find a silently evolved API code:android.window.WindowContextController.attachToWindowToken:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Switches to attach the window context to a window token.
+ * <p>
+ * Note that the context should have been attached to a
+ * {@link com.android.server.wm.DisplayArea} by {@link #attachToDisplayArea(int, int, Bundle)}
+ * before attaching to a window token, and the window token's type must match the window
+ * context's type.
+ * </p><p>
+ * A {@link WindowContext} can only attach to a specific window manager node, which is either a
+ * {@link com.android.server.wm.DisplayArea} by calling
+ * {@link #attachToDisplayArea(int, int, Bundle)} or the latest attached {@code windowToken}
+ * although this API is allowed to be called multiple times.
+ * </p>
+ * @throws IllegalStateException if the {@code mClientToken} has not yet attached to
+ * a {@link com.android.server.wm.DisplayArea} by
+ * {@link #attachToDisplayArea(int, int, Bundle)}.
+ *
+ * @see WindowProviderService#attachToWindowToken(IBinder))
+ * @see IWindowManager#attachWindowContextToWindowToken(IBinder, IBinder)
+ */
+
+Body of Frist Method:
+{
+    if (!mAttachedToDisplayArea) {
+        throw new IllegalStateException("The Window Context should have been attached" + " to a DisplayArea.");
+    }
+    try {
+        mWms.attachWindowContextToWindowToken(mToken, windowToken);
+    } catch (RemoteException e) {
+        throw e.rethrowFromSystemServer();
+    }
+}
+Body of Second Method:
+{
+    if (!mAttachedToDisplayArea) {
+        throw new IllegalStateException("The Window Context should have been attached" + " to a DisplayArea.");
+    }
+    mToken.attachToWindowToken(windowToken);
+}
+------------------------
+Find a silently evolved API code:android.text.style.StyleSpan.writeToParcelInternal:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    dest.writeInt(mStyle);
+}
+Body of Second Method:
+{
+    dest.writeInt(mStyle);
+    dest.writeInt(mFontWeightAdjustment);
+}
+------------------------
+Find a silently evolved API code:android.app.ActivityOptions.makeRemoteAnimation:COMMENT
+Method Modifier: public      static      hidden      
+Comment:/**
+ * Create an {@link ActivityOptions} instance that lets the application control the entire
+ * animation using a {@link RemoteAnimationAdapter}.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    final ActivityOptions opts = new ActivityOptions();
+    opts.mRemoteAnimationAdapter = remoteAnimationAdapter;
+    opts.mAnimationType = ANIM_REMOTE_ANIMATION;
+    opts.mRemoteTransition = remoteTransition;
+    return opts;
+}
+Body of Second Method:
+{
+    final ActivityOptions opts = new ActivityOptions();
+    opts.mRemoteAnimationAdapter = remoteAnimationAdapter;
+    opts.mAnimationType = ANIM_REMOTE_ANIMATION;
+    return opts;
+}
+------------------------
+Find a silently evolved API code:android.view.MotionEvent.PointerCoords.setAxisValue:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Sets the value associated with the specified axis.
+ *
+ * @param axis The axis identifier for the axis value to assign.
+ * @param value The value to set.
+ *
+ * @see MotionEvent#AXIS_X
+ * @see MotionEvent#AXIS_Y
+ */
+
+Body of Frist Method:
+{
+    switch(axis) {
+        case AXIS_X:
+            x = value;
+            break;
+        case AXIS_Y:
+            y = value;
+            break;
+        case AXIS_PRESSURE:
+            pressure = value;
+            break;
+        case AXIS_SIZE:
+            size = value;
+            break;
+        case AXIS_TOUCH_MAJOR:
+            touchMajor = value;
+            break;
+        case AXIS_TOUCH_MINOR:
+            touchMinor = value;
+            break;
+        case AXIS_TOOL_MAJOR:
+            toolMajor = value;
+            break;
+        case AXIS_TOOL_MINOR:
+            toolMinor = value;
+            break;
+        case AXIS_ORIENTATION:
+            orientation = value;
+            break;
+        default:
+            {
+                if (axis < 0 || axis > 63) {
+                    throw new IllegalArgumentException("Axis out of range.");
+                }
+                final long bits = mPackedAxisBits;
+                final long axisBit = 0x8000000000000000L >>> axis;
+                final int index = Long.bitCount(bits & ~(0xFFFFFFFFFFFFFFFFL >>> axis));
+                float[] values = mPackedAxisValues;
+                if ((bits & axisBit) == 0) {
+                    if (values == null) {
+                        values = new float[INITIAL_PACKED_AXIS_VALUES];
+                        mPackedAxisValues = values;
+                    } else {
+                        final int count = Long.bitCount(bits);
+                        if (count < values.length) {
+                            if (index != count) {
+                                System.arraycopy(values, index, values, index + 1, count - index);
+                            }
+                        } else {
+                            float[] newValues = new float[count * 2];
+                            System.arraycopy(values, 0, newValues, 0, index);
+                            System.arraycopy(values, index, newValues, index + 1, count - index);
+                            values = newValues;
+                            mPackedAxisValues = values;
+                        }
+                    }
+                    mPackedAxisBits = bits | axisBit;
+                }
+                values[index] = value;
+            }
+    }
+}
+Body of Second Method:
+{
+    switch(axis) {
+        case AXIS_X:
+            x = value;
+            break;
+        case AXIS_Y:
+            y = value;
+            break;
+        case AXIS_PRESSURE:
+            pressure = value;
+            break;
+        case AXIS_SIZE:
+            size = value;
+            break;
+        case AXIS_TOUCH_MAJOR:
+            touchMajor = value;
+            break;
+        case AXIS_TOUCH_MINOR:
+            touchMinor = value;
+            break;
+        case AXIS_TOOL_MAJOR:
+            toolMajor = value;
+            break;
+        case AXIS_TOOL_MINOR:
+            toolMinor = value;
+            break;
+        case AXIS_ORIENTATION:
+            orientation = value;
+            break;
+        case AXIS_RELATIVE_X:
+            relativeX = value;
+            break;
+        case AXIS_RELATIVE_Y:
+            relativeY = value;
+            break;
+        default:
+            {
+                if (axis < 0 || axis > 63) {
+                    throw new IllegalArgumentException("Axis out of range.");
+                }
+                final long bits = mPackedAxisBits;
+                final long axisBit = 0x8000000000000000L >>> axis;
+                final int index = Long.bitCount(bits & ~(0xFFFFFFFFFFFFFFFFL >>> axis));
+                float[] values = mPackedAxisValues;
+                if ((bits & axisBit) == 0) {
+                    if (values == null) {
+                        values = new float[INITIAL_PACKED_AXIS_VALUES];
+                        mPackedAxisValues = values;
+                    } else {
+                        final int count = Long.bitCount(bits);
+                        if (count < values.length) {
+                            if (index != count) {
+                                System.arraycopy(values, index, values, index + 1, count - index);
+                            }
+                        } else {
+                            float[] newValues = new float[count * 2];
+                            System.arraycopy(values, 0, newValues, 0, index);
+                            System.arraycopy(values, index, newValues, index + 1, count - index);
+                            values = newValues;
+                            mPackedAxisValues = values;
+                        }
+                    }
+                    mPackedAxisBits = bits | axisBit;
+                }
+                values[index] = value;
+            }
+    }
+}
+------------------------
+Find a silently evolved API code:android.view.BatchedInputEventReceiver.setBatchingEnabled:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Sets whether to enable batching on this input event receiver.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    mBatchingEnabled = batchingEnabled;
+    if (!batchingEnabled) {
+        unscheduleBatchedInput();
+        consumeBatchedInputEvents(-1);
+    }
+}
+Body of Second Method:
+{
+    if (mBatchingEnabled == batchingEnabled) {
+        return;
+    }
+    mBatchingEnabled = batchingEnabled;
+    mHandler.removeCallbacks(mConsumeBatchedInputEvents);
+    if (!batchingEnabled) {
+        unscheduleBatchedInput();
+        mHandler.post(mConsumeBatchedInputEvents);
+    }
+}
+------------------------
+

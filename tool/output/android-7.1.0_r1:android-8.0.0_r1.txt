@@ -196,6 +196,68 @@ Body of Second Method:
     dest.mLocalMatrix.set(mLocalMatrix);
 }
 ------------------------
+Find a silently evolved API code:android.content.ContentProviderClient.query:COMMENT
+Method Modifier: public      
+Comment:/**
+ * See {@link ContentProvider#query ContentProvider.query}
+ */
+
+Body of Frist Method:
+{
+    Preconditions.checkNotNull(url, "url");
+    beforeRemote();
+    try {
+        ICancellationSignal remoteCancellationSignal = null;
+        if (cancellationSignal != null) {
+            cancellationSignal.throwIfCanceled();
+            remoteCancellationSignal = mContentProvider.createCancellationSignal();
+            cancellationSignal.setRemote(remoteCancellationSignal);
+        }
+        final Cursor cursor = mContentProvider.query(mPackageName, url, projection, selection, selectionArgs, sortOrder, remoteCancellationSignal);
+        if (cursor == null) {
+            return null;
+        }
+        if ("com.google.android.gms".equals(mPackageName)) {
+            // They're casting to a concrete subclass, sigh
+            return cursor;
+        } else {
+            return new CursorWrapperInner(cursor);
+        }
+    } catch (DeadObjectException e) {
+        if (!mStable) {
+            mContentResolver.unstableProviderDied(mContentProvider);
+        }
+        throw e;
+    } finally {
+        afterRemote();
+    }
+}
+Body of Second Method:
+{
+    Preconditions.checkNotNull(uri, "url");
+    beforeRemote();
+    try {
+        ICancellationSignal remoteCancellationSignal = null;
+        if (cancellationSignal != null) {
+            cancellationSignal.throwIfCanceled();
+            remoteCancellationSignal = mContentProvider.createCancellationSignal();
+            cancellationSignal.setRemote(remoteCancellationSignal);
+        }
+        final Cursor cursor = mContentProvider.query(mPackageName, uri, projection, queryArgs, remoteCancellationSignal);
+        if (cursor == null) {
+            return null;
+        }
+        return new CursorWrapperInner(cursor);
+    } catch (DeadObjectException e) {
+        if (!mStable) {
+            mContentResolver.unstableProviderDied(mContentProvider);
+        }
+        throw e;
+    } finally {
+        afterRemote();
+    }
+}
+------------------------
 Find a silently evolved API code:android.content.ClipDescription.validate:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -896,6 +958,48 @@ Body of Second Method:
     return offset;
 }
 ------------------------
+Find a silently evolved API code:android.app.backup.RestoreSession.restoreSome:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Restore select packages from the given set onto the device, replacing the
+ * current data of any app contained in the set with the data previously
+ * backed up.
+ *
+ * <p>Callers must hold the android.permission.BACKUP permission to use this method.
+ *
+ * @return Zero on success, nonzero on error. The observer will only receive
+ * progress callbacks if this method returned zero.
+ * @param token The token from {@link getAvailableRestoreSets()} corresponding to
+ * the restore set that should be used.
+ * @param observer If non-null, this binder points to an object that will receive
+ * progress callbacks during the restore operation.
+ * @param packages The set of packages for which to attempt a restore.  Regardless of
+ * the contents of the actual back-end dataset named by {@code token}, only
+ * applications mentioned in this list will have their data restored.
+ *
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    int err = -1;
+    if (mObserver != null) {
+        Log.d(TAG, "restoreAll() called during active restore");
+        return -1;
+    }
+    mObserver = new RestoreObserverWrapper(mContext, observer);
+    try {
+        err = mBinder.restoreSome(token, mObserver, packages);
+    } catch (RemoteException e) {
+        Log.d(TAG, "Can't contact server to restore packages");
+    }
+    return err;
+}
+Body of Second Method:
+{
+    return restoreSome(token, observer, null, packages);
+}
+------------------------
 Find a silently evolved API code:android.hardware.usb.UsbConfiguration.setInterfaces:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -910,6 +1014,28 @@ Body of Frist Method:
 Body of Second Method:
 {
     mInterfaces = Preconditions.checkArrayElementsNotNull(interfaces, "interfaces");
+}
+------------------------
+Find a silently evolved API code:android.app.AlarmManager.set:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Direct callback version of {@link #set(int, long, long, long, PendingIntent, WorkSource)}.
+ * Note that repeating alarms must use the PendingIntent variant, not an OnAlarmListener.
+ * <p>
+ * The OnAlarmListener's {@link OnAlarmListener#onAlarm() onAlarm()} method will be
+ * invoked via the specified target Handler, or on the application's main looper
+ * if {@code null} is passed as the {@code targetHandler} parameter.
+ *
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    setImpl(type, triggerAtMillis, windowMillis, intervalMillis, 0, null, listener, null, targetHandler, workSource, null);
+}
+Body of Second Method:
+{
+    setImpl(type, triggerAtMillis, windowMillis, intervalMillis, 0, null, listener, tag, targetHandler, workSource, null);
 }
 ------------------------
 Find a silently evolved API code:android.net.NetworkStats.groupedByIface:COMMENT
@@ -1072,6 +1198,47 @@ Body of Second Method:
     // appropriately with relevant system state.
     if (mSelectedRoute == null) {
         selectDefaultRouteStatic();
+    }
+}
+------------------------
+Find a silently evolved API code:android.media.midi.MidiInputPort.claimFileDescriptor:COMMENT
+Method Modifier: default     
+Comment:/* package */
+
+Body of Frist Method:
+{
+    synchronized (mGuard) {
+        ParcelFileDescriptor pfd;
+        synchronized (mBuffer) {
+            pfd = mParcelFileDescriptor;
+            if (pfd == null)
+                return null;
+            IoUtils.closeQuietly(mOutputStream);
+            mParcelFileDescriptor = null;
+            mOutputStream = null;
+        }
+        // Set mIsClosed = true so we will not call mDeviceServer.closePort() in close().
+        // MidiDevice.MidiConnection.close() will do the cleanup instead.
+        mIsClosed = true;
+        return pfd;
+    }
+}
+Body of Second Method:
+{
+    synchronized (mGuard) {
+        FileDescriptor fd;
+        synchronized (mBuffer) {
+            fd = mFileDescriptor;
+            if (fd == null)
+                return null;
+            IoUtils.closeQuietly(mOutputStream);
+            mFileDescriptor = null;
+            mOutputStream = null;
+        }
+        // Set mIsClosed = true so we will not call mDeviceServer.closePort() in close().
+        // MidiDevice.MidiConnection.close() will do the cleanup instead.
+        mIsClosed = true;
+        return fd;
     }
 }
 ------------------------
@@ -2215,6 +2382,161 @@ Body of Second Method:
     }
 }
 ------------------------
+Find a silently evolved API code:android.appwidget.AppWidgetHostView.applyRemoteViews:COMMENT
+Method Modifier: protected   hidden      
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (LOGD)
+        Log.d(TAG, "updateAppWidget called mOld=" + mOld);
+    boolean recycled = false;
+    View content = null;
+    Exception exception = null;
+    // Capture the old view into a bitmap so we can do the crossfade.
+    if (CROSSFADE) {
+        if (mFadeStartTime < 0) {
+            if (mView != null) {
+                final int width = mView.getWidth();
+                final int height = mView.getHeight();
+                try {
+                    mOld = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                } catch (OutOfMemoryError e) {
+                    // we just won't do the fade
+                    mOld = null;
+                }
+                if (mOld != null) {
+                // mView.drawIntoBitmap(mOld);
+                }
+            }
+        }
+    }
+    if (mLastExecutionSignal != null) {
+        mLastExecutionSignal.cancel();
+        mLastExecutionSignal = null;
+    }
+    if (remoteViews == null) {
+        if (mViewMode == VIEW_MODE_DEFAULT) {
+            // We've already done this -- nothing to do.
+            return;
+        }
+        content = getDefaultView();
+        mLayoutId = -1;
+        mViewMode = VIEW_MODE_DEFAULT;
+    } else {
+        if (mAsyncExecutor != null) {
+            inflateAsync(remoteViews);
+            return;
+        }
+        // Prepare a local reference to the remote Context so we're ready to
+        // inflate any requested LayoutParams.
+        mRemoteContext = getRemoteContext();
+        int layoutId = remoteViews.getLayoutId();
+        // layout matches, try recycling it
+        if (content == null && layoutId == mLayoutId) {
+            try {
+                remoteViews.reapply(mContext, mView, mOnClickHandler);
+                content = mView;
+                recycled = true;
+                if (LOGD)
+                    Log.d(TAG, "was able to recycle existing layout");
+            } catch (RuntimeException e) {
+                exception = e;
+            }
+        }
+        // Try normal RemoteView inflation
+        if (content == null) {
+            try {
+                content = remoteViews.apply(mContext, this, mOnClickHandler);
+                if (LOGD)
+                    Log.d(TAG, "had to inflate new layout");
+            } catch (RuntimeException e) {
+                exception = e;
+            }
+        }
+        mLayoutId = layoutId;
+        mViewMode = VIEW_MODE_CONTENT;
+    }
+    applyContent(content, recycled, exception);
+    updateContentDescription(mInfo);
+}
+Body of Second Method:
+{
+    if (LOGD)
+        Log.d(TAG, "updateAppWidget called mOld=" + mOld);
+    boolean recycled = false;
+    View content = null;
+    Exception exception = null;
+    // Capture the old view into a bitmap so we can do the crossfade.
+    if (CROSSFADE) {
+        if (mFadeStartTime < 0) {
+            if (mView != null) {
+                final int width = mView.getWidth();
+                final int height = mView.getHeight();
+                try {
+                    mOld = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                } catch (OutOfMemoryError e) {
+                    // we just won't do the fade
+                    mOld = null;
+                }
+                if (mOld != null) {
+                // mView.drawIntoBitmap(mOld);
+                }
+            }
+        }
+    }
+    if (mLastExecutionSignal != null) {
+        mLastExecutionSignal.cancel();
+        mLastExecutionSignal = null;
+    }
+    if (remoteViews == null) {
+        if (mViewMode == VIEW_MODE_DEFAULT) {
+            // We've already done this -- nothing to do.
+            return;
+        }
+        content = getDefaultView();
+        mLayoutId = -1;
+        mViewMode = VIEW_MODE_DEFAULT;
+    } else {
+        if (mAsyncExecutor != null && useAsyncIfPossible) {
+            inflateAsync(remoteViews);
+            return;
+        }
+        // Prepare a local reference to the remote Context so we're ready to
+        // inflate any requested LayoutParams.
+        mRemoteContext = getRemoteContext();
+        int layoutId = remoteViews.getLayoutId();
+        // layout matches, try recycling it
+        if (content == null && layoutId == mLayoutId) {
+            try {
+                remoteViews.reapply(mContext, mView, mOnClickHandler);
+                content = mView;
+                recycled = true;
+                if (LOGD)
+                    Log.d(TAG, "was able to recycle existing layout");
+            } catch (RuntimeException e) {
+                exception = e;
+            }
+        }
+        // Try normal RemoteView inflation
+        if (content == null) {
+            try {
+                content = remoteViews.apply(mContext, this, mOnClickHandler);
+                if (LOGD)
+                    Log.d(TAG, "had to inflate new layout");
+            } catch (RuntimeException e) {
+                exception = e;
+            }
+        }
+        mLayoutId = layoutId;
+        mViewMode = VIEW_MODE_CONTENT;
+    }
+    applyContent(content, recycled, exception);
+    updateContentDescription(mInfo);
+}
+------------------------
 Find a silently evolved API code:android.content.ClipDescription.filterMimeTypes:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -3207,21 +3529,6 @@ Body of Second Method:
     }
 }
 ------------------------
-Find a silently evolved API code:android.graphics.Matrix.setRotate:COMMENT
-Method Modifier: public      
-Comment:/**
- * Set the matrix to rotate about (0,0) by the specified number of degrees.
- */
-
-Body of Frist Method:
-{
-    native_setRotate(native_instance, degrees);
-}
-Body of Second Method:
-{
-    nSetRotate(native_instance, degrees);
-}
-------------------------
 Find a silently evolved API code:android.media.AudioManager.setMode:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -3396,6 +3703,29 @@ Body of Second Method:
     } catch (RemoteException e) {
         throw e.rethrowFromSystemServer();
     }
+}
+------------------------
+Find a silently evolved API code:android.animation.ValueAnimator.getCurrentIterationFraction:COMMENT
+Method Modifier: private     
+Comment:/**
+ * Calculates the fraction of the current iteration, taking into account whether the animation
+ * should be played backwards. E.g. When the animation is played backwards in an iteration,
+ * the fraction for that iteration will go from 1f to 0f.
+ */
+
+Body of Frist Method:
+{
+    fraction = clampFraction(fraction);
+    int iteration = getCurrentIteration(fraction);
+    float currentFraction = fraction - iteration;
+    return shouldPlayBackward(iteration) ? 1f - currentFraction : currentFraction;
+}
+Body of Second Method:
+{
+    fraction = clampFraction(fraction);
+    int iteration = getCurrentIteration(fraction);
+    float currentFraction = fraction - iteration;
+    return shouldPlayBackward(iteration, inReverse) ? 1f - currentFraction : currentFraction;
 }
 ------------------------
 Find a silently evolved API code:android.hardware.usb.UsbPort.dataRoleToString:COMMENT
@@ -3817,21 +4147,6 @@ Body of Second Method:
     }
 }
 ------------------------
-Find a silently evolved API code:android.graphics.Matrix.setSinCos:COMMENT
-Method Modifier: public      
-Comment:/**
- * Set the matrix to rotate by the specified sine and cosine values.
- */
-
-Body of Frist Method:
-{
-    native_setSinCos(native_instance, sinValue, cosValue);
-}
-Body of Second Method:
-{
-    nSetSinCos(native_instance, sinValue, cosValue);
-}
-------------------------
 Find a silently evolved API code:android.bluetooth.BluetoothAdapter.getBluetoothLeAdvertiser:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -3974,64 +4289,6 @@ Body of Second Method:
     } catch (RemoteException e) {
         throw e.rethrowFromSystemServer();
     }
-}
-------------------------
-Find a silently evolved API code:android.view.accessibility.AccessibilityRecord.setSource:COMMENT
-Method Modifier: public      
-Comment:/**
- * Sets the source to be a virtual descendant of the given <code>root</code>.
- * If <code>virtualDescendantId</code> equals to {@link View#NO_ID} the root
- * is set as the source.
- * <p>
- * A virtual descendant is an imaginary View that is reported as a part of the view
- * hierarchy for accessibility purposes. This enables custom views that draw complex
- * content to report them selves as a tree of virtual views, thus conveying their
- * logical structure.
- * </p>
- *
- * @param root The root of the virtual subtree.
- * @param virtualDescendantId The id of the virtual descendant.
- */
-
-Body of Frist Method:
-{
-    enforceNotSealed();
-    boolean important = true;
-    mSourceWindowId = UNDEFINED;
-    clearSourceNode();
-    if (root != null) {
-        if (virtualDescendantId == UNDEFINED || virtualDescendantId == AccessibilityNodeInfo.UNDEFINED_ITEM_ID) {
-            important = root.isImportantForAccessibility();
-            mSourceNode = root.createAccessibilityNodeInfo();
-        } else {
-            AccessibilityNodeProvider provider = root.getAccessibilityNodeProvider();
-            if (provider != null) {
-                mSourceNode = provider.createAccessibilityNodeInfo(virtualDescendantId);
-            }
-        }
-        mSourceWindowId = root.getAccessibilityWindowId();
-    }
-    setBooleanProperty(PROPERTY_IMPORTANT_FOR_ACCESSIBILITY, important);
-}
-Body of Second Method:
-{
-    enforceNotSealed();
-    boolean important = true;
-    mSourceWindowId = AccessibilityWindowInfo.UNDEFINED_WINDOW_ID;
-    clearSourceNode();
-    if (root != null) {
-        if (virtualDescendantId == View.NO_ID || virtualDescendantId == AccessibilityNodeInfo.UNDEFINED_ITEM_ID || virtualDescendantId == AccessibilityNodeProvider.HOST_VIEW_ID) {
-            important = root.isImportantForAccessibility();
-            mSourceNode = root.createAccessibilityNodeInfo();
-        } else {
-            AccessibilityNodeProvider provider = root.getAccessibilityNodeProvider();
-            if (provider != null) {
-                mSourceNode = provider.createAccessibilityNodeInfo(virtualDescendantId);
-            }
-        }
-        mSourceWindowId = root.getAccessibilityWindowId();
-    }
-    setBooleanProperty(PROPERTY_IMPORTANT_FOR_ACCESSIBILITY, important);
 }
 ------------------------
 Find a silently evolved API code:android.media.AudioManager.getRingerMode:COMMENT
@@ -4513,6 +4770,27 @@ Body of Second Method:
     out.writeInt(isGsm ? 1 : 0);
 }
 ------------------------
+Find a silently evolved API code:android.graphics.Path.addRoundRect:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Add a closed round-rectangle contour to the path
+ *
+ * @param rx   The x-radius of the rounded corners on the round-rectangle
+ * @param ry   The y-radius of the rounded corners on the round-rectangle
+ * @param dir  The direction to wind the round-rectangle's contour
+ */
+
+Body of Frist Method:
+{
+    isSimplePath = false;
+    native_addRoundRect(mNativePath, left, top, right, bottom, rx, ry, dir.nativeInt);
+}
+Body of Second Method:
+{
+    isSimplePath = false;
+    nAddRoundRect(mNativePath, left, top, right, bottom, rx, ry, dir.nativeInt);
+}
+------------------------
 Find a silently evolved API code:android.widget.TimePickerClockDelegate.setMinute:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -4526,6 +4804,113 @@ Body of Frist Method:
 Body of Second Method:
 {
     setMinuteInternal(minute, FROM_EXTERNAL_API);
+}
+------------------------
+Find a silently evolved API code:android.animation.ValueAnimator.doAnimationFrame:COMMENT
+Method Modifier: public      final       hidden      
+Comment:/**
+ * Processes a frame of the animation, adjusting the start time if needed.
+ *
+ * @param frameTime The frame time.
+ * @return true if the animation has ended.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    AnimationHandler handler = AnimationHandler.getInstance();
+    if (mLastFrameTime == 0) {
+        // First frame
+        handler.addOneShotCommitCallback(this);
+        if (mStartDelay > 0) {
+            startAnimation();
+        }
+        if (mSeekFraction < 0) {
+            mStartTime = frameTime;
+        } else {
+            long seekTime = (long) (getScaledDuration() * mSeekFraction);
+            mStartTime = frameTime - seekTime;
+            mSeekFraction = -1;
+        }
+        // allow start time to be compensated for jank
+        mStartTimeCommitted = false;
+    }
+    mLastFrameTime = frameTime;
+    if (mPaused) {
+        mPauseTime = frameTime;
+        handler.removeCallback(this);
+        return;
+    } else if (mResumed) {
+        mResumed = false;
+        if (mPauseTime > 0) {
+            // Offset by the duration that the animation was paused
+            mStartTime += (frameTime - mPauseTime);
+            // allow start time to be compensated for jank
+            mStartTimeCommitted = false;
+        }
+        handler.addOneShotCommitCallback(this);
+    }
+    // The frame time might be before the start time during the first frame of
+    // an animation.  The "current time" must always be on or after the start
+    // time to avoid animating frames at negative time intervals.  In practice, this
+    // is very rare and only happens when seeking backwards.
+    final long currentTime = Math.max(frameTime, mStartTime);
+    boolean finished = animateBasedOnTime(currentTime);
+    if (finished) {
+        endAnimation();
+    }
+}
+Body of Second Method:
+{
+    if (mStartTime < 0) {
+        // First frame. If there is start delay, start delay count down will happen *after* this
+        // frame.
+        mStartTime = mReversing ? frameTime : frameTime + (long) (mStartDelay * sDurationScale);
+    }
+    // Handle pause/resume
+    if (mPaused) {
+        mPauseTime = frameTime;
+        removeAnimationCallback();
+        return false;
+    } else if (mResumed) {
+        mResumed = false;
+        if (mPauseTime > 0) {
+            // Offset by the duration that the animation was paused
+            mStartTime += (frameTime - mPauseTime);
+        }
+    }
+    if (!mRunning) {
+        // running animation. In the case of reversing, we want to run start delay in the end.
+        if (mStartTime > frameTime && mSeekFraction == -1) {
+            // right away.
+            return false;
+        } else {
+            // If mRunning is not set by now, that means non-zero start delay,
+            // no seeking, not reversing. At this point, start delay has passed.
+            mRunning = true;
+            startAnimation();
+        }
+    }
+    if (mLastFrameTime < 0) {
+        if (mSeekFraction >= 0) {
+            long seekTime = (long) (getScaledDuration() * mSeekFraction);
+            mStartTime = frameTime - seekTime;
+            mSeekFraction = -1;
+        }
+        // allow start time to be compensated for jank
+        mStartTimeCommitted = false;
+    }
+    mLastFrameTime = frameTime;
+    // The frame time might be before the start time during the first frame of
+    // an animation.  The "current time" must always be on or after the start
+    // time to avoid animating frames at negative time intervals.  In practice, this
+    // is very rare and only happens when seeking backwards.
+    final long currentTime = Math.max(frameTime, mStartTime);
+    boolean finished = animateBasedOnTime(currentTime);
+    if (finished) {
+        endAnimation();
+    }
+    return finished;
 }
 ------------------------
 Find a silently evolved API code:android.telephony.TelephonyManager.getSmsReceiveCapable:COMMENT
@@ -4837,6 +5222,48 @@ Body of Second Method:
     return iccIdToPrint;
 }
 ------------------------
+Find a silently evolved API code:android.net.NetworkStats.findIndexHinted:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Find first stats index that matches the requested parameters, starting
+ * search around the hinted index as an optimization.
+ */
+
+Body of Frist Method:
+{
+    for (int offset = 0; offset < size; offset++) {
+        final int halfOffset = offset / 2;
+        // search outwards from hint index, alternating forward and backward
+        final int i;
+        if (offset % 2 == 0) {
+            i = (hintIndex + halfOffset) % size;
+        } else {
+            i = (size + hintIndex - halfOffset - 1) % size;
+        }
+        if (uid == this.uid[i] && set == this.set[i] && tag == this.tag[i] && roaming == this.roaming[i] && Objects.equals(iface, this.iface[i])) {
+            return i;
+        }
+    }
+    return -1;
+}
+Body of Second Method:
+{
+    for (int offset = 0; offset < size; offset++) {
+        final int halfOffset = offset / 2;
+        // search outwards from hint index, alternating forward and backward
+        final int i;
+        if (offset % 2 == 0) {
+            i = (hintIndex + halfOffset) % size;
+        } else {
+            i = (size + hintIndex - halfOffset - 1) % size;
+        }
+        if (uid == this.uid[i] && set == this.set[i] && tag == this.tag[i] && metered == this.metered[i] && roaming == this.roaming[i] && Objects.equals(iface, this.iface[i])) {
+            return i;
+        }
+    }
+    return -1;
+}
+------------------------
 Find a silently evolved API code:android.view.RenderNode.discardDisplayList:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -4863,8 +5290,8 @@ Comment:/* package */
 
 Body of Frist Method:
 {
-    for (int i = start, e = i + len; i < e; i++) {
-        if (text[i] >= FIRST_RIGHT_TO_LEFT) {
+    for (int i = start; i < end; i++) {
+        if (s.charAt(i) >= FIRST_RIGHT_TO_LEFT) {
             return false;
         }
     }
@@ -5612,24 +6039,6 @@ Body of Second Method:
     } catch (RemoteException e) {
         throw e.rethrowFromSystemServer();
     }
-}
-------------------------
-Find a silently evolved API code:android.app.WallpaperManager.clearWallpaper:COMMENT
-Method Modifier: public      hidden      
-Comment:/**
- * Clear the wallpaper.
- *
- * @hide
- */
-
-Body of Frist Method:
-{
-    clearWallpaper(FLAG_SYSTEM, mContext.getUserId());
-}
-Body of Second Method:
-{
-    clearWallpaper(FLAG_LOCK, mContext.getUserId());
-    clearWallpaper(FLAG_SYSTEM, mContext.getUserId());
 }
 ------------------------
 Find a silently evolved API code:android.graphics.drawable.LayerDrawable.getOutline:COMMENT
@@ -6708,6 +7117,29 @@ Body of Second Method:
     return copy;
 }
 ------------------------
+Find a silently evolved API code:android.hardware.usb.UsbManager.grantPermission:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Grants permission for USB device without showing system dialog.
+ * Only system components can call this function.
+ * @param device to request permissions for
+ *
+ * {@hide}
+ */
+
+Body of Frist Method:
+{
+    try {
+        mService.grantDevicePermission(device, Process.myUid());
+    } catch (RemoteException e) {
+        throw e.rethrowFromSystemServer();
+    }
+}
+Body of Second Method:
+{
+    grantPermission(device, Process.myUid());
+}
+------------------------
 Find a silently evolved API code:android.database.DatabaseUtils.cursorRowToContentValues:COMMENT
 Method Modifier: public      static      
 Comment:/**
@@ -6906,6 +7338,29 @@ Body of Second Method:
         return false;
     }
     return false;
+}
+------------------------
+Find a silently evolved API code:android.media.MediaRecorder.setOutputFile:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Pass in the file descriptor of the file to be written. Call this after
+ * setOutputFormat() but before prepare().
+ *
+ * @param fd an open file descriptor to be written into.
+ * @throws IllegalStateException if it is called before
+ * setOutputFormat() or after prepare()
+ */
+
+Body of Frist Method:
+{
+    mPath = null;
+    mFd = fd;
+}
+Body of Second Method:
+{
+    mPath = null;
+    mFile = null;
+    mFd = fd;
 }
 ------------------------
 Find a silently evolved API code:android.media.AudioManager.getMode:COMMENT
@@ -7404,6 +7859,24 @@ Body of Second Method:
     }
 }
 ------------------------
+Find a silently evolved API code:android.hardware.camera2.impl.CameraMetadataNative.getMarshalerForKey:COMMENT
+Method Modifier: private     static      
+Comment:/**
+ * Get the marshaler compatible with the {@code key} and type {@code T}.
+ *
+ * @throws UnsupportedOperationException
+ * if the native/managed type combination for {@code key} is not supported
+ */
+
+Body of Frist Method:
+{
+    return MarshalRegistry.getMarshaler(key.getTypeReference(), getNativeType(key.getTag()));
+}
+Body of Second Method:
+{
+    return MarshalRegistry.getMarshaler(key.getTypeReference(), nativeType);
+}
+------------------------
 Find a silently evolved API code:android.telecom.ConnectionServiceAdapter.setIsConferenced:COMMENT
 Method Modifier: default     hidden      
 Comment:/**
@@ -7546,6 +8019,59 @@ Body of Second Method:
     }
 }
 ------------------------
+Find a silently evolved API code:android.content.IntentSender.sendIntent:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Perform the operation associated with this IntentSender, allowing the
+ * caller to specify information about the Intent to use and be notified
+ * when the send has completed.
+ *
+ * @param context The Context of the caller.  This may be null if
+ * <var>intent</var> is also null.
+ * @param code Result code to supply back to the IntentSender's target.
+ * @param intent Additional Intent data.  See {@link Intent#fillIn
+ * Intent.fillIn()} for information on how this is applied to the
+ * original Intent.  Use null to not modify the original Intent.
+ * @param onFinished The object to call back on when the send has
+ * completed, or null for no callback.
+ * @param handler Handler identifying the thread on which the callback
+ * should happen.  If null, the callback will happen from the thread
+ * pool of the process.
+ * @param requiredPermission Name of permission that a recipient of the PendingIntent
+ * is required to hold.  This is only valid for broadcast intents, and
+ * corresponds to the permission argument in
+ * {@link Context#sendBroadcast(Intent, String) Context.sendOrderedBroadcast(Intent, String)}.
+ * If null, no permission is required.
+ *
+ * @throws SendIntentException Throws CanceledIntentException if the IntentSender
+ * is no longer allowing more intents to be sent through it.
+ */
+
+Body of Frist Method:
+{
+    try {
+        String resolvedType = intent != null ? intent.resolveTypeIfNeeded(context.getContentResolver()) : null;
+        int res = ActivityManagerNative.getDefault().sendIntentSender(mTarget, code, intent, resolvedType, onFinished != null ? new FinishedDispatcher(this, onFinished, handler) : null, requiredPermission, null);
+        if (res < 0) {
+            throw new SendIntentException();
+        }
+    } catch (RemoteException e) {
+        throw new SendIntentException();
+    }
+}
+Body of Second Method:
+{
+    try {
+        String resolvedType = intent != null ? intent.resolveTypeIfNeeded(context.getContentResolver()) : null;
+        int res = ActivityManager.getService().sendIntentSender(mTarget, mWhitelistToken, code, intent, resolvedType, onFinished != null ? new FinishedDispatcher(this, onFinished, handler) : null, requiredPermission, null);
+        if (res < 0) {
+            throw new SendIntentException();
+        }
+    } catch (RemoteException e) {
+        throw new SendIntentException();
+    }
+}
+------------------------
 Find a silently evolved API code:android.os.RemoteCallbackList.finishBroadcast:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -7585,6 +8111,59 @@ Body of Second Method:
         }
         mBroadcastCount = -1;
     }
+}
+------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothGatt.registerApp:COMMENT
+Method Modifier: private     
+Comment:/**
+ * Register an application callback to start using GATT.
+ *
+ * <p>This is an asynchronous call. The callback {@link BluetoothGattCallback#onAppRegistered}
+ * is used to notify success or failure if the function returns true.
+ *
+ * <p>Requires {@link android.Manifest.permission#BLUETOOTH} permission.
+ *
+ * @param callback GATT callback handler that will receive asynchronous callbacks.
+ * @return If true, the callback will be called to notify success or failure,
+ * false on immediate error
+ */
+
+Body of Frist Method:
+{
+    if (DBG)
+        Log.d(TAG, "registerApp()");
+    if (mService == null)
+        return false;
+    mCallback = callback;
+    UUID uuid = UUID.randomUUID();
+    if (DBG)
+        Log.d(TAG, "registerApp() - UUID=" + uuid);
+    try {
+        mService.registerClient(new ParcelUuid(uuid), mBluetoothGattCallback);
+    } catch (RemoteException e) {
+        Log.e(TAG, "", e);
+        return false;
+    }
+    return true;
+}
+Body of Second Method:
+{
+    if (DBG)
+        Log.d(TAG, "registerApp()");
+    if (mService == null)
+        return false;
+    mCallback = callback;
+    mHandler = handler;
+    UUID uuid = UUID.randomUUID();
+    if (DBG)
+        Log.d(TAG, "registerApp() - UUID=" + uuid);
+    try {
+        mService.registerClient(new ParcelUuid(uuid), mBluetoothGattCallback);
+    } catch (RemoteException e) {
+        Log.e(TAG, "", e);
+        return false;
+    }
+    return true;
 }
 ------------------------
 Find a silently evolved API code:android.media.AudioManager.stopBluetoothSco:COMMENT
@@ -7645,6 +8224,64 @@ Body of Second Method:
     nIncReserve(mNativePath, extraPtCount);
 }
 ------------------------
+Find a silently evolved API code:android.bluetooth.BluetoothManager.openGattServer:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Open a GATT Server
+ * The callback is used to deliver results to Caller, such as connection status as well
+ * as the results of any other GATT server operations.
+ * The method returns a BluetoothGattServer instance. You can use BluetoothGattServer
+ * to conduct GATT server operations.
+ * @param context App context
+ * @param callback GATT server callback handler that will receive asynchronous callbacks.
+ * @param transport preferred transport for GATT connections to remote dual-mode devices
+ * {@link BluetoothDevice#TRANSPORT_AUTO} or
+ * {@link BluetoothDevice#TRANSPORT_BREDR} or {@link BluetoothDevice#TRANSPORT_LE}
+ * @return BluetoothGattServer instance
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    if (context == null || callback == null) {
+        throw new IllegalArgumentException("null parameter: " + context + " " + callback);
+    }
+    try {
+        IBluetoothManager managerService = mAdapter.getBluetoothManager();
+        IBluetoothGatt iGatt = managerService.getBluetoothGatt();
+        if (iGatt == null) {
+            Log.e(TAG, "Fail to get GATT Server connection");
+            return null;
+        }
+        BluetoothGattServer mGattServer = new BluetoothGattServer(context, iGatt, transport);
+        Boolean regStatus = mGattServer.registerCallback(callback);
+        return regStatus ? mGattServer : null;
+    } catch (RemoteException e) {
+        Log.e(TAG, "", e);
+        return null;
+    }
+}
+Body of Second Method:
+{
+    if (context == null || callback == null) {
+        throw new IllegalArgumentException("null parameter: " + context + " " + callback);
+    }
+    try {
+        IBluetoothManager managerService = mAdapter.getBluetoothManager();
+        IBluetoothGatt iGatt = managerService.getBluetoothGatt();
+        if (iGatt == null) {
+            Log.e(TAG, "Fail to get GATT Server connection");
+            return null;
+        }
+        BluetoothGattServer mGattServer = new BluetoothGattServer(iGatt, transport);
+        Boolean regStatus = mGattServer.registerCallback(callback);
+        return regStatus ? mGattServer : null;
+    } catch (RemoteException e) {
+        Log.e(TAG, "", e);
+        return null;
+    }
+}
+------------------------
 Find a silently evolved API code:android.media.PlayerBase.isRestricted_sync:COMMENT
 Method Modifier: default     hidden      
 Comment:/**
@@ -7693,6 +8330,31 @@ Body of Second Method:
         }
     }
     return true;
+}
+------------------------
+Find a silently evolved API code:android.net.NetworkStats.findIndex:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Find first stats index that matches the requested parameters.
+ */
+
+Body of Frist Method:
+{
+    for (int i = 0; i < size; i++) {
+        if (uid == this.uid[i] && set == this.set[i] && tag == this.tag[i] && roaming == this.roaming[i] && Objects.equals(iface, this.iface[i])) {
+            return i;
+        }
+    }
+    return -1;
+}
+Body of Second Method:
+{
+    for (int i = 0; i < size; i++) {
+        if (uid == this.uid[i] && set == this.set[i] && tag == this.tag[i] && metered == this.metered[i] && roaming == this.roaming[i] && Objects.equals(iface, this.iface[i])) {
+            return i;
+        }
+    }
+    return -1;
 }
 ------------------------
 Find a silently evolved API code:android.graphics.drawable.LayerDrawable.findIndexByLayerId:COMMENT
@@ -7776,6 +8438,47 @@ Body of Second Method:
     }
     int durationsIdx = 2 * id;
     return mTimingData[DURATIONS[durationsIdx + 1]] - mTimingData[DURATIONS[durationsIdx]];
+}
+------------------------
+Find a silently evolved API code:android.app.WallpaperManager.setStream:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Change the current system wallpaper to a specific byte stream, specifying a
+ * hint about which subrectangle of the full image is to be visible.  The OS will
+ * then try to best present the given portion of the full image as the static system
+ * wallpaper image.  The data from the given InputStream is copied into persistent
+ * storage and will then be used as the system wallpaper.  Currently the data must
+ * be either a JPEG or PNG image.  On success, the intent
+ * {@link Intent#ACTION_WALLPAPER_CHANGED} is broadcast.
+ *
+ * <p>This method requires the caller to hold the permission
+ * {@link android.Manifest.permission#SET_WALLPAPER}.
+ *
+ * @param bitmapData A stream containing the raw data to install as a wallpaper.  This
+ * data can be in any format handled by {@link BitmapRegionDecoder}.
+ * @param visibleCropHint The rectangular subregion of the streamed image that should be
+ * displayed as wallpaper.  Passing {@code null} for this parameter means that
+ * the full image should be displayed if possible given the image's and device's
+ * aspect ratios, etc.
+ * @param allowBackup {@code true} if the OS is permitted to back up this wallpaper
+ * image for restore to a future device; {@code false} otherwise.
+ * @return An integer ID assigned to the newly active wallpaper; or zero on failure.
+ *
+ * @see #getWallpaperId(int)
+ *
+ * @throws IOException If an error occurs when attempting to set the wallpaper
+ * based on the provided image data.
+ * @throws IllegalArgumentException If the {@code visibleCropHint} rectangle is
+ * empty or invalid.
+ */
+
+Body of Frist Method:
+{
+    return setStream(bitmapData, visibleCropHint, allowBackup, FLAG_SYSTEM);
+}
+Body of Second Method:
+{
+    return setStream(bitmapData, visibleCropHint, allowBackup, FLAG_SYSTEM | FLAG_LOCK);
 }
 ------------------------
 Find a silently evolved API code:android.widget.AbsSeekBar.onInitializeAccessibilityNodeInfoInternal:COMMENT
@@ -8126,36 +8829,6 @@ Body of Second Method:
             p.writeStringArray(event.mContentAnnotations);
             break;
     }
-}
-------------------------
-Find a silently evolved API code:android.widget.Toast.setText:COMMENT
-Method Modifier: public      
-Comment:/**
- * Update the text in a Toast that was previously created using one of the makeText() methods.
- * @param s The new text for the Toast.
- */
-
-Body of Frist Method:
-{
-    if (mNextView == null) {
-        throw new RuntimeException("This Toast was not created with Toast.makeText()");
-    }
-    TextView tv = (TextView) mNextView.findViewById(com.android.internal.R.id.message);
-    if (tv == null) {
-        throw new RuntimeException("This Toast was not created with Toast.makeText()");
-    }
-    tv.setText(s);
-}
-Body of Second Method:
-{
-    if (mNextView == null) {
-        throw new RuntimeException("This Toast was not created with Toast.makeText()");
-    }
-    TextView tv = mNextView.findViewById(com.android.internal.R.id.message);
-    if (tv == null) {
-        throw new RuntimeException("This Toast was not created with Toast.makeText()");
-    }
-    tv.setText(s);
 }
 ------------------------
 Find a silently evolved API code:android.widget.DatePickerSpinnerDelegate.notifyDateChanged:COMMENT
@@ -8701,6 +9374,71 @@ Body of Second Method:
         }
     }
     return false;
+}
+------------------------
+Find a silently evolved API code:android.graphics.drawable.LayerDrawable.addLayer:COMMENT
+Method Modifier: default     
+Comment:/**
+ * Adds a new layer at the end of list of layers and returns its index.
+ *
+ * @param layer The layer to add.
+ * @return The index of the layer.
+ */
+
+Body of Frist Method:
+{
+    final LayerState st = mLayerState;
+    final int N = st.mChildren != null ? st.mChildren.length : 0;
+    final int i = st.mNum;
+    if (i >= N) {
+        final ChildDrawable[] nu = new ChildDrawable[N + 10];
+        if (i > 0) {
+            System.arraycopy(st.mChildren, 0, nu, 0, i);
+        }
+        st.mChildren = nu;
+    }
+    st.mChildren[i] = layer;
+    st.mNum++;
+    st.invalidateCache();
+    return i;
+}
+Body of Second Method:
+{
+    final LayerState st = mLayerState;
+    final int N = st.mChildren != null ? st.mChildren.length : 0;
+    final int i = st.mNumChildren;
+    if (i >= N) {
+        final ChildDrawable[] nu = new ChildDrawable[N + 10];
+        if (i > 0) {
+            System.arraycopy(st.mChildren, 0, nu, 0, i);
+        }
+        st.mChildren = nu;
+    }
+    st.mChildren[i] = layer;
+    st.mNumChildren++;
+    st.invalidateCache();
+    return i;
+}
+------------------------
+Find a silently evolved API code:android.graphics.Path.addPath:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Add a copy of src to the path, transformed by matrix
+ *
+ * @param src The path to add as a new contour
+ */
+
+Body of Frist Method:
+{
+    if (!src.isSimplePath)
+        isSimplePath = false;
+    native_addPath(mNativePath, src.mNativePath, matrix.native_instance);
+}
+Body of Second Method:
+{
+    if (!src.isSimplePath)
+        isSimplePath = false;
+    nAddPath(mNativePath, src.mNativePath, matrix.native_instance);
 }
 ------------------------
 Find a silently evolved API code:android.util.MemoryIntArray.close:COMMENT
@@ -9304,6 +10042,28 @@ Body of Second Method:
     mOutput.flush();
 }
 ------------------------
+Find a silently evolved API code:android.graphics.Canvas.getClipBounds:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Return the bounds of the current clip (in local coordinates) in the
+ * bounds parameter, and return true if it is non-empty. This can be useful
+ * in a way similar to quickReject, in that it tells you that drawing
+ * outside of these bounds will be clipped out.
+ *
+ * @param bounds Return the clip bounds here. If it is null, ignore it but
+ * still return true if the current clip is non-empty.
+ * @return true if the current clip is non-empty.
+ */
+
+Body of Frist Method:
+{
+    return native_getClipBounds(mNativeCanvasWrapper, bounds);
+}
+Body of Second Method:
+{
+    return nGetClipBounds(mNativeCanvasWrapper, bounds);
+}
+------------------------
 Find a silently evolved API code:android.view.Display.toString:COMMENT
 Method Modifier: public      
 Comment:// For debugging purposes
@@ -9583,55 +10343,29 @@ Find a silently evolved API code:android.view.accessibility.AccessibilityWindowI
 Method Modifier: public      static      
 Comment:/**
  * Returns a cached instance if such is available or a new one is
- * created. The returned instance is initialized from the given
- * <code>info</code>.
+ * created.
  *
- * @param info The other info.
  * @return An instance.
  */
 
 Body of Frist Method:
 {
-    AccessibilityWindowInfo infoClone = obtain();
-    infoClone.mType = info.mType;
-    infoClone.mLayer = info.mLayer;
-    infoClone.mBooleanProperties = info.mBooleanProperties;
-    infoClone.mId = info.mId;
-    infoClone.mParentId = info.mParentId;
-    infoClone.mBoundsInScreen.set(info.mBoundsInScreen);
-    infoClone.mTitle = info.mTitle;
-    infoClone.mAnchorId = info.mAnchorId;
-    if (info.mChildIds != null && info.mChildIds.size() > 0) {
-        if (infoClone.mChildIds == null) {
-            infoClone.mChildIds = info.mChildIds.clone();
-        } else {
-            infoClone.mChildIds.addAll(info.mChildIds);
-        }
+    AccessibilityWindowInfo info = sPool.acquire();
+    if (info == null) {
+        info = new AccessibilityWindowInfo();
     }
-    infoClone.mConnectionId = info.mConnectionId;
-    return infoClone;
+    return info;
 }
 Body of Second Method:
 {
-    AccessibilityWindowInfo infoClone = obtain();
-    infoClone.mType = info.mType;
-    infoClone.mLayer = info.mLayer;
-    infoClone.mBooleanProperties = info.mBooleanProperties;
-    infoClone.mId = info.mId;
-    infoClone.mParentId = info.mParentId;
-    infoClone.mBoundsInScreen.set(info.mBoundsInScreen);
-    infoClone.mTitle = info.mTitle;
-    infoClone.mAnchorId = info.mAnchorId;
-    infoClone.mInPictureInPicture = info.mInPictureInPicture;
-    if (info.mChildIds != null && info.mChildIds.size() > 0) {
-        if (infoClone.mChildIds == null) {
-            infoClone.mChildIds = info.mChildIds.clone();
-        } else {
-            infoClone.mChildIds.addAll(info.mChildIds);
-        }
+    AccessibilityWindowInfo info = sPool.acquire();
+    if (info == null) {
+        info = new AccessibilityWindowInfo();
     }
-    infoClone.mConnectionId = info.mConnectionId;
-    return infoClone;
+    if (sNumInstancesInUse != null) {
+        sNumInstancesInUse.incrementAndGet();
+    }
+    return info;
 }
 ------------------------
 Find a silently evolved API code:android.content.pm.PackageUserState.isMatch:COMMENT
@@ -9844,43 +10578,6 @@ Body of Second Method:
     super.onInitializeAccessibilityEventInternal(event);
     event.setItemCount(mMax - mMin);
     event.setCurrentItemIndex(mProgress);
-}
-------------------------
-Find a silently evolved API code:android.media.projection.MediaProjection.createVirtualDisplay:COMMENT
-Method Modifier: public      
-Comment:/**
- * Creates a {@link android.hardware.display.VirtualDisplay} to capture the
- * contents of the screen.
- *
- * @param name The name of the virtual display, must be non-empty.
- * @param width The width of the virtual display in pixels. Must be
- * greater than 0.
- * @param height The height of the virtual display in pixels. Must be
- * greater than 0.
- * @param dpi The density of the virtual display in dpi. Must be greater
- * than 0.
- * @param surface The surface to which the content of the virtual display
- * should be rendered, or null if there is none initially.
- * @param flags A combination of virtual display flags. See {@link DisplayManager} for the full
- * list of flags.
- * @param callback Callback to call when the virtual display's state
- * changes, or null if none.
- * @param handler The {@link android.os.Handler} on which the callback should be
- * invoked, or null if the callback should be invoked on the calling
- * thread's main {@link android.os.Looper}.
- *
- * @see android.hardware.display.VirtualDisplay
- */
-
-Body of Frist Method:
-{
-    DisplayManager dm = (DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE);
-    return dm.createVirtualDisplay(this, name, width, height, dpi, surface, flags, callback, handler);
-}
-Body of Second Method:
-{
-    DisplayManager dm = (DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE);
-    return dm.createVirtualDisplay(this, name, width, height, dpi, surface, flags, callback, handler, null);
 }
 ------------------------
 Find a silently evolved API code:android.widget.LinearLayout.setDividerDrawable:COMMENT
@@ -10121,6 +10818,42 @@ Body of Second Method:
         e.rethrowFromSystemServer();
     }
     c.mAsyncChannel.sendMessage(SET_WFD_INFO, 0, c.putListener(listener), wfdInfo);
+}
+------------------------
+Find a silently evolved API code:android.net.SntpClient.requestTime:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Sends an SNTP request to the given host and processes the response.
+ *
+ * @param host host name of the server.
+ * @param timeout network timeout in milliseconds.
+ * @return true if the transaction was successful.
+ */
+
+Body of Frist Method:
+{
+    InetAddress address = null;
+    try {
+        address = InetAddress.getByName(host);
+    } catch (Exception e) {
+        if (DBG)
+            Log.d(TAG, "request time failed: " + e);
+        return false;
+    }
+    return requestTime(address, NTP_PORT, timeout);
+}
+Body of Second Method:
+{
+    InetAddress address = null;
+    try {
+        address = InetAddress.getByName(host);
+    } catch (Exception e) {
+        EventLogTags.writeNtpFailure(host, e.toString());
+        if (DBG)
+            Log.d(TAG, "request time failed: " + e);
+        return false;
+    }
+    return requestTime(address, NTP_PORT, timeout);
 }
 ------------------------
 Find a silently evolved API code:android.graphics.Path.setFillType:COMMENT
@@ -10441,6 +11174,87 @@ Body of Frist Method:
 Body of Second Method:
 {
     return ("SignalStrength:" + " " + mGsmSignalStrength + " " + mGsmBitErrorRate + " " + mCdmaDbm + " " + mCdmaEcio + " " + mEvdoDbm + " " + mEvdoEcio + " " + mEvdoSnr + " " + mLteSignalStrength + " " + mLteRsrp + " " + mLteRsrq + " " + mLteRssnr + " " + mLteCqi + " " + mLteRsrpBoost + " " + mTdScdmaRscp + " " + (isGsm ? "gsm|lte" : "cdma"));
+}
+------------------------
+Find a silently evolved API code:android.net.Network.openConnection:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Opens the specified {@link URL} on this {@code Network}, such that all traffic will be sent
+ * on this Network. The URL protocol must be {@code HTTP} or {@code HTTPS}.
+ *
+ * @param proxy the proxy through which the connection will be established.
+ * @return a {@code URLConnection} to the resource referred to by this URL.
+ * @throws MalformedURLException if the URL protocol is not HTTP or HTTPS.
+ * @throws IllegalArgumentException if the argument proxy is null.
+ * @throws IOException if an error occurs while opening the connection.
+ * @see java.net.URL#openConnection()
+ */
+
+Body of Frist Method:
+{
+    if (proxy == null)
+        throw new IllegalArgumentException("proxy is null");
+    maybeInitHttpClient();
+    String protocol = url.getProtocol();
+    OkUrlFactory okUrlFactory;
+    // Could this cause unexpected behavior?
+    if (protocol.equals("http")) {
+        okUrlFactory = HttpHandler.createHttpOkUrlFactory(proxy);
+    } else if (protocol.equals("https")) {
+        okUrlFactory = HttpsHandler.createHttpsOkUrlFactory(proxy);
+    } else {
+        // passed another protocol.
+        throw new MalformedURLException("Invalid URL or unrecognized protocol " + protocol);
+    }
+    OkHttpClient client = okUrlFactory.client();
+    client.setSocketFactory(getSocketFactory()).setConnectionPool(mConnectionPool);
+    // Use internal APIs to change the Network.
+    Internal.instance.setNetwork(client, mNetwork);
+    return okUrlFactory.open(url);
+}
+Body of Second Method:
+{
+    if (proxy == null)
+        throw new IllegalArgumentException("proxy is null");
+    maybeInitHttpClient();
+    String protocol = url.getProtocol();
+    OkUrlFactory okUrlFactory;
+    // Could this cause unexpected behavior?
+    if (protocol.equals("http")) {
+        okUrlFactory = HttpHandler.createHttpOkUrlFactory(proxy);
+    } else if (protocol.equals("https")) {
+        okUrlFactory = HttpsHandler.createHttpsOkUrlFactory(proxy);
+    } else {
+        // passed another protocol.
+        throw new MalformedURLException("Invalid URL or unrecognized protocol " + protocol);
+    }
+    OkHttpClient client = okUrlFactory.client();
+    client.setSocketFactory(getSocketFactory()).setConnectionPool(mConnectionPool);
+    // Let network traffic go via mDns
+    client.setDns(mDns);
+    return okUrlFactory.open(url);
+}
+------------------------
+Find a silently evolved API code:android.content.pm.PackageManager.queryBroadcastReceivers:COMMENT
+Method Modifier: public      hidden      deprecated  
+Comment:/**
+ * {@hide}
+ */
+
+Body of Frist Method:
+{
+    Log.w(TAG, "STAHP USING HIDDEN APIS KTHX");
+    return queryBroadcastReceiversAsUser(intent, flags, userId);
+}
+Body of Second Method:
+{
+    final String msg = "Shame on you for calling the hidden API " + "queryBroadcastReceivers(). Shame!";
+    if (VMRuntime.getRuntime().getTargetSdkVersion() >= Build.VERSION_CODES.O) {
+        throw new UnsupportedOperationException(msg);
+    } else {
+        Log.d(TAG, msg);
+        return queryBroadcastReceiversAsUser(intent, flags, userId);
+    }
 }
 ------------------------
 Find a silently evolved API code:javax.obex.ClientOperation.startProcessing:COMMENT
@@ -10780,25 +11594,6 @@ Body of Second Method:
     } finally {
         Trace.traceEnd(RenderScript.TRACE_TAG);
     }
-}
-------------------------
-Find a silently evolved API code:android.telephony.TelephonyManager.getSimOperatorName:COMMENT
-Method Modifier: public      
-Comment:/**
- * Returns the Service Provider Name (SPN).
- * <p>
- * Availability: SIM state must be {@link #SIM_STATE_READY}
- *
- * @see #getSimState
- */
-
-Body of Frist Method:
-{
-    return getSimOperatorNameForPhone(getDefaultPhone());
-}
-Body of Second Method:
-{
-    return getSimOperatorNameForPhone(getPhoneId());
 }
 ------------------------
 Find a silently evolved API code:android.location.GnssMeasurement.set:COMMENT
@@ -11188,6 +11983,25 @@ Body of Second Method:
     }
 }
 ------------------------
+Find a silently evolved API code:android.graphics.Canvas.rotate:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Preconcat the current matrix with the specified rotation.
+ *
+ * @param degrees The amount to rotate, in degrees
+ */
+
+Body of Frist Method:
+{
+    native_rotate(mNativeCanvasWrapper, degrees);
+}
+Body of Second Method:
+{
+    if (degrees == 0.0f)
+        return;
+    nRotate(mNativeCanvasWrapper, degrees);
+}
+------------------------
 Find a silently evolved API code:android.content.pm.InstrumentationInfo.copyTo:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -11298,6 +12112,81 @@ Body of Second Method:
     mAlpha = src.mAlpha;
 }
 ------------------------
+Find a silently evolved API code:android.os.StrictMode.onVmPolicyViolation:COMMENT
+Method Modifier: public      static      hidden      
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    final boolean penaltyDropbox = (sVmPolicyMask & PENALTY_DROPBOX) != 0;
+    final boolean penaltyDeath = ((sVmPolicyMask & PENALTY_DEATH) != 0) || forceDeath;
+    final boolean penaltyLog = (sVmPolicyMask & PENALTY_LOG) != 0;
+    final ViolationInfo info = new ViolationInfo(message, originStack, sVmPolicyMask);
+    // Erase stuff not relevant for process-wide violations
+    info.numAnimationsRunning = 0;
+    info.tags = null;
+    info.broadcastIntentAction = null;
+    final Integer fingerprint = info.hashCode();
+    final long now = SystemClock.uptimeMillis();
+    long lastViolationTime = 0;
+    long timeSinceLastViolationMillis = Long.MAX_VALUE;
+    synchronized (sLastVmViolationTime) {
+        if (sLastVmViolationTime.containsKey(fingerprint)) {
+            lastViolationTime = sLastVmViolationTime.get(fingerprint);
+            timeSinceLastViolationMillis = now - lastViolationTime;
+        }
+        if (timeSinceLastViolationMillis > MIN_LOG_INTERVAL_MS) {
+            sLastVmViolationTime.put(fingerprint, now);
+        }
+    }
+    if (penaltyLog && timeSinceLastViolationMillis > MIN_LOG_INTERVAL_MS) {
+        Log.e(TAG, message, originStack);
+    }
+    int violationMaskSubset = PENALTY_DROPBOX | (ALL_VM_DETECT_BITS & sVmPolicyMask);
+    if (penaltyDropbox && !penaltyDeath) {
+        // Common case for userdebug/eng builds.  If no death and
+        // just dropboxing, we can do the ActivityManager call
+        // asynchronously.
+        dropboxViolationAsync(violationMaskSubset, info);
+        return;
+    }
+    if (penaltyDropbox && lastViolationTime == 0) {
+        // The violationMask, passed to ActivityManager, is a
+        // subset of the original StrictMode policy bitmask, with
+        // only the bit violated and penalty bits to be executed
+        // by the ActivityManagerService remaining set.
+        final int savedPolicyMask = getThreadPolicyMask();
+        try {
+            // First, remove any policy before we call into the Activity Manager,
+            // otherwise we'll infinite recurse as we try to log policy violations
+            // to disk, thus violating policy, thus requiring logging, etc...
+            // We restore the current policy below, in the finally block.
+            setThreadPolicyMask(0);
+            ActivityManagerNative.getDefault().handleApplicationStrictModeViolation(RuntimeInit.getApplicationObject(), violationMaskSubset, info);
+        } catch (RemoteException e) {
+            if (e instanceof DeadObjectException) {
+            // System process is dead; ignore
+            } else {
+                Log.e(TAG, "RemoteException trying to handle StrictMode violation", e);
+            }
+        } finally {
+            // Restore the policy.
+            setThreadPolicyMask(savedPolicyMask);
+        }
+    }
+    if (penaltyDeath) {
+        System.err.println("StrictMode VmPolicy violation with POLICY_DEATH; shutting down.");
+        Process.killProcess(Process.myPid());
+        System.exit(10);
+    }
+}
+Body of Second Method:
+{
+    onVmPolicyViolation(message, originStack, false);
+}
+------------------------
 Find a silently evolved API code:android.net.wifi.WifiEnterpriseConfig.getAnonymousIdentity:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -11398,62 +12287,6 @@ Body of Frist Method:
 Body of Second Method:
 {
     return nIsOpaque(mNativeCanvasWrapper);
-}
-------------------------
-Find a silently evolved API code:android.text.SpannableStringInternal.setSpan:COMMENT
-Method Modifier: default     
-Comment:/* package */
-
-Body of Frist Method:
-{
-    int nstart = start;
-    int nend = end;
-    checkRange("setSpan", start, end);
-    if ((flags & Spannable.SPAN_PARAGRAPH) == Spannable.SPAN_PARAGRAPH) {
-        if (start != 0 && start != length()) {
-            char c = charAt(start - 1);
-            if (c != '\n')
-                throw new RuntimeException("PARAGRAPH span must start at paragraph boundary" + " (" + start + " follows " + c + ")");
-        }
-        if (end != 0 && end != length()) {
-            char c = charAt(end - 1);
-            if (c != '\n')
-                throw new RuntimeException("PARAGRAPH span must end at paragraph boundary" + " (" + end + " follows " + c + ")");
-        }
-    }
-    int count = mSpanCount;
-    Object[] spans = mSpans;
-    int[] data = mSpanData;
-    for (int i = 0; i < count; i++) {
-        if (spans[i] == what) {
-            int ostart = data[i * COLUMNS + START];
-            int oend = data[i * COLUMNS + END];
-            data[i * COLUMNS + START] = start;
-            data[i * COLUMNS + END] = end;
-            data[i * COLUMNS + FLAGS] = flags;
-            sendSpanChanged(what, ostart, oend, nstart, nend);
-            return;
-        }
-    }
-    if (mSpanCount + 1 >= mSpans.length) {
-        Object[] newtags = ArrayUtils.newUnpaddedObjectArray(GrowingArrayUtils.growSize(mSpanCount));
-        int[] newdata = new int[newtags.length * 3];
-        System.arraycopy(mSpans, 0, newtags, 0, mSpanCount);
-        System.arraycopy(mSpanData, 0, newdata, 0, mSpanCount * 3);
-        mSpans = newtags;
-        mSpanData = newdata;
-    }
-    mSpans[mSpanCount] = what;
-    mSpanData[mSpanCount * COLUMNS + START] = start;
-    mSpanData[mSpanCount * COLUMNS + END] = end;
-    mSpanData[mSpanCount * COLUMNS + FLAGS] = flags;
-    mSpanCount++;
-    if (this instanceof Spannable)
-        sendSpanAdded(what, nstart, nend);
-}
-Body of Second Method:
-{
-    setSpan(what, start, end, flags, true);
 }
 ------------------------
 Find a silently evolved API code:android.net.NetworkScoreManager.getActiveScorerPackage:COMMENT
@@ -11580,6 +12413,34 @@ Body of Second Method:
     Item item = new Item(uri);
     String[] mimeTypes = getMimeTypes(resolver, uri);
     return new ClipData(label, mimeTypes, item);
+}
+------------------------
+Find a silently evolved API code:android.hardware.camera2.CameraMetadata.getKeys:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Returns a list of the keys contained in this map.
+ *
+ * <p>The list returned is not modifiable, so any attempts to modify it will throw
+ * a {@code UnsupportedOperationException}.</p>
+ *
+ * <p>All values retrieved by a key from this list with {@code #get} are guaranteed to be
+ * non-{@code null}. Each key is only listed once in the list. The order of the keys
+ * is undefined.</p>
+ *
+ * @return List of the keys contained in this map.
+ */
+
+Body of Frist Method:
+{
+    Class<CameraMetadata<TKey>> thisClass = (Class<CameraMetadata<TKey>>) getClass();
+    return Collections.unmodifiableList(getKeysStatic(thisClass, getKeyClass(), this, /*filterTags*/
+    null));
+}
+Body of Second Method:
+{
+    Class<CameraMetadata<TKey>> thisClass = (Class<CameraMetadata<TKey>>) getClass();
+    return Collections.unmodifiableList(getKeys(thisClass, getKeyClass(), this, /*filterTags*/
+    null));
 }
 ------------------------
 Find a silently evolved API code:android.graphics.Bitmap.sameAs:COMMENT
@@ -12269,6 +13130,41 @@ Body of Second Method:
             return true;
         default:
             return false;
+    }
+}
+------------------------
+Find a silently evolved API code:android.content.pm.PackageManager.deleteStatusToString:COMMENT
+Method Modifier: public      static      hidden      
+Comment:/**
+ * {@hide}
+ */
+
+Body of Frist Method:
+{
+    switch(status) {
+        case DELETE_SUCCEEDED:
+            return "DELETE_SUCCEEDED";
+        case DELETE_FAILED_INTERNAL_ERROR:
+            return "DELETE_FAILED_INTERNAL_ERROR";
+        case DELETE_FAILED_DEVICE_POLICY_MANAGER:
+            return "DELETE_FAILED_DEVICE_POLICY_MANAGER";
+        case DELETE_FAILED_USER_RESTRICTED:
+            return "DELETE_FAILED_USER_RESTRICTED";
+        case DELETE_FAILED_OWNER_BLOCKED:
+            return "DELETE_FAILED_OWNER_BLOCKED";
+        case DELETE_FAILED_ABORTED:
+            return "DELETE_FAILED_ABORTED";
+        default:
+            return Integer.toString(status);
+    }
+}
+Body of Second Method:
+{
+    final String str = deleteStatusToString(status);
+    if (msg != null) {
+        return str + ": " + msg;
+    } else {
+        return str;
     }
 }
 ------------------------
@@ -13063,6 +13959,74 @@ Body of Second Method:
     return true;
 }
 ------------------------
+Find a silently evolved API code:android.net.NetworkStats.addValues:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Add new stats entry, copying from given {@link Entry}. The {@link Entry}
+ * object can be recycled across multiple calls.
+ */
+
+Body of Frist Method:
+{
+    if (size >= capacity) {
+        final int newLength = Math.max(size, 10) * 3 / 2;
+        iface = Arrays.copyOf(iface, newLength);
+        uid = Arrays.copyOf(uid, newLength);
+        set = Arrays.copyOf(set, newLength);
+        tag = Arrays.copyOf(tag, newLength);
+        roaming = Arrays.copyOf(roaming, newLength);
+        rxBytes = Arrays.copyOf(rxBytes, newLength);
+        rxPackets = Arrays.copyOf(rxPackets, newLength);
+        txBytes = Arrays.copyOf(txBytes, newLength);
+        txPackets = Arrays.copyOf(txPackets, newLength);
+        operations = Arrays.copyOf(operations, newLength);
+        capacity = newLength;
+    }
+    iface[size] = entry.iface;
+    uid[size] = entry.uid;
+    set[size] = entry.set;
+    tag[size] = entry.tag;
+    roaming[size] = entry.roaming;
+    rxBytes[size] = entry.rxBytes;
+    rxPackets[size] = entry.rxPackets;
+    txBytes[size] = entry.txBytes;
+    txPackets[size] = entry.txPackets;
+    operations[size] = entry.operations;
+    size++;
+    return this;
+}
+Body of Second Method:
+{
+    if (size >= capacity) {
+        final int newLength = Math.max(size, 10) * 3 / 2;
+        iface = Arrays.copyOf(iface, newLength);
+        uid = Arrays.copyOf(uid, newLength);
+        set = Arrays.copyOf(set, newLength);
+        tag = Arrays.copyOf(tag, newLength);
+        metered = Arrays.copyOf(metered, newLength);
+        roaming = Arrays.copyOf(roaming, newLength);
+        rxBytes = Arrays.copyOf(rxBytes, newLength);
+        rxPackets = Arrays.copyOf(rxPackets, newLength);
+        txBytes = Arrays.copyOf(txBytes, newLength);
+        txPackets = Arrays.copyOf(txPackets, newLength);
+        operations = Arrays.copyOf(operations, newLength);
+        capacity = newLength;
+    }
+    iface[size] = entry.iface;
+    uid[size] = entry.uid;
+    set[size] = entry.set;
+    tag[size] = entry.tag;
+    metered[size] = entry.metered;
+    roaming[size] = entry.roaming;
+    rxBytes[size] = entry.rxBytes;
+    rxPackets[size] = entry.rxPackets;
+    txBytes[size] = entry.txBytes;
+    txPackets[size] = entry.txPackets;
+    operations[size] = entry.operations;
+    size++;
+    return this;
+}
+------------------------
 Find a silently evolved API code:android.nfc.cardemulation.NfcFCardEmulation.isValidNfcid2:COMMENT
 Method Modifier: public      static      hidden      
 Comment:/**
@@ -13757,6 +14721,48 @@ Body of Second Method:
     }
 }
 ------------------------
+Find a silently evolved API code:android.provider.DocumentsContract.renameDocument:COMMENT
+Method Modifier: public      static      
+Comment:/**
+ * Change the display name of an existing document.
+ * <p>
+ * If the underlying provider needs to create a new
+ * {@link Document#COLUMN_DOCUMENT_ID} to represent the updated display
+ * name, that new document is returned and the original document is no
+ * longer valid. Otherwise, the original document is returned.
+ *
+ * @param documentUri document with {@link Document#FLAG_SUPPORTS_RENAME}
+ * @param displayName updated name for document
+ * @return the existing or new document after the rename, or {@code null} if
+ * failed.
+ */
+
+Body of Frist Method:
+{
+    final ContentProviderClient client = resolver.acquireUnstableContentProviderClient(documentUri.getAuthority());
+    try {
+        return renameDocument(client, documentUri, displayName);
+    } catch (Exception e) {
+        Log.w(TAG, "Failed to rename document", e);
+        return null;
+    } finally {
+        ContentProviderClient.releaseQuietly(client);
+    }
+}
+Body of Second Method:
+{
+    final ContentProviderClient client = resolver.acquireUnstableContentProviderClient(documentUri.getAuthority());
+    try {
+        return renameDocument(client, documentUri, displayName);
+    } catch (Exception e) {
+        Log.w(TAG, "Failed to rename document", e);
+        rethrowIfNecessary(resolver, e);
+        return null;
+    } finally {
+        ContentProviderClient.releaseQuietly(client);
+    }
+}
+------------------------
 Find a silently evolved API code:android.graphics.Path.quadTo:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -13808,6 +14814,26 @@ Body of Second Method:
     if (il)
         length += 1;
     return length;
+}
+------------------------
+Find a silently evolved API code:android.graphics.Path.addArc:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Add the specified arc to the path as a new contour.
+ *
+ * @param startAngle Starting angle (in degrees) where the arc begins
+ * @param sweepAngle Sweep angle (in degrees) measured clockwise
+ */
+
+Body of Frist Method:
+{
+    isSimplePath = false;
+    native_addArc(mNativePath, left, top, right, bottom, startAngle, sweepAngle);
+}
+Body of Second Method:
+{
+    isSimplePath = false;
+    nAddArc(mNativePath, left, top, right, bottom, startAngle, sweepAngle);
 }
 ------------------------
 Find a silently evolved API code:android.preference.Preference.onBindView:COMMENT
@@ -14721,6 +15747,26 @@ Body of Second Method:
     return null;
 }
 ------------------------
+Find a silently evolved API code:android.hardware.camera2.impl.CameraMetadataNative.getTag:COMMENT
+Method Modifier: public      static      hidden      
+Comment:/**
+ * Convert a key string into the equivalent native tag.
+ *
+ * @throws IllegalArgumentException if the key was not recognized
+ * @throws NullPointerException if the key was null
+ *
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    return nativeGetTagFromKey(key);
+}
+Body of Second Method:
+{
+    return nativeGetTagFromKey(key, vendorId);
+}
+------------------------
 Find a silently evolved API code:android.transition.Fade.createAnimation:COMMENT
 Method Modifier: private     
 Comment:/**
@@ -14808,59 +15854,6 @@ Body of Second Method:
             mConnectionPool = new ConnectionPool(httpMaxConnections, httpKeepAliveDurationMs, TimeUnit.MILLISECONDS);
         }
     }
-}
-------------------------
-Find a silently evolved API code:android.text.method.WordIterator.getBeginning:COMMENT
-Method Modifier: private     hidden      
-Comment:/**
- * If the <code>offset</code> is within a word or on a word boundary that can only be
- * considered the start of a word (e.g. _word where "_" is any character that would not
- * be considered part of the word) then this returns the index of the first character of
- * that word.
- *
- * If the offset is on a word boundary that can be considered the start and end of a
- * word, e.g. AABB (where AA and BB are both words) and the offset is the boundary
- * between AA and BB, and getPrevWordBeginningOnTwoWordsBoundary is true then this would
- * return the start of the previous word, AA. Otherwise it would return the current offset,
- * the start of BB.
- *
- * Returns BreakIterator.DONE if there is no previous boundary.
- *
- * @throws IllegalArgumentException is offset is not valid.
- */
-
-Body of Frist Method:
-{
-    final int shiftedOffset = offset - mOffsetShift;
-    checkOffsetIsValid(shiftedOffset);
-    if (isOnLetterOrDigit(shiftedOffset)) {
-        if (mIterator.isBoundary(shiftedOffset) && (!isAfterLetterOrDigit(shiftedOffset) || !getPrevWordBeginningOnTwoWordsBoundary)) {
-            return shiftedOffset + mOffsetShift;
-        } else {
-            return mIterator.preceding(shiftedOffset) + mOffsetShift;
-        }
-    } else {
-        if (isAfterLetterOrDigit(shiftedOffset)) {
-            return mIterator.preceding(shiftedOffset) + mOffsetShift;
-        }
-    }
-    return BreakIterator.DONE;
-}
-Body of Second Method:
-{
-    checkOffsetIsValid(offset);
-    if (isOnLetterOrDigit(offset)) {
-        if (mIterator.isBoundary(offset) && (!isAfterLetterOrDigit(offset) || !getPrevWordBeginningOnTwoWordsBoundary)) {
-            return offset;
-        } else {
-            return mIterator.preceding(offset);
-        }
-    } else {
-        if (isAfterLetterOrDigit(offset)) {
-            return mIterator.preceding(offset);
-        }
-    }
-    return BreakIterator.DONE;
 }
 ------------------------
 Find a silently evolved API code:android.view.textservice.TextServicesManager.setCurrentSpellChecker:COMMENT
@@ -15485,6 +16478,92 @@ Body of Second Method:
     return nativeGetAllocationByteCount(mNativePtr);
 }
 ------------------------
+Find a silently evolved API code:android.telecom.PhoneAccount.capabilitiesToString:COMMENT
+Method Modifier: private     
+Comment:/**
+ * Generates a string representation of a capabilities bitmask.
+ *
+ * @param capabilities The capabilities bitmask.
+ * @return String representation of the capabilities bitmask.
+ */
+
+Body of Frist Method:
+{
+    StringBuilder sb = new StringBuilder();
+    if (hasCapabilities(CAPABILITY_VIDEO_CALLING)) {
+        sb.append("Video ");
+    }
+    if (hasCapabilities(CAPABILITY_VIDEO_CALLING_RELIES_ON_PRESENCE)) {
+        sb.append("Presence ");
+    }
+    if (hasCapabilities(CAPABILITY_CALL_PROVIDER)) {
+        sb.append("CallProvider ");
+    }
+    if (hasCapabilities(CAPABILITY_CALL_SUBJECT)) {
+        sb.append("CallSubject ");
+    }
+    if (hasCapabilities(CAPABILITY_CONNECTION_MANAGER)) {
+        sb.append("ConnectionMgr ");
+    }
+    if (hasCapabilities(CAPABILITY_EMERGENCY_CALLS_ONLY)) {
+        sb.append("EmergOnly ");
+    }
+    if (hasCapabilities(CAPABILITY_MULTI_USER)) {
+        sb.append("MultiUser ");
+    }
+    if (hasCapabilities(CAPABILITY_PLACE_EMERGENCY_CALLS)) {
+        sb.append("PlaceEmerg ");
+    }
+    if (hasCapabilities(CAPABILITY_EMERGENCY_VIDEO_CALLING)) {
+        sb.append("EmergVideo ");
+    }
+    if (hasCapabilities(CAPABILITY_SIM_SUBSCRIPTION)) {
+        sb.append("SimSub ");
+    }
+    return sb.toString();
+}
+Body of Second Method:
+{
+    StringBuilder sb = new StringBuilder();
+    if (hasCapabilities(CAPABILITY_SELF_MANAGED)) {
+        sb.append("SelfManaged ");
+    }
+    if (hasCapabilities(CAPABILITY_SUPPORTS_VIDEO_CALLING)) {
+        sb.append("SuppVideo ");
+    }
+    if (hasCapabilities(CAPABILITY_VIDEO_CALLING)) {
+        sb.append("Video ");
+    }
+    if (hasCapabilities(CAPABILITY_VIDEO_CALLING_RELIES_ON_PRESENCE)) {
+        sb.append("Presence ");
+    }
+    if (hasCapabilities(CAPABILITY_CALL_PROVIDER)) {
+        sb.append("CallProvider ");
+    }
+    if (hasCapabilities(CAPABILITY_CALL_SUBJECT)) {
+        sb.append("CallSubject ");
+    }
+    if (hasCapabilities(CAPABILITY_CONNECTION_MANAGER)) {
+        sb.append("ConnectionMgr ");
+    }
+    if (hasCapabilities(CAPABILITY_EMERGENCY_CALLS_ONLY)) {
+        sb.append("EmergOnly ");
+    }
+    if (hasCapabilities(CAPABILITY_MULTI_USER)) {
+        sb.append("MultiUser ");
+    }
+    if (hasCapabilities(CAPABILITY_PLACE_EMERGENCY_CALLS)) {
+        sb.append("PlaceEmerg ");
+    }
+    if (hasCapabilities(CAPABILITY_EMERGENCY_VIDEO_CALLING)) {
+        sb.append("EmergVideo ");
+    }
+    if (hasCapabilities(CAPABILITY_SIM_SUBSCRIPTION)) {
+        sb.append("SimSub ");
+    }
+    return sb.toString();
+}
+------------------------
 Find a silently evolved API code:android.graphics.drawable.LayerDrawable.getNumberOfLayers:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -15586,6 +16665,35 @@ Body of Second Method:
     if (secondaryProgress != mSecondaryProgress) {
         mSecondaryProgress = secondaryProgress;
         refreshProgress(R.id.secondaryProgress, mSecondaryProgress, false, false);
+    }
+}
+------------------------
+Find a silently evolved API code:android.telephony.TelephonyManager.getNai:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * {@hide}
+ */
+
+Body of Frist Method:
+{
+    return getNai(getDefaultSim());
+}
+Body of Second Method:
+{
+    int[] subId = SubscriptionManager.getSubId(slotIndex);
+    try {
+        IPhoneSubInfo info = getSubscriberInfo();
+        if (info == null)
+            return null;
+        String nai = info.getNaiForSubscriber(subId[0], mContext.getOpPackageName());
+        if (Log.isLoggable(TAG, Log.VERBOSE)) {
+            Rlog.v(TAG, "Nai = " + nai);
+        }
+        return nai;
+    } catch (RemoteException ex) {
+        return null;
+    } catch (NullPointerException ex) {
+        return null;
     }
 }
 ------------------------
@@ -16434,6 +17542,41 @@ Body of Second Method:
     nRQuadTo(mNativePath, dx1, dy1, dx2, dy2);
 }
 ------------------------
+Find a silently evolved API code:android.telecom.ConnectionServiceAdapter.putExtra:COMMENT
+Method Modifier: default     hidden      
+Comment:/**
+ * Adds an extra associated with a {@code Connection}.
+ *
+ * @param callId The unique ID of the call.
+ * @param key The extra key.
+ * @param value The extra value.
+ */
+
+Body of Frist Method:
+{
+    Log.v(this, "putExtra: %s %s=%d", callId, key, value);
+    for (IConnectionServiceAdapter adapter : mAdapters) {
+        try {
+            Bundle bundle = new Bundle();
+            bundle.putInt(key, value);
+            adapter.putExtras(callId, bundle);
+        } catch (RemoteException ignored) {
+        }
+    }
+}
+Body of Second Method:
+{
+    Log.v(this, "putExtra: %s %s=%d", callId, key, value);
+    for (IConnectionServiceAdapter adapter : mAdapters) {
+        try {
+            Bundle bundle = new Bundle();
+            bundle.putInt(key, value);
+            adapter.putExtras(callId, bundle, Log.getExternalSession());
+        } catch (RemoteException ignored) {
+        }
+    }
+}
+------------------------
 Find a silently evolved API code:android.graphics.pdf.PdfEditor.setPageCropBox:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -16933,6 +18076,59 @@ Body of Second Method:
     mWidgetLayoutResId = widgetLayoutResId;
 }
 ------------------------
+Find a silently evolved API code:android.text.method.WordIterator.getEnd:COMMENT
+Method Modifier: private     hidden      
+Comment:/**
+ * If the <code>offset</code> is within a word or on a word boundary that can only be
+ * considered the end of a word (e.g. word_ where "_" is any character that would not be
+ * considered part of the word) then this returns the index of the last character plus one
+ * of that word.
+ *
+ * If the offset is on a word boundary that can be considered the start and end of a
+ * word, e.g. AABB (where AA and BB are both words) and the offset is the boundary
+ * between AA and BB, and getNextWordEndOnTwoWordBoundary is true then this would return
+ * the end of the next word, BB. Otherwise it would return the current offset, the end
+ * of AA.
+ *
+ * Returns BreakIterator.DONE if there is no next boundary.
+ *
+ * @throws IllegalArgumentException is offset is not valid.
+ */
+
+Body of Frist Method:
+{
+    final int shiftedOffset = offset - mOffsetShift;
+    checkOffsetIsValid(shiftedOffset);
+    if (isAfterLetterOrDigit(shiftedOffset)) {
+        if (mIterator.isBoundary(shiftedOffset) && (!isOnLetterOrDigit(shiftedOffset) || !getNextWordEndOnTwoWordBoundary)) {
+            return shiftedOffset + mOffsetShift;
+        } else {
+            return mIterator.following(shiftedOffset) + mOffsetShift;
+        }
+    } else {
+        if (isOnLetterOrDigit(shiftedOffset)) {
+            return mIterator.following(shiftedOffset) + mOffsetShift;
+        }
+    }
+    return BreakIterator.DONE;
+}
+Body of Second Method:
+{
+    checkOffsetIsValid(offset);
+    if (isAfterLetterOrDigit(offset)) {
+        if (mIterator.isBoundary(offset) && (!isOnLetterOrDigit(offset) || !getNextWordEndOnTwoWordBoundary)) {
+            return offset;
+        } else {
+            return mIterator.following(offset);
+        }
+    } else {
+        if (isOnLetterOrDigit(offset)) {
+            return mIterator.following(offset);
+        }
+    }
+    return BreakIterator.DONE;
+}
+------------------------
 Find a silently evolved API code:android.mtp.MtpDevice.close:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -17079,6 +18275,27 @@ Body of Second Method:
     } else {
         return wp.getTextRunCursor(mText, mStart + spanStart, mStart + spanLimit, dir, mStart + offset, cursorOpt) - mStart;
     }
+}
+------------------------
+Find a silently evolved API code:android.telephony.TelephonyManager.getAidForAppType:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Return the application ID for the app type like {@link APPTYPE_CSIM}.
+ *
+ * Requires that the calling app has READ_PRIVILEGED_PHONE_STATE permission
+ *
+ * @param appType the uicc app type like {@link APPTYPE_CSIM}
+ * @return Application ID for specificied app type or null if no uicc or error.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    return getAidForAppType(getDefaultSubscription(), appType);
+}
+Body of Second Method:
+{
+    return getAidForAppType(getSubId(), appType);
 }
 ------------------------
 Find a silently evolved API code:android.telephony.TelephonyManager.setBasebandVersion:COMMENT
@@ -17517,25 +18734,6 @@ Body of Second Method:
     return setInternalLegacyStreamType(streamType);
 }
 ------------------------
-Find a silently evolved API code:android.media.MediaRouter.UserRouteInfo.setName:COMMENT
-Method Modifier: public      
-Comment:/**
- * Set the user-visible name of this route.
- * @param name Name to display to the user to describe this route
- */
-
-Body of Frist Method:
-{
-    mName = name;
-    routeUpdated();
-}
-Body of Second Method:
-{
-    mNameResId = 0;
-    mName = name;
-    routeUpdated();
-}
-------------------------
 Find a silently evolved API code:android.telephony.TelephonyManager.getCarrierPackageNamesForIntent:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -17758,6 +18956,25 @@ Body of Second Method:
         updateDisplayInfoLocked();
         mDisplayInfo.getAppMetrics(outMetrics, getDisplayAdjustments());
     }
+}
+------------------------
+Find a silently evolved API code:android.app.FragmentController.dispatchPictureInPictureModeChanged:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Lets all Fragments managed by the controller's FragmentManager know the picture-in-picture
+ * mode of the activity changed.
+ * <p>Call when the picture-in-picture mode of the activity changed.
+ *
+ * @see Fragment#onPictureInPictureModeChanged
+ */
+
+Body of Frist Method:
+{
+    mHost.mFragmentManager.dispatchPictureInPictureModeChanged(isInPictureInPictureMode);
+}
+Body of Second Method:
+{
+    mHost.mFragmentManager.dispatchPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
 }
 ------------------------
 Find a silently evolved API code:android.bluetooth.BluetoothSocket.bindListen:COMMENT
@@ -18649,6 +19866,21 @@ Body of Second Method:
     return mIterator.preceding(offset);
 }
 ------------------------
+Find a silently evolved API code:android.telephony.TelephonyManager.getSimCountryIso:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Returns the ISO country code equivalent for the SIM provider's country code.
+ */
+
+Body of Frist Method:
+{
+    return getSimCountryIsoForPhone(getDefaultPhone());
+}
+Body of Second Method:
+{
+    return getSimCountryIsoForPhone(getPhoneId());
+}
+------------------------
 Find a silently evolved API code:android.telephony.DisconnectCause.toString:COMMENT
 Method Modifier: public      static      hidden      
 Comment:/**
@@ -19059,6 +20291,42 @@ Body of Second Method:
     refreshChildPadding(index, childDrawable);
 }
 ------------------------
+Find a silently evolved API code:android.graphics.Path.op:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Set this path to the result of applying the Op to the two specified paths.
+ * The resulting path will be constructed from non-overlapping contours.
+ * The curve order is reduced where possible so that cubics may be turned
+ * into quadratics, and quadratics maybe turned into lines.
+ *
+ * @param path1 The first operand (for difference, the minuend)
+ * @param path2 The second operand (for difference, the subtrahend)
+ *
+ * @return True if operation succeeded, false otherwise and this path remains unmodified.
+ *
+ * @see Op
+ * @see #op(Path, android.graphics.Path.Op)
+ */
+
+Body of Frist Method:
+{
+    if (native_op(path1.mNativePath, path2.mNativePath, op.ordinal(), this.mNativePath)) {
+        isSimplePath = false;
+        rects = null;
+        return true;
+    }
+    return false;
+}
+Body of Second Method:
+{
+    if (nOp(path1.mNativePath, path2.mNativePath, op.ordinal(), this.mNativePath)) {
+        isSimplePath = false;
+        rects = null;
+        return true;
+    }
+    return false;
+}
+------------------------
 Find a silently evolved API code:android.net.wifi.WifiScanner.ScanSettings.writeToParcel:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -19242,6 +20510,24 @@ Body of Second Method:
 {
     baseRelease();
     native_release();
+}
+------------------------
+Find a silently evolved API code:android.hardware.usb.UsbDeviceConnection.open:COMMENT
+Method Modifier: default     
+Comment:/* package */
+
+Body of Frist Method:
+{
+    return native_open(name, pfd.getFileDescriptor());
+}
+Body of Second Method:
+{
+    mContext = context.getApplicationContext();
+    boolean wasOpened = native_open(name, pfd.getFileDescriptor());
+    if (wasOpened) {
+        mCloseGuard.open("close");
+    }
+    return wasOpened;
 }
 ------------------------
 Find a silently evolved API code:android.graphics.Path.set:COMMENT
@@ -19587,32 +20873,6 @@ Body of Second Method:
     }
 }
 ------------------------
-Find a silently evolved API code:android.graphics.Canvas.scale:COMMENT
-Method Modifier: public      final       
-Comment:/**
- * Preconcat the current matrix with the specified scale.
- *
- * @param sx The amount to scale in X
- * @param sy The amount to scale in Y
- * @param px The x-coord for the pivot point (unchanged by the scale)
- * @param py The y-coord for the pivot point (unchanged by the scale)
- */
-
-Body of Frist Method:
-{
-    translate(px, py);
-    scale(sx, sy);
-    translate(-px, -py);
-}
-Body of Second Method:
-{
-    if (sx == 1.0f && sy == 1.0f)
-        return;
-    translate(px, py);
-    scale(sx, sy);
-    translate(-px, -py);
-}
-------------------------
 Find a silently evolved API code:android.app.DownloadManager.getDownloadUri:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -19680,20 +20940,31 @@ Body of Second Method:
 Find a silently evolved API code:android.graphics.Path.transform:COMMENT
 Method Modifier: public      
 Comment:/**
- * Transform the points in this path by matrix.
+ * Transform the points in this path by matrix, and write the answer
+ * into dst. If dst is null, then the the original path is modified.
  *
  * @param matrix The matrix to apply to the path
+ * @param dst    The transformed path is written here. If dst is null,
+ * then the the original path is modified
  */
 
 Body of Frist Method:
 {
-    isSimplePath = false;
-    native_transform(mNativePath, matrix.native_instance);
+    long dstNative = 0;
+    if (dst != null) {
+        dst.isSimplePath = false;
+        dstNative = dst.mNativePath;
+    }
+    native_transform(mNativePath, matrix.native_instance, dstNative);
 }
 Body of Second Method:
 {
-    isSimplePath = false;
-    nTransform(mNativePath, matrix.native_instance);
+    long dstNative = 0;
+    if (dst != null) {
+        dst.isSimplePath = false;
+        dstNative = dst.mNativePath;
+    }
+    nTransform(mNativePath, matrix.native_instance, dstNative);
 }
 ------------------------
 Find a silently evolved API code:android.graphics.Path.moveTo:COMMENT
@@ -19852,42 +21123,6 @@ Body of Second Method:
     nSkew(mNativeCanvasWrapper, sx, sy);
 }
 ------------------------
-Find a silently evolved API code:android.app.backup.RestoreSession.restoreAll:COMMENT
-Method Modifier: public      hidden      
-Comment:/**
- * Restore the given set onto the device, replacing the current data of any app
- * contained in the restore set with the data previously backed up.
- *
- * <p>Callers must hold the android.permission.BACKUP permission to use this method.
- *
- * @return Zero on success; nonzero on error.  The observer will only receive
- * progress callbacks if this method returned zero.
- * @param token The token from {@link #getAvailableRestoreSets()} corresponding to
- * the restore set that should be used.
- * @param observer If non-null, this binder points to an object that will receive
- * progress callbacks during the restore operation.
- */
-
-Body of Frist Method:
-{
-    int err = -1;
-    if (mObserver != null) {
-        Log.d(TAG, "restoreAll() called during active restore");
-        return -1;
-    }
-    mObserver = new RestoreObserverWrapper(mContext, observer);
-    try {
-        err = mBinder.restoreAll(token, mObserver);
-    } catch (RemoteException e) {
-        Log.d(TAG, "Can't contact server to restore");
-    }
-    return err;
-}
-Body of Second Method:
-{
-    return restoreAll(token, observer, null);
-}
-------------------------
 Find a silently evolved API code:android.animation.ValueAnimator.animateBasedOnTime:COMMENT
 Method Modifier: default     
 Comment:/**
@@ -19960,6 +21195,25 @@ Body of Second Method:
         animateValue(currentIterationFraction);
     }
     return done;
+}
+------------------------
+Find a silently evolved API code:android.app.FragmentController.dispatchMultiWindowModeChanged:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Lets all Fragments managed by the controller's FragmentManager know the multi-window mode of
+ * the activity changed.
+ * <p>Call when the multi-window mode of the activity changed.
+ *
+ * @see Fragment#onMultiWindowModeChanged
+ */
+
+Body of Frist Method:
+{
+    mHost.mFragmentManager.dispatchMultiWindowModeChanged(isInMultiWindowMode);
+}
+Body of Second Method:
+{
+    mHost.mFragmentManager.dispatchMultiWindowModeChanged(isInMultiWindowMode, newConfig);
 }
 ------------------------
 Find a silently evolved API code:android.telephony.TelephonyManager.setNetworkCountryIso:COMMENT
@@ -20991,95 +22245,6 @@ Body of Second Method:
     }
 }
 ------------------------
-Find a silently evolved API code:android.widget.TabHost.setup:COMMENT
-Method Modifier: public      
-Comment:/**
- * <p>Call setup() before adding tabs if loading TabHost using findViewById().
- * <i><b>However</i></b>: You do not need to call setup() after getTabHost()
- * in {@link android.app.TabActivity TabActivity}.
- * Example:</p>
- * <pre>mTabHost = (TabHost)findViewById(R.id.tabhost);
- * mTabHost.setup();
- * mTabHost.addTab(TAB_TAG_1, "Hello, world!", "Tab 1");
- */
-
-Body of Frist Method:
-{
-    mTabWidget = (TabWidget) findViewById(com.android.internal.R.id.tabs);
-    if (mTabWidget == null) {
-        throw new RuntimeException("Your TabHost must have a TabWidget whose id attribute is 'android.R.id.tabs'");
-    }
-    // KeyListener to attach to all tabs. Detects non-navigation keys
-    // and relays them to the tab content.
-    mTabKeyListener = new OnKeyListener() {
-
-        public boolean onKey(View v, int keyCode, KeyEvent event) {
-            switch(keyCode) {
-                case KeyEvent.KEYCODE_DPAD_CENTER:
-                case KeyEvent.KEYCODE_DPAD_LEFT:
-                case KeyEvent.KEYCODE_DPAD_RIGHT:
-                case KeyEvent.KEYCODE_DPAD_UP:
-                case KeyEvent.KEYCODE_DPAD_DOWN:
-                case KeyEvent.KEYCODE_ENTER:
-                    return false;
-            }
-            mTabContent.requestFocus(View.FOCUS_FORWARD);
-            return mTabContent.dispatchKeyEvent(event);
-        }
-    };
-    mTabWidget.setTabSelectionListener(new TabWidget.OnTabSelectionChanged() {
-
-        public void onTabSelectionChanged(int tabIndex, boolean clicked) {
-            setCurrentTab(tabIndex);
-            if (clicked) {
-                mTabContent.requestFocus(View.FOCUS_FORWARD);
-            }
-        }
-    });
-    mTabContent = (FrameLayout) findViewById(com.android.internal.R.id.tabcontent);
-    if (mTabContent == null) {
-        throw new RuntimeException("Your TabHost must have a FrameLayout whose id attribute is " + "'android.R.id.tabcontent'");
-    }
-}
-Body of Second Method:
-{
-    mTabWidget = findViewById(com.android.internal.R.id.tabs);
-    if (mTabWidget == null) {
-        throw new RuntimeException("Your TabHost must have a TabWidget whose id attribute is 'android.R.id.tabs'");
-    }
-    // KeyListener to attach to all tabs. Detects non-navigation keys
-    // and relays them to the tab content.
-    mTabKeyListener = new OnKeyListener() {
-
-        public boolean onKey(View v, int keyCode, KeyEvent event) {
-            switch(keyCode) {
-                case KeyEvent.KEYCODE_DPAD_CENTER:
-                case KeyEvent.KEYCODE_DPAD_LEFT:
-                case KeyEvent.KEYCODE_DPAD_RIGHT:
-                case KeyEvent.KEYCODE_DPAD_UP:
-                case KeyEvent.KEYCODE_DPAD_DOWN:
-                case KeyEvent.KEYCODE_ENTER:
-                    return false;
-            }
-            mTabContent.requestFocus(View.FOCUS_FORWARD);
-            return mTabContent.dispatchKeyEvent(event);
-        }
-    };
-    mTabWidget.setTabSelectionListener(new TabWidget.OnTabSelectionChanged() {
-
-        public void onTabSelectionChanged(int tabIndex, boolean clicked) {
-            setCurrentTab(tabIndex);
-            if (clicked) {
-                mTabContent.requestFocus(View.FOCUS_FORWARD);
-            }
-        }
-    });
-    mTabContent = findViewById(com.android.internal.R.id.tabcontent);
-    if (mTabContent == null) {
-        throw new RuntimeException("Your TabHost must have a FrameLayout whose id attribute is " + "'android.R.id.tabcontent'");
-    }
-}
-------------------------
 Find a silently evolved API code:android.telephony.TelephonyManager.setNetworkOperatorNumeric:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -21097,6 +22262,114 @@ Body of Second Method:
 {
     int phoneId = getPhoneId();
     setNetworkOperatorNumericForPhone(phoneId, numeric);
+}
+------------------------
+Find a silently evolved API code:android.animation.AnimatorInflater.setupObjectAnimator:COMMENT
+Method Modifier: private     static      
+Comment:/**
+ * Setup ObjectAnimator's property or values from pathData.
+ *
+ * @param anim The target Animator which will be updated.
+ * @param arrayObjectAnimator TypedArray for the ObjectAnimator.
+ * @param getFloats True if the value type is float.
+ * @param pixelSize The relative pixel size, used to calculate the
+ * maximum error for path animations.
+ */
+
+Body of Frist Method:
+{
+    ObjectAnimator oa = (ObjectAnimator) anim;
+    String pathData = arrayObjectAnimator.getString(R.styleable.PropertyAnimator_pathData);
+    // Here we are dealing with case 2:
+    if (pathData != null) {
+        String propertyXName = arrayObjectAnimator.getString(R.styleable.PropertyAnimator_propertyXName);
+        String propertyYName = arrayObjectAnimator.getString(R.styleable.PropertyAnimator_propertyYName);
+        if (propertyXName == null && propertyYName == null) {
+            throw new InflateException(arrayObjectAnimator.getPositionDescription() + " propertyXName or propertyYName is needed for PathData");
+        } else {
+            Path path = PathParser.createPathFromPathData(pathData);
+            // max half a pixel error
+            float error = 0.5f * pixelSize;
+            PathKeyframes keyframeSet = KeyframeSet.ofPath(path, error);
+            Keyframes xKeyframes;
+            Keyframes yKeyframes;
+            if (getFloats) {
+                xKeyframes = keyframeSet.createXFloatKeyframes();
+                yKeyframes = keyframeSet.createYFloatKeyframes();
+            } else {
+                xKeyframes = keyframeSet.createXIntKeyframes();
+                yKeyframes = keyframeSet.createYIntKeyframes();
+            }
+            PropertyValuesHolder x = null;
+            PropertyValuesHolder y = null;
+            if (propertyXName != null) {
+                x = PropertyValuesHolder.ofKeyframes(propertyXName, xKeyframes);
+            }
+            if (propertyYName != null) {
+                y = PropertyValuesHolder.ofKeyframes(propertyYName, yKeyframes);
+            }
+            if (x == null) {
+                oa.setValues(y);
+            } else if (y == null) {
+                oa.setValues(x);
+            } else {
+                oa.setValues(x, y);
+            }
+        }
+    } else {
+        String propertyName = arrayObjectAnimator.getString(R.styleable.PropertyAnimator_propertyName);
+        oa.setPropertyName(propertyName);
+    }
+}
+Body of Second Method:
+{
+    ObjectAnimator oa = (ObjectAnimator) anim;
+    String pathData = arrayObjectAnimator.getString(R.styleable.PropertyAnimator_pathData);
+    // Here we are dealing with case 2:
+    if (pathData != null) {
+        String propertyXName = arrayObjectAnimator.getString(R.styleable.PropertyAnimator_propertyXName);
+        String propertyYName = arrayObjectAnimator.getString(R.styleable.PropertyAnimator_propertyYName);
+        if (valueType == VALUE_TYPE_PATH || valueType == VALUE_TYPE_UNDEFINED) {
+            // When pathData is defined, we are in case #2 mentioned above. ValueType can only
+            // be float type, or int type. Otherwise we fallback to default type.
+            valueType = VALUE_TYPE_FLOAT;
+        }
+        if (propertyXName == null && propertyYName == null) {
+            throw new InflateException(arrayObjectAnimator.getPositionDescription() + " propertyXName or propertyYName is needed for PathData");
+        } else {
+            Path path = PathParser.createPathFromPathData(pathData);
+            // max half a pixel error
+            float error = 0.5f * pixelSize;
+            PathKeyframes keyframeSet = KeyframeSet.ofPath(path, error);
+            Keyframes xKeyframes;
+            Keyframes yKeyframes;
+            if (valueType == VALUE_TYPE_FLOAT) {
+                xKeyframes = keyframeSet.createXFloatKeyframes();
+                yKeyframes = keyframeSet.createYFloatKeyframes();
+            } else {
+                xKeyframes = keyframeSet.createXIntKeyframes();
+                yKeyframes = keyframeSet.createYIntKeyframes();
+            }
+            PropertyValuesHolder x = null;
+            PropertyValuesHolder y = null;
+            if (propertyXName != null) {
+                x = PropertyValuesHolder.ofKeyframes(propertyXName, xKeyframes);
+            }
+            if (propertyYName != null) {
+                y = PropertyValuesHolder.ofKeyframes(propertyYName, yKeyframes);
+            }
+            if (x == null) {
+                oa.setValues(y);
+            } else if (y == null) {
+                oa.setValues(x);
+            } else {
+                oa.setValues(x, y);
+            }
+        }
+    } else {
+        String propertyName = arrayObjectAnimator.getString(R.styleable.PropertyAnimator_propertyName);
+        oa.setPropertyName(propertyName);
+    }
 }
 ------------------------
 Find a silently evolved API code:android.media.AudioManager.shouldVibrate:COMMENT
@@ -21340,6 +22613,60 @@ Body of Second Method:
     }
 }
 ------------------------
+Find a silently evolved API code:android.media.AudioAttributes.usageToString:COMMENT
+<android.media.AudioAttributes: String usageToString()>
+public      hidden      ->public      static      hidden      
+Method Modifier: public      static      hidden      
+Method Modifier: Yes         No          Yes         
+Method Updated:  Yes         Yes         Yes         
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    return usageToString(mUsage);
+}
+Body of Second Method:
+{
+    switch(usage) {
+        case USAGE_UNKNOWN:
+            return new String("USAGE_UNKNOWN");
+        case USAGE_MEDIA:
+            return new String("USAGE_MEDIA");
+        case USAGE_VOICE_COMMUNICATION:
+            return new String("USAGE_VOICE_COMMUNICATION");
+        case USAGE_VOICE_COMMUNICATION_SIGNALLING:
+            return new String("USAGE_VOICE_COMMUNICATION_SIGNALLING");
+        case USAGE_ALARM:
+            return new String("USAGE_ALARM");
+        case USAGE_NOTIFICATION:
+            return new String("USAGE_NOTIFICATION");
+        case USAGE_NOTIFICATION_RINGTONE:
+            return new String("USAGE_NOTIFICATION_RINGTONE");
+        case USAGE_NOTIFICATION_COMMUNICATION_REQUEST:
+            return new String("USAGE_NOTIFICATION_COMMUNICATION_REQUEST");
+        case USAGE_NOTIFICATION_COMMUNICATION_INSTANT:
+            return new String("USAGE_NOTIFICATION_COMMUNICATION_INSTANT");
+        case USAGE_NOTIFICATION_COMMUNICATION_DELAYED:
+            return new String("USAGE_NOTIFICATION_COMMUNICATION_DELAYED");
+        case USAGE_NOTIFICATION_EVENT:
+            return new String("USAGE_NOTIFICATION_EVENT");
+        case USAGE_ASSISTANCE_ACCESSIBILITY:
+            return new String("USAGE_ASSISTANCE_ACCESSIBILITY");
+        case USAGE_ASSISTANCE_NAVIGATION_GUIDANCE:
+            return new String("USAGE_ASSISTANCE_NAVIGATION_GUIDANCE");
+        case USAGE_ASSISTANCE_SONIFICATION:
+            return new String("USAGE_ASSISTANCE_SONIFICATION");
+        case USAGE_GAME:
+            return new String("USAGE_GAME");
+        case USAGE_ASSISTANT:
+            return new String("USAGE_ASSISTANT");
+        default:
+            return new String("unknown usage " + usage);
+    }
+}
+------------------------
 Find a silently evolved API code:android.graphics.pdf.PdfRenderer.shouldScaleForPrinting:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -21577,44 +22904,6 @@ Body of Frist Method:
 Body of Second Method:
 {
     return splitPublicSourceDirs;
-}
-------------------------
-Find a silently evolved API code:android.provider.DocumentsContract.moveDocument:COMMENT
-Method Modifier: public      static      
-Comment:/**
- * Moves the given document under a new parent.
- *
- * @param sourceDocumentUri document with {@link Document#FLAG_SUPPORTS_MOVE}
- * @param sourceParentDocumentUri parent document of the document to move.
- * @param targetParentDocumentUri document which will become a new parent of the source
- * document.
- * @return the moved document, or {@code null} if failed.
- */
-
-Body of Frist Method:
-{
-    final ContentProviderClient client = resolver.acquireUnstableContentProviderClient(sourceDocumentUri.getAuthority());
-    try {
-        return moveDocument(client, sourceDocumentUri, sourceParentDocumentUri, targetParentDocumentUri);
-    } catch (Exception e) {
-        Log.w(TAG, "Failed to move document", e);
-        return null;
-    } finally {
-        ContentProviderClient.releaseQuietly(client);
-    }
-}
-Body of Second Method:
-{
-    final ContentProviderClient client = resolver.acquireUnstableContentProviderClient(sourceDocumentUri.getAuthority());
-    try {
-        return moveDocument(client, sourceDocumentUri, sourceParentDocumentUri, targetParentDocumentUri);
-    } catch (Exception e) {
-        Log.w(TAG, "Failed to move document", e);
-        rethrowIfNecessary(resolver, e);
-        return null;
-    } finally {
-        ContentProviderClient.releaseQuietly(client);
-    }
 }
 ------------------------
 Find a silently evolved API code:android.widget.CalendarViewLegacyDelegate.WeekView.drawSelectedDateVerticalBars:COMMENT
@@ -21998,6 +23287,80 @@ Body of Second Method:
     return true;
 }
 ------------------------
+Find a silently evolved API code:android.os.Bundle.filterValues:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Filter values in Bundle to only basic types.
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    unparcel();
+    if (mMap != null) {
+        for (int i = mMap.size() - 1; i >= 0; i--) {
+            Object value = mMap.valueAt(i);
+            if (PersistableBundle.isValidType(value)) {
+                continue;
+            }
+            if (value instanceof Bundle) {
+                ((Bundle) value).filterValues();
+            }
+            if (value.getClass().getName().startsWith("android.")) {
+                continue;
+            }
+            mMap.removeAt(i);
+        }
+    }
+    mFlags |= FLAG_HAS_FDS_KNOWN;
+    mFlags &= ~FLAG_HAS_FDS;
+}
+Body of Second Method:
+{
+    unparcel();
+    Bundle bundle = this;
+    if (mMap != null) {
+        ArrayMap<String, Object> map = mMap;
+        for (int i = map.size() - 1; i >= 0; i--) {
+            Object value = map.valueAt(i);
+            if (PersistableBundle.isValidType(value)) {
+                continue;
+            }
+            if (value instanceof Bundle) {
+                Bundle newBundle = ((Bundle) value).filterValues();
+                if (newBundle != value) {
+                    if (map == mMap) {
+                        // The filter had to generate a new bundle, but we have not yet
+                        // created a new one here.  Do that now.
+                        bundle = new Bundle(this);
+                        // Note the ArrayMap<> constructor is guaranteed to generate
+                        // a new object with items in the same order as the original.
+                        map = bundle.mMap;
+                    }
+                    // Replace this current entry with the new child bundle.
+                    map.setValueAt(i, newBundle);
+                }
+                continue;
+            }
+            if (value.getClass().getName().startsWith("android.")) {
+                continue;
+            }
+            if (map == mMap) {
+                // This is the first time we have had to remove something, that means we
+                // need to switch to a new Bundle.
+                bundle = new Bundle(this);
+                // Note the ArrayMap<> constructor is guaranteed to generate
+                // a new object with items in the same order as the original.
+                map = bundle.mMap;
+            }
+            map.removeAt(i);
+        }
+    }
+    mFlags |= FLAG_HAS_FDS_KNOWN;
+    mFlags &= ~FLAG_HAS_FDS;
+    return bundle;
+}
+------------------------
 Find a silently evolved API code:android.net.wifi.WifiScanner.PnoSettings.writeToParcel:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -22047,6 +23410,252 @@ Body of Second Method:
     } else {
         dest.writeInt(0);
     }
+}
+------------------------
+Find a silently evolved API code:android.text.SpannableStringBuilder.replace:COMMENT
+Method Modifier: public      
+Comment:// Documentation from interface
+
+Body of Frist Method:
+{
+    checkRange("replace", start, end);
+    int filtercount = mFilters.length;
+    for (int i = 0; i < filtercount; i++) {
+        CharSequence repl = mFilters[i].filter(tb, tbstart, tbend, this, start, end);
+        if (repl != null) {
+            tb = repl;
+            tbstart = 0;
+            tbend = repl.length();
+        }
+    }
+    final int origLen = end - start;
+    final int newLen = tbend - tbstart;
+    if (origLen == 0 && newLen == 0 && !hasNonExclusiveExclusiveSpanAt(tb, tbstart)) {
+        // Early exit so that the text watchers do not get notified
+        return this;
+    }
+    TextWatcher[] textWatchers = getSpans(start, start + origLen, TextWatcher.class);
+    sendBeforeTextChanged(textWatchers, start, origLen, newLen);
+    // Try to keep the cursor / selection at the same relative position during
+    // a text replacement. If replaced or replacement text length is zero, this
+    // is already taken care of.
+    boolean adjustSelection = origLen != 0 && newLen != 0;
+    int selectionStart = 0;
+    int selectionEnd = 0;
+    if (adjustSelection) {
+        selectionStart = Selection.getSelectionStart(this);
+        selectionEnd = Selection.getSelectionEnd(this);
+    }
+    change(start, end, tb, tbstart, tbend);
+    if (adjustSelection) {
+        boolean changed = false;
+        if (selectionStart > start && selectionStart < end) {
+            final long diff = selectionStart - start;
+            final int offset = Math.toIntExact(diff * newLen / origLen);
+            selectionStart = start + offset;
+            changed = true;
+            setSpan(false, Selection.SELECTION_START, selectionStart, selectionStart, Spanned.SPAN_POINT_POINT);
+        }
+        if (selectionEnd > start && selectionEnd < end) {
+            final long diff = selectionEnd - start;
+            final int offset = Math.toIntExact(diff * newLen / origLen);
+            selectionEnd = start + offset;
+            changed = true;
+            setSpan(false, Selection.SELECTION_END, selectionEnd, selectionEnd, Spanned.SPAN_POINT_POINT);
+        }
+        if (changed) {
+            restoreInvariants();
+        }
+    }
+    sendTextChanged(textWatchers, start, origLen, newLen);
+    sendAfterTextChanged(textWatchers);
+    // Span watchers need to be called after text watchers, which may update the layout
+    sendToSpanWatchers(start, end, newLen - origLen);
+    return this;
+}
+Body of Second Method:
+{
+    checkRange("replace", start, end);
+    int filtercount = mFilters.length;
+    for (int i = 0; i < filtercount; i++) {
+        CharSequence repl = mFilters[i].filter(tb, tbstart, tbend, this, start, end);
+        if (repl != null) {
+            tb = repl;
+            tbstart = 0;
+            tbend = repl.length();
+        }
+    }
+    final int origLen = end - start;
+    final int newLen = tbend - tbstart;
+    if (origLen == 0 && newLen == 0 && !hasNonExclusiveExclusiveSpanAt(tb, tbstart)) {
+        // Early exit so that the text watchers do not get notified
+        return this;
+    }
+    TextWatcher[] textWatchers = getSpans(start, start + origLen, TextWatcher.class);
+    sendBeforeTextChanged(textWatchers, start, origLen, newLen);
+    // Try to keep the cursor / selection at the same relative position during
+    // a text replacement. If replaced or replacement text length is zero, this
+    // is already taken care of.
+    boolean adjustSelection = origLen != 0 && newLen != 0;
+    int selectionStart = 0;
+    int selectionEnd = 0;
+    if (adjustSelection) {
+        selectionStart = Selection.getSelectionStart(this);
+        selectionEnd = Selection.getSelectionEnd(this);
+    }
+    change(start, end, tb, tbstart, tbend);
+    if (adjustSelection) {
+        boolean changed = false;
+        if (selectionStart > start && selectionStart < end) {
+            final long diff = selectionStart - start;
+            final int offset = Math.toIntExact(diff * newLen / origLen);
+            selectionStart = start + offset;
+            changed = true;
+            setSpan(false, Selection.SELECTION_START, selectionStart, selectionStart, Spanned.SPAN_POINT_POINT, true);
+        }
+        if (selectionEnd > start && selectionEnd < end) {
+            final long diff = selectionEnd - start;
+            final int offset = Math.toIntExact(diff * newLen / origLen);
+            selectionEnd = start + offset;
+            changed = true;
+            setSpan(false, Selection.SELECTION_END, selectionEnd, selectionEnd, Spanned.SPAN_POINT_POINT, true);
+        }
+        if (changed) {
+            restoreInvariants();
+        }
+    }
+    sendTextChanged(textWatchers, start, origLen, newLen);
+    sendAfterTextChanged(textWatchers);
+    // Span watchers need to be called after text watchers, which may update the layout
+    sendToSpanWatchers(start, end, newLen - origLen);
+    return this;
+}
+------------------------
+Find a silently evolved API code:android.text.Layout.measurePara:COMMENT
+Method Modifier: default     static      
+Comment:/* package */
+
+Body of Frist Method:
+{
+    MeasuredText mt = MeasuredText.obtain();
+    TextLine tl = TextLine.obtain();
+    try {
+        mt.setPara(text, start, end, TextDirectionHeuristics.LTR, null);
+        Directions directions;
+        int dir;
+        if (mt.mEasy) {
+            directions = DIRS_ALL_LEFT_TO_RIGHT;
+            dir = Layout.DIR_LEFT_TO_RIGHT;
+        } else {
+            directions = AndroidBidi.directions(mt.mDir, mt.mLevels, 0, mt.mChars, 0, mt.mLen);
+            dir = mt.mDir;
+        }
+        char[] chars = mt.mChars;
+        int len = mt.mLen;
+        boolean hasTabs = false;
+        TabStops tabStops = null;
+        // leading margins should be taken into account when measuring a paragraph
+        int margin = 0;
+        if (text instanceof Spanned) {
+            Spanned spanned = (Spanned) text;
+            LeadingMarginSpan[] spans = getParagraphSpans(spanned, start, end, LeadingMarginSpan.class);
+            for (LeadingMarginSpan lms : spans) {
+                margin += lms.getLeadingMargin(true);
+            }
+        }
+        for (int i = 0; i < len; ++i) {
+            if (chars[i] == '\t') {
+                hasTabs = true;
+                if (text instanceof Spanned) {
+                    Spanned spanned = (Spanned) text;
+                    int spanEnd = spanned.nextSpanTransition(start, end, TabStopSpan.class);
+                    TabStopSpan[] spans = getParagraphSpans(spanned, start, spanEnd, TabStopSpan.class);
+                    if (spans.length > 0) {
+                        tabStops = new TabStops(TAB_INCREMENT, spans);
+                    }
+                }
+                break;
+            }
+        }
+        tl.set(paint, text, start, end, dir, directions, hasTabs, tabStops);
+        return margin + tl.metrics(null);
+    } finally {
+        TextLine.recycle(tl);
+        MeasuredText.recycle(mt);
+    }
+}
+Body of Second Method:
+{
+    MeasuredText mt = MeasuredText.obtain();
+    TextLine tl = TextLine.obtain();
+    try {
+        mt.setPara(text, start, end, textDir, null);
+        Directions directions;
+        int dir;
+        if (mt.mEasy) {
+            directions = DIRS_ALL_LEFT_TO_RIGHT;
+            dir = Layout.DIR_LEFT_TO_RIGHT;
+        } else {
+            directions = AndroidBidi.directions(mt.mDir, mt.mLevels, 0, mt.mChars, 0, mt.mLen);
+            dir = mt.mDir;
+        }
+        char[] chars = mt.mChars;
+        int len = mt.mLen;
+        boolean hasTabs = false;
+        TabStops tabStops = null;
+        // leading margins should be taken into account when measuring a paragraph
+        int margin = 0;
+        if (text instanceof Spanned) {
+            Spanned spanned = (Spanned) text;
+            LeadingMarginSpan[] spans = getParagraphSpans(spanned, start, end, LeadingMarginSpan.class);
+            for (LeadingMarginSpan lms : spans) {
+                margin += lms.getLeadingMargin(true);
+            }
+        }
+        for (int i = 0; i < len; ++i) {
+            if (chars[i] == '\t') {
+                hasTabs = true;
+                if (text instanceof Spanned) {
+                    Spanned spanned = (Spanned) text;
+                    int spanEnd = spanned.nextSpanTransition(start, end, TabStopSpan.class);
+                    TabStopSpan[] spans = getParagraphSpans(spanned, start, spanEnd, TabStopSpan.class);
+                    if (spans.length > 0) {
+                        tabStops = new TabStops(TAB_INCREMENT, spans);
+                    }
+                }
+                break;
+            }
+        }
+        tl.set(paint, text, start, end, dir, directions, hasTabs, tabStops);
+        return margin + Math.abs(tl.metrics(null));
+    } finally {
+        TextLine.recycle(tl);
+        MeasuredText.recycle(mt);
+    }
+}
+------------------------
+Find a silently evolved API code:android.telephony.TelephonyManager.getSubId:COMMENT
+Method Modifier: private     
+Comment:/**
+ * Return an appropriate subscription ID for any situation.
+ *
+ * If this object has been created with {@link #createForSubscriptionId}, then the provided
+ * subId is returned. Otherwise, the default subId will be returned.
+ */
+
+Body of Frist Method:
+{
+    if (mSubId == SubscriptionManager.DEFAULT_SUBSCRIPTION_ID) {
+        return getDefaultSubscription();
+    }
+    return mSubId;
+}
+Body of Second Method:
+{
+    if (SubscriptionManager.isUsableSubIdValue(mSubId)) {
+        return mSubId;
+    }
+    return SubscriptionManager.getDefaultSubscriptionId();
 }
 ------------------------
 Find a silently evolved API code:android.hardware.usb.UsbRequest.close:COMMENT
@@ -22359,74 +23968,66 @@ Body of Second Method:
     return getNetworkOperatorForPhone(getPhoneId());
 }
 ------------------------
-Find a silently evolved API code:android.text.Layout.getLineExtent:COMMENT
-Method Modifier: private     
+Find a silently evolved API code:android.telephony.SubscriptionManager.putPhoneIdAndSubIdExtra:COMMENT
+Method Modifier: public      static      hidden      
 Comment:/**
- * Like {@link #getLineExtent(int,TabStops,boolean)} but determines the
- * tab stops instead of using the ones passed in.
- * @param line the index of the line
- * @param full whether to include trailing whitespace
- * @return the extent of the line
+ * @hide
  */
 
 Body of Frist Method:
 {
-    int start = getLineStart(line);
-    int end = full ? getLineEnd(line) : getLineVisibleEnd(line);
-    boolean hasTabs = getLineContainsTab(line);
-    TabStops tabStops = null;
-    if (hasTabs && mText instanceof Spanned) {
-        // Just checking this line should be good enough, tabs should be
-        // consistent across all lines in a paragraph.
-        TabStopSpan[] tabs = getParagraphSpans((Spanned) mText, start, end, TabStopSpan.class);
-        if (tabs.length > 0) {
-            // XXX should reuse
-            tabStops = new TabStops(TAB_INCREMENT, tabs);
-        }
+    int[] subIds = SubscriptionManager.getSubId(phoneId);
+    if (subIds != null && subIds.length > 0) {
+        putPhoneIdAndSubIdExtra(intent, phoneId, subIds[0]);
+    } else {
+        logd("putPhoneIdAndSubIdExtra: no valid subs");
     }
-    Directions directions = getLineDirections(line);
-    // Returned directions can actually be null
-    if (directions == null) {
-        return 0f;
-    }
-    int dir = getParagraphDirection(line);
-    TextLine tl = TextLine.obtain();
-    tl.set(mPaint, mText, start, end, dir, directions, hasTabs, tabStops);
-    float width = tl.metrics(null);
-    TextLine.recycle(tl);
-    return width;
 }
 Body of Second Method:
 {
-    int start = getLineStart(line);
-    int end = full ? getLineEnd(line) : getLineVisibleEnd(line);
-    boolean hasTabs = getLineContainsTab(line);
-    TabStops tabStops = null;
-    if (hasTabs && mText instanceof Spanned) {
-        // Just checking this line should be good enough, tabs should be
-        // consistent across all lines in a paragraph.
-        TabStopSpan[] tabs = getParagraphSpans((Spanned) mText, start, end, TabStopSpan.class);
-        if (tabs.length > 0) {
-            // XXX should reuse
-            tabStops = new TabStops(TAB_INCREMENT, tabs);
+    if (VDBG)
+        logd("putPhoneIdAndSubIdExtra: phoneId=" + phoneId + " subId=" + subId);
+    intent.putExtra(PhoneConstants.SUBSCRIPTION_KEY, subId);
+    intent.putExtra(EXTRA_SUBSCRIPTION_INDEX, subId);
+    intent.putExtra(PhoneConstants.PHONE_KEY, phoneId);
+    // FIXME this is using phoneId and slotIndex interchangeably
+    // Eventually, this should be removed as it is not the slot id
+    intent.putExtra(PhoneConstants.SLOT_KEY, phoneId);
+}
+------------------------
+Find a silently evolved API code:android.animation.ValueAnimator.shouldPlayBackward:COMMENT
+Method Modifier: private     
+Comment:/**
+ * Calculates the direction of animation playing (i.e. forward or backward), based on 1)
+ * whether the entire animation is being reversed, 2) repeat mode applied to the current
+ * iteration.
+ */
+
+Body of Frist Method:
+{
+    if (iteration > 0 && mRepeatMode == REVERSE && (iteration < (mRepeatCount + 1) || mRepeatCount == INFINITE)) {
+        // figure out the correct direction to start playing based on the iteration
+        if (mReversing) {
+            return (iteration % 2) == 0;
+        } else {
+            return (iteration % 2) != 0;
         }
+    } else {
+        return mReversing;
     }
-    Directions directions = getLineDirections(line);
-    // Returned directions can actually be null
-    if (directions == null) {
-        return 0f;
+}
+Body of Second Method:
+{
+    if (iteration > 0 && mRepeatMode == REVERSE && (iteration < (mRepeatCount + 1) || mRepeatCount == INFINITE)) {
+        // figure out the correct direction to start playing based on the iteration
+        if (inReverse) {
+            return (iteration % 2) == 0;
+        } else {
+            return (iteration % 2) != 0;
+        }
+    } else {
+        return inReverse;
     }
-    int dir = getParagraphDirection(line);
-    TextLine tl = TextLine.obtain();
-    mPaint.setHyphenEdit(getHyphen(line));
-    tl.set(mPaint, mText, start, end, dir, directions, hasTabs, tabStops);
-    if (isJustificationRequired(line)) {
-        tl.justify(getJustifyWidth(line));
-    }
-    float width = tl.metrics(null);
-    mPaint.setHyphenEdit(0);
-    TextLine.recycle(tl);
-    return width;
 }
 ------------------------
 Find a silently evolved API code:android.media.AudioManager.setStreamVolume:COMMENT
@@ -22490,6 +24091,229 @@ Body of Second Method:
 {
     isSimplePath = false;
     nCubicTo(mNativePath, x1, y1, x2, y2, x3, y3);
+}
+------------------------
+Find a silently evolved API code:android.transition.Visibility.onDisappear:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Subclasses should override this method or
+ * {@link #onDisappear(ViewGroup, View, TransitionValues, TransitionValues)}
+ * if they need to create an Animator when targets disappear.
+ * The method should only be called by the Visibility class; it is
+ * not intended to be called from external classes.
+ * <p>
+ * The default implementation of this method attempts to find a View to use to call
+ * {@link #onDisappear(ViewGroup, View, TransitionValues, TransitionValues)},
+ * based on the situation of the View in the View hierarchy. For example,
+ * if a View was simply removed from its parent, then the View will be added
+ * into a {@link android.view.ViewGroupOverlay} and passed as the <code>view</code>
+ * parameter in {@link #onDisappear(ViewGroup, View, TransitionValues, TransitionValues)}.
+ * If a visible View is changed to be {@link View#GONE} or {@link View#INVISIBLE},
+ * then it can be used as the <code>view</code> and the visibility will be changed
+ * to {@link View#VISIBLE} for the duration of the animation. However, if a View
+ * is in a hierarchy which is also altering its visibility, the situation can be
+ * more complicated. In general, if a view that is no longer in the hierarchy in
+ * the end scene still has a parent (so its parent hierarchy was removed, but it
+ * was not removed from its parent), then it will be left alone to avoid side-effects from
+ * improperly removing it from its parent. The only exception to this is if
+ * the previous {@link Scene} was {@link Scene#getSceneForLayout(ViewGroup, int,
+ * android.content.Context) created from a layout resource file}, then it is considered
+ * safe to un-parent the starting scene view in order to make it disappear.</p>
+ *
+ * @param sceneRoot The root of the transition hierarchy
+ * @param startValues The target values in the start scene
+ * @param startVisibility The target visibility in the start scene
+ * @param endValues The target values in the end scene
+ * @param endVisibility The target visibility in the end scene
+ * @return An Animator to be started at the appropriate time in the
+ * overall transition for this scene change. A null value means no animation
+ * should be run.
+ */
+
+Body of Frist Method:
+{
+    if ((mMode & MODE_OUT) != MODE_OUT) {
+        return null;
+    }
+    View startView = (startValues != null) ? startValues.view : null;
+    View endView = (endValues != null) ? endValues.view : null;
+    View overlayView = null;
+    View viewToKeep = null;
+    if (endView == null || endView.getParent() == null) {
+        if (endView != null) {
+            // endView was removed from its parent - add it to the overlay
+            overlayView = endView;
+        } else if (startView != null) {
+            // it being removed from its current parent
+            if (startView.getParent() == null) {
+                // no parent - safe to use
+                overlayView = startView;
+            } else if (startView.getParent() instanceof View) {
+                View startParent = (View) startView.getParent();
+                TransitionValues startParentValues = getTransitionValues(startParent, true);
+                TransitionValues endParentValues = getMatchedTransitionValues(startParent, true);
+                VisibilityInfo parentVisibilityInfo = getVisibilityChangeInfo(startParentValues, endParentValues);
+                if (!parentVisibilityInfo.visibilityChange) {
+                    overlayView = TransitionUtils.copyViewImage(sceneRoot, startView, startParent);
+                } else if (startParent.getParent() == null) {
+                    int id = startParent.getId();
+                    if (id != View.NO_ID && sceneRoot.findViewById(id) != null && mCanRemoveViews) {
+                        // no parent, but its parent is unparented  but the parent
+                        // hierarchy has been replaced by a new hierarchy with the same id
+                        // and it is safe to un-parent startView
+                        overlayView = startView;
+                    }
+                }
+            }
+        }
+    } else {
+        // visibility change
+        if (endVisibility == View.INVISIBLE) {
+            viewToKeep = endView;
+        } else {
+            // Becoming GONE
+            if (startView == endView) {
+                viewToKeep = endView;
+            } else {
+                overlayView = startView;
+            }
+        }
+    }
+    final int finalVisibility = endVisibility;
+    final ViewGroup finalSceneRoot = sceneRoot;
+    if (overlayView != null) {
+        // TODO: Need to do this for general case of adding to overlay
+        int[] screenLoc = (int[]) startValues.values.get(PROPNAME_SCREEN_LOCATION);
+        int screenX = screenLoc[0];
+        int screenY = screenLoc[1];
+        int[] loc = new int[2];
+        sceneRoot.getLocationOnScreen(loc);
+        overlayView.offsetLeftAndRight((screenX - loc[0]) - overlayView.getLeft());
+        overlayView.offsetTopAndBottom((screenY - loc[1]) - overlayView.getTop());
+        sceneRoot.getOverlay().add(overlayView);
+        Animator animator = onDisappear(sceneRoot, overlayView, startValues, endValues);
+        if (animator == null) {
+            sceneRoot.getOverlay().remove(overlayView);
+        } else {
+            final View finalOverlayView = overlayView;
+            addListener(new TransitionListenerAdapter() {
+
+                @Override
+                public void onTransitionEnd(Transition transition) {
+                    finalSceneRoot.getOverlay().remove(finalOverlayView);
+                }
+            });
+        }
+        return animator;
+    }
+    if (viewToKeep != null) {
+        int originalVisibility = viewToKeep.getVisibility();
+        viewToKeep.setTransitionVisibility(View.VISIBLE);
+        Animator animator = onDisappear(sceneRoot, viewToKeep, startValues, endValues);
+        if (animator != null) {
+            DisappearListener disappearListener = new DisappearListener(viewToKeep, finalVisibility, mSuppressLayout);
+            animator.addListener(disappearListener);
+            animator.addPauseListener(disappearListener);
+            addListener(disappearListener);
+        } else {
+            viewToKeep.setTransitionVisibility(originalVisibility);
+        }
+        return animator;
+    }
+    return null;
+}
+Body of Second Method:
+{
+    if ((mMode & MODE_OUT) != MODE_OUT) {
+        return null;
+    }
+    View startView = (startValues != null) ? startValues.view : null;
+    View endView = (endValues != null) ? endValues.view : null;
+    View overlayView = null;
+    View viewToKeep = null;
+    if (endView == null || endView.getParent() == null) {
+        if (endView != null) {
+            // endView was removed from its parent - add it to the overlay
+            overlayView = endView;
+        } else if (startView != null) {
+            // it being removed from its current parent
+            if (startView.getParent() == null) {
+                // no parent - safe to use
+                overlayView = startView;
+            } else if (startView.getParent() instanceof View) {
+                View startParent = (View) startView.getParent();
+                TransitionValues startParentValues = getTransitionValues(startParent, true);
+                TransitionValues endParentValues = getMatchedTransitionValues(startParent, true);
+                VisibilityInfo parentVisibilityInfo = getVisibilityChangeInfo(startParentValues, endParentValues);
+                if (!parentVisibilityInfo.visibilityChange) {
+                    overlayView = TransitionUtils.copyViewImage(sceneRoot, startView, startParent);
+                } else if (startParent.getParent() == null) {
+                    int id = startParent.getId();
+                    if (id != View.NO_ID && sceneRoot.findViewById(id) != null && mCanRemoveViews) {
+                        // no parent, but its parent is unparented  but the parent
+                        // hierarchy has been replaced by a new hierarchy with the same id
+                        // and it is safe to un-parent startView
+                        overlayView = startView;
+                    }
+                }
+            }
+        }
+    } else {
+        // visibility change
+        if (endVisibility == View.INVISIBLE) {
+            viewToKeep = endView;
+        } else {
+            // Becoming GONE
+            if (startView == endView) {
+                viewToKeep = endView;
+            } else {
+                overlayView = startView;
+            }
+        }
+    }
+    final int finalVisibility = endVisibility;
+    final ViewGroup finalSceneRoot = sceneRoot;
+    if (overlayView != null) {
+        // TODO: Need to do this for general case of adding to overlay
+        int[] screenLoc = (int[]) startValues.values.get(PROPNAME_SCREEN_LOCATION);
+        int screenX = screenLoc[0];
+        int screenY = screenLoc[1];
+        int[] loc = new int[2];
+        sceneRoot.getLocationOnScreen(loc);
+        overlayView.offsetLeftAndRight((screenX - loc[0]) - overlayView.getLeft());
+        overlayView.offsetTopAndBottom((screenY - loc[1]) - overlayView.getTop());
+        sceneRoot.getOverlay().add(overlayView);
+        Animator animator = onDisappear(sceneRoot, overlayView, startValues, endValues);
+        if (animator == null) {
+            sceneRoot.getOverlay().remove(overlayView);
+        } else {
+            final View finalOverlayView = overlayView;
+            addListener(new TransitionListenerAdapter() {
+
+                @Override
+                public void onTransitionEnd(Transition transition) {
+                    finalSceneRoot.getOverlay().remove(finalOverlayView);
+                    transition.removeListener(this);
+                }
+            });
+        }
+        return animator;
+    }
+    if (viewToKeep != null) {
+        int originalVisibility = viewToKeep.getVisibility();
+        viewToKeep.setTransitionVisibility(View.VISIBLE);
+        Animator animator = onDisappear(sceneRoot, viewToKeep, startValues, endValues);
+        if (animator != null) {
+            DisappearListener disappearListener = new DisappearListener(viewToKeep, finalVisibility, mSuppressLayout);
+            animator.addListener(disappearListener);
+            animator.addPauseListener(disappearListener);
+            addListener(disappearListener);
+        } else {
+            viewToKeep.setTransitionVisibility(originalVisibility);
+        }
+        return animator;
+    }
+    return null;
 }
 ------------------------
 Find a silently evolved API code:android.net.wifi.WifiEnterpriseConfig.setAltSubjectMatch:COMMENT
@@ -22732,6 +24556,32 @@ Body of Second Method:
     } catch (RemoteException e) {
         throw e.rethrowFromSystemServer();
     }
+}
+------------------------
+Find a silently evolved API code:android.telephony.SignalStrength.initialize:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * Initialize gsm/cdma values, sets lte values to defaults.
+ *
+ * @param gsmSignalStrength
+ * @param gsmBitErrorRate
+ * @param cdmaDbm
+ * @param cdmaEcio
+ * @param evdoDbm
+ * @param evdoEcio
+ * @param evdoSnr
+ * @param gsm
+ *
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    initialize(gsmSignalStrength, gsmBitErrorRate, cdmaDbm, cdmaEcio, evdoDbm, evdoEcio, evdoSnr, 99, INVALID, INVALID, INVALID, INVALID, gsm);
+}
+Body of Second Method:
+{
+    initialize(gsmSignalStrength, gsmBitErrorRate, cdmaDbm, cdmaEcio, evdoDbm, evdoEcio, evdoSnr, 99, INVALID, INVALID, INVALID, INVALID, 0, gsm);
 }
 ------------------------
 Find a silently evolved API code:android.telephony.TelephonyManager.getPhoneTypeFromNetworkType:COMMENT
@@ -23395,6 +25245,23 @@ Body of Second Method:
     return defaultValue;
 }
 ------------------------
+Find a silently evolved API code:android.text.SpannableStringBuilder.setSpan:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Mark the specified range of text with the specified object.
+ * The flags determine how the span will behave when text is
+ * inserted at the start or end of the span's range.
+ */
+
+Body of Frist Method:
+{
+    setSpan(true, what, start, end, flags);
+}
+Body of Second Method:
+{
+    setSpan(true, what, start, end, flags, true);
+}
+------------------------
 Find a silently evolved API code:android.content.ContentResolver.addStatusChangeListener:COMMENT
 Method Modifier: public      static      
 Comment:/**
@@ -24045,6 +25912,29 @@ Body of Second Method:
             return Objects.equals(getUriString(), otherIcon.getUriString());
     }
     return false;
+}
+------------------------
+Find a silently evolved API code:android.renderscript.ScriptIntrinsicBlur.forEach:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Apply the filter to the input and save to the specified
+ * allocation.
+ *
+ * @param aout Output allocation. Must match creation element
+ * type.
+ * @param opt LaunchOptions for clipping
+ */
+
+Body of Frist Method:
+{
+    forEach(0, (Allocation) null, aout, null, opt);
+}
+Body of Second Method:
+{
+    if (aout.getType().getY() == 0) {
+        throw new RSIllegalArgumentException("Output is a 1D Allocation");
+    }
+    forEach(0, (Allocation) null, aout, null, opt);
 }
 ------------------------
 Find a silently evolved API code:android.widget.TimePickerClockDelegate.updateHeaderSeparator:COMMENT
@@ -26340,26 +28230,6 @@ Body of Second Method:
     nSetFillType(mNativePath, ft);
 }
 ------------------------
-Find a silently evolved API code:android.net.wifi.WifiScanner.configureWifiChange:COMMENT
-<android.net.wifi.WifiScanner: void configureWifiChange(WifiChangeSettings)>
-public      hidden      ->public      hidden      deprecated  
-Method Modifier: public      hidden      deprecated  
-Method Modifier: Yes         Yes         No          
-Method Updated:  Yes         Yes         Yes         
-Comment:/**
- * @hide
- */
-
-Body of Frist Method:
-{
-    validateChannel();
-    mAsyncChannel.sendMessage(CMD_CONFIGURE_WIFI_CHANGE, 0, 0, settings);
-}
-Body of Second Method:
-{
-    throw new UnsupportedOperationException();
-}
-------------------------
 Find a silently evolved API code:android.preference.Preference.callChangeListener:COMMENT
 Method Modifier: protected   
 Comment:/**
@@ -26885,74 +28755,36 @@ Body of Second Method:
     return LocalSocket.createLocalSocketForAccept(acceptedImpl);
 }
 ------------------------
-Find a silently evolved API code:android.content.pm.ActivityInfo.dump:COMMENT
+Find a silently evolved API code:android.bluetooth.BluetoothAdapter.disable:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
+ * Turn off the local Bluetooth adapter and don't persist the setting.
+ *
+ * <p>Requires the {@link android.Manifest.permission#BLUETOOTH_ADMIN}
+ * permission
+ *
+ * @return true to indicate adapter shutdown has begun, or false on
+ * immediate error
  * @hide
  */
 
 Body of Frist Method:
 {
-    super.dumpFront(pw, prefix);
-    if (permission != null) {
-        pw.println(prefix + "permission=" + permission);
+    try {
+        return mManagerService.disable(persist);
+    } catch (RemoteException e) {
+        Log.e(TAG, "", e);
     }
-    if ((flags & DUMP_FLAG_DETAILS) != 0) {
-        pw.println(prefix + "taskAffinity=" + taskAffinity + " targetActivity=" + targetActivity + " persistableMode=" + persistableModeToString());
-    }
-    if (launchMode != 0 || flags != 0 || theme != 0) {
-        pw.println(prefix + "launchMode=" + launchMode + " flags=0x" + Integer.toHexString(flags) + " theme=0x" + Integer.toHexString(theme));
-    }
-    if (screenOrientation != SCREEN_ORIENTATION_UNSPECIFIED || configChanges != 0 || softInputMode != 0) {
-        pw.println(prefix + "screenOrientation=" + screenOrientation + " configChanges=0x" + Integer.toHexString(configChanges) + " softInputMode=0x" + Integer.toHexString(softInputMode));
-    }
-    if (uiOptions != 0) {
-        pw.println(prefix + " uiOptions=0x" + Integer.toHexString(uiOptions));
-    }
-    if ((flags & DUMP_FLAG_DETAILS) != 0) {
-        pw.println(prefix + "lockTaskLaunchMode=" + lockTaskLaunchModeToString(lockTaskLaunchMode));
-    }
-    if (windowLayout != null) {
-        pw.println(prefix + "windowLayout=" + windowLayout.width + "|" + windowLayout.widthFraction + ", " + windowLayout.height + "|" + windowLayout.heightFraction + ", " + windowLayout.gravity);
-    }
-    pw.println(prefix + "resizeMode=" + resizeModeToString(resizeMode));
-    if (requestedVrComponent != null) {
-        pw.println(prefix + "requestedVrComponent=" + requestedVrComponent);
-    }
-    super.dumpBack(pw, prefix, flags);
+    return false;
 }
 Body of Second Method:
 {
-    super.dumpFront(pw, prefix);
-    if (permission != null) {
-        pw.println(prefix + "permission=" + permission);
+    try {
+        return mManagerService.disable(ActivityThread.currentPackageName(), persist);
+    } catch (RemoteException e) {
+        Log.e(TAG, "", e);
     }
-    if ((flags & DUMP_FLAG_DETAILS) != 0) {
-        pw.println(prefix + "taskAffinity=" + taskAffinity + " targetActivity=" + targetActivity + " persistableMode=" + persistableModeToString());
-    }
-    if (launchMode != 0 || flags != 0 || theme != 0) {
-        pw.println(prefix + "launchMode=" + launchMode + " flags=0x" + Integer.toHexString(flags) + " theme=0x" + Integer.toHexString(theme));
-    }
-    if (screenOrientation != SCREEN_ORIENTATION_UNSPECIFIED || configChanges != 0 || softInputMode != 0) {
-        pw.println(prefix + "screenOrientation=" + screenOrientation + " configChanges=0x" + Integer.toHexString(configChanges) + " softInputMode=0x" + Integer.toHexString(softInputMode));
-    }
-    if (uiOptions != 0) {
-        pw.println(prefix + " uiOptions=0x" + Integer.toHexString(uiOptions));
-    }
-    if ((flags & DUMP_FLAG_DETAILS) != 0) {
-        pw.println(prefix + "lockTaskLaunchMode=" + lockTaskLaunchModeToString(lockTaskLaunchMode));
-    }
-    if (windowLayout != null) {
-        pw.println(prefix + "windowLayout=" + windowLayout.width + "|" + windowLayout.widthFraction + ", " + windowLayout.height + "|" + windowLayout.heightFraction + ", " + windowLayout.gravity);
-    }
-    pw.println(prefix + "resizeMode=" + resizeModeToString(resizeMode));
-    if (requestedVrComponent != null) {
-        pw.println(prefix + "requestedVrComponent=" + requestedVrComponent);
-    }
-    if (maxAspectRatio != 0) {
-        pw.println(prefix + "maxAspectRatio=" + maxAspectRatio);
-    }
-    super.dumpBack(pw, prefix, flags);
+    return false;
 }
 ------------------------
 Find a silently evolved API code:android.view.ViewDebug.dumpv2:COMMENT
@@ -27302,6 +29134,54 @@ Body of Second Method:
     }
 }
 ------------------------
+Find a silently evolved API code:android.app.backup.BackupManager.requestRestore:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Restore the calling application from backup.  The data will be restored from the
+ * current backup dataset if the application has stored data there, or from
+ * the dataset used during the last full device setup operation if the current
+ * backup dataset has no matching data.  If no backup data exists for this application
+ * in either source, a nonzero value will be returned.
+ *
+ * <p>If this method returns zero (meaning success), the OS will attempt to retrieve
+ * a backed-up dataset from the remote transport, instantiate the application's
+ * backup agent, and pass the dataset to the agent's
+ * {@link android.app.backup.BackupAgent#onRestore(BackupDataInput, int, android.os.ParcelFileDescriptor) onRestore()}
+ * method.
+ *
+ * @param observer The {@link RestoreObserver} to receive callbacks during the restore
+ * operation. This must not be null.
+ *
+ * @return Zero on success; nonzero on error.
+ */
+
+Body of Frist Method:
+{
+    int result = -1;
+    checkServiceBinder();
+    if (sService != null) {
+        RestoreSession session = null;
+        try {
+            IRestoreSession binder = sService.beginRestoreSession(mContext.getPackageName(), null);
+            if (binder != null) {
+                session = new RestoreSession(mContext, binder);
+                result = session.restorePackage(mContext.getPackageName(), observer);
+            }
+        } catch (RemoteException e) {
+            Log.e(TAG, "restoreSelf() unable to contact service");
+        } finally {
+            if (session != null) {
+                session.endRestoreSession();
+            }
+        }
+    }
+    return result;
+}
+Body of Second Method:
+{
+    return requestRestore(observer, null);
+}
+------------------------
 Find a silently evolved API code:android.telephony.SignalStrength.hashCode:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -27338,3 +29218,4 @@ Body of Second Method:
     }
 }
 ------------------------
+
