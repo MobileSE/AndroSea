@@ -1290,32 +1290,6 @@ Body of Second Method:
     setArgV0Native(text);
 }
 ------------------------
-Find a silently evolved API code:android.view.accessibility.AccessibilityRecord.getSource:COMMENT
-Method Modifier: public      
-Comment:/**
- * Gets the {@link AccessibilityNodeInfo} of the event source.
- * <p>
- * <strong>Note:</strong> It is a client responsibility to recycle the received info
- * by calling {@link AccessibilityNodeInfo#recycle() AccessibilityNodeInfo#recycle()}
- * to avoid creating of multiple instances.
- * </p>
- * @return The info of the source.
- */
-
-Body of Frist Method:
-{
-    enforceSealed();
-    if ((mConnectionId == UNDEFINED) || (mSourceWindowId == AccessibilityWindowInfo.UNDEFINED_WINDOW_ID) || (AccessibilityNodeInfo.getAccessibilityViewId(mSourceNodeId) == AccessibilityNodeInfo.UNDEFINED_ITEM_ID)) {
-        return null;
-    }
-    AccessibilityInteractionClient client = AccessibilityInteractionClient.getInstance();
-    return client.findAccessibilityNodeInfoByAccessibilityId(mConnectionId, mSourceWindowId, mSourceNodeId, false, GET_SOURCE_PREFETCH_FLAGS, null);
-}
-Body of Second Method:
-{
-    return getSource(GET_SOURCE_PREFETCH_FLAGS);
-}
-------------------------
 Find a silently evolved API code:android.widget.ScrollView.executeKeyEvent:COMMENT
 Method Modifier: public      
 Comment:/**
@@ -1962,6 +1936,23 @@ Body of Second Method:
     out.writeInt(mMaxNumberRxSpatialStreams);
 }
 ------------------------
+Find a silently evolved API code:android.content.pm.PackageManager.getApplicationInfoAsUser:COMMENT
+<android.content.pm.PackageManager: ApplicationInfo getApplicationInfoAsUser(String,int,int)>
+public      abstract    hidden      ->public      hidden      
+Method Modifier: public      abstract    hidden      
+Method Modifier: Yes         Yes         Yes         
+Method Updated:  Yes         No          Yes         
+Comment:/**
+ * {@hide}
+ */
+
+Body of Frist Method:
+
+Body of Second Method:
+{
+    throw new UnsupportedOperationException("getApplicationInfoAsUser not implemented in subclass");
+}
+------------------------
 Find a silently evolved API code:android.telephony.data.DataProfile.getWaitTime:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -2125,6 +2116,36 @@ Body of Frist Method:
 Body of Second Method:
 {
     return new ManagedProfileProvisioningParams(mProfileAdminComponentName, mOwnerName, mProfileName, mAccountToMigrate, mLeaveAllSystemAppsEnabled, mOrganizationOwnedProvisioning, mKeepingAccountOnMigration, mAdminExtras != null ? mAdminExtras : new PersistableBundle());
+}
+------------------------
+Find a silently evolved API code:android.graphics.text.MeasuredText.Builder.appendStyleRun:COMMENT
+Method Modifier: public      
+Comment:/**
+ * Apply styles to the given length.
+ *
+ * Keeps an internal offset which increases at every append. The initial value for this
+ * offset is zero. After the style is applied the internal offset is moved to {@code offset
+ * + length}, and next call will start from this new position.
+ *
+ * @param paint a paint
+ * @param length a length to be applied with a given paint, can not exceed the length of the
+ * text
+ * @param isRtl true if the text is in RTL context, otherwise false.
+ */
+
+Body of Frist Method:
+{
+    Preconditions.checkNotNull(paint);
+    Preconditions.checkArgument(length > 0, "length can not be negative");
+    final int end = mCurrentOffset + length;
+    Preconditions.checkArgument(end <= mText.length, "Style exceeds the text length");
+    nAddStyleRun(mNativePtr, paint.getNativeInstance(), mCurrentOffset, end, isRtl);
+    mCurrentOffset = end;
+    return this;
+}
+Body of Second Method:
+{
+    return appendStyleRun(paint, null, length, isRtl);
 }
 ------------------------
 Find a silently evolved API code:android.graphics.drawable.AdaptiveIconDrawable.updateLayerBoundsInternal:COMMENT
@@ -2485,6 +2506,79 @@ Body of Second Method:
     if (fillWindow != null) {
         fillWindow.destroy();
     }
+}
+------------------------
+Find a silently evolved API code:android.util.apk.ZipUtils.findZipEndOfCentralDirectoryRecord:COMMENT
+Method Modifier: private     static      
+Comment:/**
+ * Returns the ZIP End of Central Directory record of the provided ZIP file.
+ *
+ * @param maxCommentSize maximum accepted size (in bytes) of EoCD comment field. The permitted
+ * value is from 0 to 65535 inclusive. The smaller the value, the faster this method
+ * locates the record, provided its comment field is no longer than this value.
+ *
+ * @return contents of the ZIP End of Central Directory record and the record's offset in the
+ * file or {@code null} if the file does not contain the record.
+ *
+ * @throws IOException if an I/O error occurs while reading the file.
+ */
+
+Body of Frist Method:
+{
+    if ((maxCommentSize < 0) || (maxCommentSize > UINT16_MAX_VALUE)) {
+        throw new IllegalArgumentException("maxCommentSize: " + maxCommentSize);
+    }
+    long fileSize = zip.length();
+    if (fileSize < ZIP_EOCD_REC_MIN_SIZE) {
+        // No space for EoCD record in the file.
+        return null;
+    }
+    // Lower maxCommentSize if the file is too small.
+    maxCommentSize = (int) Math.min(maxCommentSize, fileSize - ZIP_EOCD_REC_MIN_SIZE);
+    ByteBuffer buf = ByteBuffer.allocate(ZIP_EOCD_REC_MIN_SIZE + maxCommentSize);
+    buf.order(ByteOrder.LITTLE_ENDIAN);
+    long bufOffsetInFile = fileSize - buf.capacity();
+    zip.seek(bufOffsetInFile);
+    zip.readFully(buf.array(), buf.arrayOffset(), buf.capacity());
+    int eocdOffsetInBuf = findZipEndOfCentralDirectoryRecord(buf);
+    if (eocdOffsetInBuf == -1) {
+        // No EoCD record found in the buffer
+        return null;
+    }
+    // EoCD found
+    buf.position(eocdOffsetInBuf);
+    ByteBuffer eocd = buf.slice();
+    eocd.order(ByteOrder.LITTLE_ENDIAN);
+    return Pair.create(eocd, bufOffsetInFile + eocdOffsetInBuf);
+}
+Body of Second Method:
+{
+    if ((maxCommentSize < 0) || (maxCommentSize > UINT16_MAX_VALUE)) {
+        throw new IllegalArgumentException("maxCommentSize: " + maxCommentSize);
+    }
+    // TODO(b/193592496) RandomAccessFile#length
+    long fileSize = zip.getChannel().size();
+    if (fileSize < ZIP_EOCD_REC_MIN_SIZE) {
+        // No space for EoCD record in the file.
+        return null;
+    }
+    // Lower maxCommentSize if the file is too small.
+    maxCommentSize = (int) Math.min(maxCommentSize, fileSize - ZIP_EOCD_REC_MIN_SIZE);
+    ByteBuffer buf = ByteBuffer.allocate(ZIP_EOCD_REC_MIN_SIZE + maxCommentSize);
+    buf.order(ByteOrder.LITTLE_ENDIAN);
+    long bufOffsetInFile = fileSize - buf.capacity();
+    zip.seek(bufOffsetInFile);
+    zip.readFully(buf.array(), buf.arrayOffset(), buf.capacity());
+    int eocdOffsetInBuf = findZipEndOfCentralDirectoryRecord(buf);
+    if (eocdOffsetInBuf == -1) {
+        // No EoCD record found in the buffer
+        return null;
+    }
+    // EoCD found
+    buf.position(eocdOffsetInBuf);
+    ByteBuffer eocd = buf.slice();
+    eocd.order(ByteOrder.LITTLE_ENDIAN);
+    return Pair.create(eocd, bufOffsetInFile + eocdOffsetInBuf);
 }
 ------------------------
 Find a silently evolved API code:android.window.PictureInPictureSurfaceTransaction.apply:COMMENT
@@ -3048,50 +3142,6 @@ Body of Second Method:
     }
 }
 ------------------------
-Find a silently evolved API code:android.view.InsetsSource.equals:COMMENT
-Method Modifier: public      hidden      
-Comment:/**
- * @param excludeInvisibleImeFrames If {@link InsetsState#ITYPE_IME} frames should be ignored
- * when IME is not visible.
- */
-
-Body of Frist Method:
-{
-    if (this == o)
-        return true;
-    if (o == null || getClass() != o.getClass())
-        return false;
-    InsetsSource that = (InsetsSource) o;
-    if (mType != that.mType)
-        return false;
-    if (mVisible != that.mVisible)
-        return false;
-    if (excludeInvisibleImeFrames && !mVisible && mType == ITYPE_IME)
-        return true;
-    if (!Objects.equals(mVisibleFrame, that.mVisibleFrame))
-        return false;
-    return mFrame.equals(that.mFrame);
-}
-Body of Second Method:
-{
-    if (this == o)
-        return true;
-    if (o == null || getClass() != o.getClass())
-        return false;
-    InsetsSource that = (InsetsSource) o;
-    if (mType != that.mType)
-        return false;
-    if (mVisible != that.mVisible)
-        return false;
-    if (excludeInvisibleImeFrames && !mVisible && mType == ITYPE_IME)
-        return true;
-    if (!Objects.equals(mVisibleFrame, that.mVisibleFrame))
-        return false;
-    if (mInsetsRoundedCornerFrame != that.mInsetsRoundedCornerFrame)
-        return false;
-    return mFrame.equals(that.mFrame);
-}
-------------------------
 Find a silently evolved API code:android.app.WindowConfiguration.readFromParcel:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -3270,26 +3320,6 @@ Body of Frist Method:
 Body of Second Method:
 {
     return mCecVersion;
-}
-------------------------
-Find a silently evolved API code:android.util.SparseDoubleArray.get:COMMENT
-Method Modifier: public      hidden      
-Comment:/**
- * Gets the double mapped from the specified key, or <code>0</code>
- * if no such mapping has been made.
- */
-
-Body of Frist Method:
-{
-    final int index = mValues.indexOfKey(key);
-    if (index < 0) {
-        return 0.0d;
-    }
-    return valueAt(index);
-}
-Body of Second Method:
-{
-    return get(key, 0);
 }
 ------------------------
 Find a silently evolved API code:android.graphics.RuntimeShader.createNativeInstance:COMMENT
@@ -7319,6 +7349,41 @@ Body of Second Method:
     }
 }
 ------------------------
+Find a silently evolved API code:android.media.projection.MediaProjection.createVirtualDisplay:COMMENT
+Method Modifier: public      hidden      
+Comment:/**
+ * @hide
+ */
+
+Body of Frist Method:
+{
+    int flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR | DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION;
+    if (isSecure) {
+        flags |= DisplayManager.VIRTUAL_DISPLAY_FLAG_SECURE;
+    }
+    Context windowContext = mContext.createWindowContext(mContext.getDisplayNoVerify(), TYPE_APPLICATION, null);
+    final VirtualDisplayConfig.Builder builder = buildMirroredVirtualDisplay(name, width, height, dpi, windowContext.getWindowContextToken());
+    builder.setFlags(flags);
+    if (surface != null) {
+        builder.setSurface(surface);
+    }
+    VirtualDisplay virtualDisplay = createVirtualDisplay(builder.build(), callback, handler, windowContext);
+    return virtualDisplay;
+}
+Body of Second Method:
+{
+    int flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR | DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION;
+    if (isSecure) {
+        flags |= DisplayManager.VIRTUAL_DISPLAY_FLAG_SECURE;
+    }
+    final VirtualDisplayConfig.Builder builder = new VirtualDisplayConfig.Builder(name, width, height, dpi).setFlags(flags);
+    if (surface != null) {
+        builder.setSurface(surface);
+    }
+    VirtualDisplay virtualDisplay = createVirtualDisplay(builder, callback, handler);
+    return virtualDisplay;
+}
+------------------------
 Find a silently evolved API code:android.telephony.data.DataServiceCallback.resultCodeToString:COMMENT
 Method Modifier: public      static      hidden      
 Comment:/**
@@ -8322,25 +8387,6 @@ Body of Second Method:
     throw new UnsupportedOperationException("Can't convert value at index " + attrIndex + " to dimension: type=0x" + Integer.toHexString(type) + ", theme=" + mTheme);
 }
 ------------------------
-Find a silently evolved API code:android.renderscript.ScriptIntrinsicBlend.forEachSrc:COMMENT
-Method Modifier: public      deprecated  
-Comment:/**
- * Sets dst = src
- *
- * @param ain The source buffer
- * @param aout The destination buffer
- * @param opt LaunchOptions for clipping
- */
-
-Body of Frist Method:
-{
-    blend(1, ain, aout, null);
-}
-Body of Second Method:
-{
-    blend(1, ain, aout, opt);
-}
-------------------------
 Find a silently evolved API code:android.graphics.drawable.Icon.convertToAshmem:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -8447,68 +8493,6 @@ Body of Second Method:
         return mResources.getFont(value, value.resourceId);
     }
     return null;
-}
-------------------------
-Find a silently evolved API code:android.content.res.TypedArray.getLayoutDimension:COMMENT
-Method Modifier: public      
-Comment:/**
- * Special version of {@link #getDimensionPixelSize} for retrieving
- * {@link android.view.ViewGroup}'s layout_width and layout_height
- * attributes.  This is only here for performance reasons; applications
- * should use {@link #getDimensionPixelSize}.
- * <p>
- * This method will throw an exception if the attribute is defined but is
- * not a dimension or integer (enum).
- *
- * @param index Index of the attribute to retrieve.
- * @param name Textual name of attribute for error reporting.
- *
- * @return Attribute dimension value multiplied by the appropriate
- * metric and truncated to integer pixels.
- * @throws RuntimeException if the TypedArray has already been recycled.
- * @throws UnsupportedOperationException if the attribute is defined but is
- * not a dimension or integer (enum).
- */
-
-Body of Frist Method:
-{
-    if (mRecycled) {
-        throw new RuntimeException("Cannot make calls to a recycled instance!");
-    }
-    final int attrIndex = index;
-    index *= STYLE_NUM_ENTRIES;
-    final int[] data = mData;
-    final int type = data[index + STYLE_TYPE];
-    if (type >= TypedValue.TYPE_FIRST_INT && type <= TypedValue.TYPE_LAST_INT) {
-        return data[index + STYLE_DATA];
-    } else if (type == TypedValue.TYPE_DIMENSION) {
-        return TypedValue.complexToDimensionPixelSize(data[index + STYLE_DATA], mMetrics);
-    } else if (type == TypedValue.TYPE_ATTRIBUTE) {
-        final TypedValue value = mValue;
-        getValueAt(index, value);
-        throw new UnsupportedOperationException("Failed to resolve attribute at index " + attrIndex + ": " + value);
-    }
-    throw new UnsupportedOperationException(getPositionDescription() + ": You must supply a " + name + " attribute.");
-}
-Body of Second Method:
-{
-    if (mRecycled) {
-        throw new RuntimeException("Cannot make calls to a recycled instance!");
-    }
-    final int attrIndex = index;
-    index *= STYLE_NUM_ENTRIES;
-    final int[] data = mData;
-    final int type = data[index + STYLE_TYPE];
-    if (type >= TypedValue.TYPE_FIRST_INT && type <= TypedValue.TYPE_LAST_INT) {
-        return data[index + STYLE_DATA];
-    } else if (type == TypedValue.TYPE_DIMENSION) {
-        return TypedValue.complexToDimensionPixelSize(data[index + STYLE_DATA], mMetrics);
-    } else if (type == TypedValue.TYPE_ATTRIBUTE) {
-        final TypedValue value = mValue;
-        getValueAt(index, value);
-        throw new UnsupportedOperationException("Failed to resolve attribute at index " + attrIndex + ": " + value + ", theme=" + mTheme);
-    }
-    throw new UnsupportedOperationException(getPositionDescription() + ": You must supply a " + name + " attribute." + ", theme=" + mTheme);
 }
 ------------------------
 Find a silently evolved API code:android.hardware.camera2.CameraCharacteristics.getRecommendedStreamConfigurationMap:COMMENT
@@ -9207,40 +9191,6 @@ Body of Second Method:
     }
 }
 ------------------------
-Find a silently evolved API code:android.os.PersistableBundle.restoreFromXml:COMMENT
-Method Modifier: public      static      hidden      
-Comment:/**
- * @hide
- */
-
-Body of Frist Method:
-{
-    final int outerDepth = in.getDepth();
-    final String startTag = in.getName();
-    final String[] tagName = new String[1];
-    int event;
-    while (((event = in.next()) != XmlPullParser.END_DOCUMENT) && (event != XmlPullParser.END_TAG || in.getDepth() < outerDepth)) {
-        if (event == XmlPullParser.START_TAG) {
-            return new PersistableBundle((ArrayMap<String, Object>) XmlUtils.readThisArrayMapXml(in, startTag, tagName, new MyReadMapCallback()));
-        }
-    }
-    return EMPTY;
-}
-Body of Second Method:
-{
-    final int outerDepth = in.getDepth();
-    final String startTag = in.getName();
-    final String[] tagName = new String[1];
-    int event;
-    while (((event = in.next()) != XmlPullParser.END_DOCUMENT) && (event != XmlPullParser.END_TAG || in.getDepth() < outerDepth)) {
-        if (event == XmlPullParser.START_TAG) {
-            return new PersistableBundle((ArrayMap<String, Object>) XmlUtils.readThisArrayMapXml(in, startTag, tagName, new MyReadMapCallback()));
-        }
-    }
-    // An empty mutable PersistableBundle
-    return new PersistableBundle();
-}
-------------------------
 Find a silently evolved API code:android.window.WindowContextController.attachToWindowToken:COMMENT
 Method Modifier: public      hidden      
 Comment:/**
@@ -9280,7 +9230,7 @@ Body of Second Method:
 }
 ------------------------
 Find a silently evolved API code:android.telephony.ims.stub.ImsSmsImplBase.onSmsStatusReportReceived:COMMENT
-Method Modifier: public      final       hidden      deprecated  
+Method Modifier: public      final       hidden      
 Comment:/**
  * This method should be triggered by the IMS providers when the status report of the sent
  * message is received. The platform will handle the report and notify the IMS provider of the
@@ -9289,16 +9239,11 @@ Comment:/**
  * This method must not be called before {@link #onReady()} is called or the call will fail. If
  * the platform is not available, {@link #acknowledgeSmsReport(int, int, int)} will be called
  * with the {@link #STATUS_REPORT_STATUS_ERROR} result code.
- * @param token token provided in {@link #sendSms(int, int, String, String, boolean, byte[])}
- * @param messageRef the message reference, which may be 1 byte if it is in
- * {@link SmsMessage#FORMAT_3GPP} format or 2 bytes if it is in
- * {@link SmsMessage#FORMAT_3GPP2} format (see 3GPP2 C.S0015-B).
+ * @param token unique token generated by IMS providers that the platform will use to trigger
+ * callbacks for this message.
  * @param format the format of the message.
  * @param pdu PDU representing the content of the status report.
  * @throws RuntimeException if called before {@link #onReady()} is triggered
- *
- * @deprecated Use {@link #onSmsStatusReportReceived(int, String, byte[])} instead without the
- * message reference.
  */
 
 Body of Frist Method:
@@ -9311,7 +9256,13 @@ Body of Frist Method:
             mListener.onSmsStatusReportReceived(token, format, pdu);
         } catch (RemoteException e) {
             Log.e(LOG_TAG, "Can not process sms status report: " + e.getMessage());
-            acknowledgeSmsReport(token, messageRef, STATUS_REPORT_STATUS_ERROR);
+            SmsMessage message = SmsMessage.createFromPdu(pdu, format);
+            if (message != null && message.mWrappedSmsMessage != null) {
+                acknowledgeSmsReport(token, message.mWrappedSmsMessage.mMessageRef, STATUS_REPORT_STATUS_ERROR);
+            } else {
+                Log.w(LOG_TAG, "onSmsStatusReportReceived: Invalid pdu entered.");
+                acknowledgeSmsReport(token, 0, STATUS_REPORT_STATUS_ERROR);
+            }
         }
     }
 }
@@ -9328,7 +9279,13 @@ Body of Second Method:
         listener.onSmsStatusReportReceived(token, format, pdu);
     } catch (RemoteException e) {
         Log.e(LOG_TAG, "Can not process sms status report: " + e.getMessage());
-        acknowledgeSmsReport(token, messageRef, STATUS_REPORT_STATUS_ERROR);
+        SmsMessage message = SmsMessage.createFromPdu(pdu, format);
+        if (message != null && message.mWrappedSmsMessage != null) {
+            acknowledgeSmsReport(token, message.mWrappedSmsMessage.mMessageRef, STATUS_REPORT_STATUS_ERROR);
+        } else {
+            Log.w(LOG_TAG, "onSmsStatusReportReceived: Invalid pdu entered.");
+            acknowledgeSmsReport(token, 0, STATUS_REPORT_STATUS_ERROR);
+        }
     }
 }
 ------------------------

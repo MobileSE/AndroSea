@@ -1,3 +1,7 @@
+android-4.4_r1:android-5.0.0_r1
+android-5.0.0_r1:android-5.1.0_r1
+android-5.1.0_r1:android-6.0.0_r1
+android-6.0.0_r1:android-7.0.0_r1
 android-7.0.0_r1:android-7.1.0_r1
 android-7.1.0_r1:android-8.0.0_r1
 android-8.0.0_r1:android-8.1.0_r1
